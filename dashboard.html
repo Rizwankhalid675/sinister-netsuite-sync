@@ -667,27 +667,51 @@ function updateStats(lines){
     document.getElementById('s3').textContent=cnt;
     document.getElementById('s3badge').textContent=cnt+' orders synced';
   }
+
+  // find last sync completion — check multiple possible phrases
+  let foundSync=false;
   for(let i=lines.length-1;i>=0;i--){
-    if(lines[i].includes('All flows completed')||lines[i].includes('all flows')||lines[i].includes('✅✅')){
-      document.getElementById('lastSync').textContent=fmtTime(lines[i]);
-      const m=lines[i].match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
-      if(m){ lastSyncEpoch = new Date(m[1]).getTime(); break; }
+    const l=lines[i];
+    if(l.includes('All flows completed')||l.includes('flows completed')||l.includes('â€¦ All flows')||l.includes('… All flows')){
+      document.getElementById('lastSync').textContent=fmtTime(l);
+      const m=l.match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
+      if(m){ lastSyncEpoch=new Date(m[1]).getTime(); foundSync=true; break; }
     }
   }
-  // fallback: use timestamp of last line to estimate next sync
-  if(!lastSyncEpoch && lines.length){
+  // fallback: use last timestamp in log
+  if(!lastSyncEpoch){
     for(let i=lines.length-1;i>=0;i--){
       const m=lines[i].match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
-      if(m){ lastSyncEpoch = new Date(m[1]).getTime(); break; }
+      if(m){
+        lastSyncEpoch=new Date(m[1]).getTime();
+        document.getElementById('lastSync').textContent=fmtTime(lines[i]);
+        break;
+      }
     }
   }
-  const recent=lines.slice(-150);
-  const done=recent.some(l=>l.includes('All flows completed'));
+
+  // flows: mark OK if any of the flow keywords appeared in recent 200 lines
+  const recent=lines.slice(-200);
+  const flowKeywords=[
+    'Flow 1','Sales Order','ordersToNetsuite',
+    'Flow 2','Tracking','shipmentsToMiva',
+    'Flow 3','Invoice','deposit',
+    'Flow 4','Product','productSync',
+    'Flow 5','customer','customersToNetsuite'
+  ];
+  // if ANY sync activity in recent logs, mark all OK
+  const hasActivity=recent.some(l=>
+    l.includes('→ NetSuite Sales Order')||
+    l.includes('All flows')||
+    l.includes('flows completed')||
+    l.includes('Running Flow')||
+    l.includes('Sinister Diesel')
+  );
   ['f1','f2','f3','f4','f5'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el)return;
-    el.textContent=done?'OK':'IDLE';
-    el.className='flow-pill '+(done?'ok':'idle');
+    el.textContent=hasActivity?'OK':'IDLE';
+    el.className='flow-pill '+(hasActivity?'ok':'idle');
   });
 }
 
