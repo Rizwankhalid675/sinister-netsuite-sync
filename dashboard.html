@@ -374,13 +374,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <div class="stat-accent"></div>
       <div class="stat-header">
         <div>
-          <div class="stat-lbl">Saved Per Year</div>
-          <div class="stat-val"><span class="orange">$</span><span id="s1">0</span></div>
-          <div class="stat-note">vs Celigo middleware ($17,797/yr)</div>
+          <div class="stat-lbl">Next Sync In</div>
+          <div class="stat-val"><span id="s1" style="font-size:28px">—</span></div>
+          <div class="stat-note">Countdown to next scheduled run</div>
         </div>
-        <div class="stat-icon-wrap">💰</div>
+        <div class="stat-icon-wrap">🔄</div>
       </div>
-      <div class="stat-badge">100% cost eliminated</div>
+      <div class="stat-badge" id="s1badge">Scheduler active</div>
     </div>
     <div class="stat">
       <div class="stat-accent"></div>
@@ -555,6 +555,21 @@ function updateClock(){
 }
 setInterval(updateClock,1000); updateClock();
 
+// ── NEXT SYNC COUNTDOWN ──
+let lastSyncEpoch = null;
+function updateCountdown(){
+  const el = document.getElementById('s1');
+  const badge = document.getElementById('s1badge');
+  if(!lastSyncEpoch){ el.textContent='—'; return; }
+  const nextSync = lastSyncEpoch + 5 * 60 * 1000;
+  const remaining = Math.max(0, nextSync - Date.now());
+  const m = Math.floor(remaining / 60000);
+  const s = Math.floor((remaining % 60000) / 1000);
+  el.textContent = remaining === 0 ? 'Now' : `${m}m ${String(s).padStart(2,'0')}s`;
+  badge.textContent = remaining === 0 ? 'Syncing now...' : 'Next sync scheduled';
+}
+setInterval(updateCountdown, 1000);
+
 // ── GSAP ENTRANCE ──
 window.addEventListener('DOMContentLoaded',()=>{
   gsap.set(['.stats-row','.main-grid','.bottom-bar'],{opacity:0,y:24});
@@ -563,11 +578,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     .to('.main-grid',{opacity:1,y:0,duration:0.45,ease:'power3.out'},'-=0.2')
     .to('.bottom-bar',{opacity:1,y:0,duration:0.4,ease:'power3.out'},'-=0.2');
 
-  // counter for $17,797
-  const obj={val:0};
-  gsap.to(obj,{val:17797,duration:2,delay:0.4,ease:'power2.out',
-    onUpdate:()=>{ document.getElementById('s1').textContent=Math.round(obj.val).toLocaleString(); }
-  });
+  // init countdown
+  updateCountdown();
 });
 
 // ── STATE ──
@@ -658,6 +670,8 @@ function updateStats(lines){
   for(let i=lines.length-1;i>=0;i--){
     if(lines[i].includes('All flows completed')){
       document.getElementById('lastSync').textContent=fmtTime(lines[i]);
+      const m=lines[i].match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
+      if(m) lastSyncEpoch = new Date(m[1]).getTime();
       break;
     }
   }
