@@ -668,11 +668,17 @@ function updateStats(lines){
     document.getElementById('s3badge').textContent=cnt+' orders synced';
   }
   for(let i=lines.length-1;i>=0;i--){
-    if(lines[i].includes('All flows completed')){
+    if(lines[i].includes('All flows completed')||lines[i].includes('all flows')||lines[i].includes('✅✅')){
       document.getElementById('lastSync').textContent=fmtTime(lines[i]);
       const m=lines[i].match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
-      if(m) lastSyncEpoch = new Date(m[1]).getTime();
-      break;
+      if(m){ lastSyncEpoch = new Date(m[1]).getTime(); break; }
+    }
+  }
+  // fallback: use timestamp of last line to estimate next sync
+  if(!lastSyncEpoch && lines.length){
+    for(let i=lines.length-1;i>=0;i--){
+      const m=lines[i].match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
+      if(m){ lastSyncEpoch = new Date(m[1]).getTime(); break; }
     }
   }
   const recent=lines.slice(-150);
