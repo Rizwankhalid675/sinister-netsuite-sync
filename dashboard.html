@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sinister Diesel Sync — Live Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --orange:#f97316;--orange-dim:rgba(249,115,22,0.12);--orange-glow:rgba(249,115,22,0.25);
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.1);
+  --red:#ef4444;--yellow:#f59e0b;--blue:#38bdf8;
+  --bg:#060910;--surface:rgba(255,255,255,0.03);--border:rgba(255,255,255,0.06);
+  --text:#e2e8f0;--muted:#475569;--dim:#1e293b;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── BACKGROUND ── */
+.canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.grid-lines{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(249,115,22,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(249,115,22,0.03) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
+}
+.glow-orb{position:absolute;border-radius:50%;filter:blur(100px);will-change:transform}
+.glow-1{width:700px;height:700px;background:radial-gradient(circle,rgba(249,115,22,0.06),transparent 65%);
+  top:-200px;right:-200px;animation:drift1 12s ease-in-out infinite}
+.glow-2{width:500px;height:500px;background:radial-gradient(circle,rgba(249,115,22,0.04),transparent 65%);
+  bottom:-150px;left:-150px;animation:drift2 15s ease-in-out infinite}
+.glow-3{width:350px;height:350px;background:radial-gradient(circle,rgba(249,115,22,0.05),transparent 65%);
+  top:50%;left:50%;transform:translate(-50%,-50%);animation:drift3 10s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,30px) scale(1.08)}}
+@keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-40px) scale(1.06)}}
+@keyframes drift3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.15)}}
+
+/* ── LAYOUT ── */
+.wrap{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:20px 24px;display:flex;flex-direction:column;gap:18px}
+
+/* ── HEADER ── */
+.hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(6,9,16,0.8);border:1px solid var(--border);border-radius:18px;
+  padding:16px 24px;backdrop-filter:blur(20px);
+  box-shadow:0 0 0 1px rgba(249,115,22,0.05),inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.hdr-badge{
+  display:flex;align-items:center;gap:8px;
+  background:var(--orange-dim);border:1px solid var(--orange-glow);
+  border-radius:8px;padding:6px 12px;
+}
+.hdr-badge-dot{width:7px;height:7px;background:var(--orange);border-radius:50%;
+  box-shadow:0 0 8px var(--orange);animation:hb-pulse 2s ease-in-out infinite}
+@keyframes hb-pulse{0%,100%{opacity:1;box-shadow:0 0 8px var(--orange)}50%{opacity:0.6;box-shadow:0 0 16px var(--orange)}}
+.hdr-badge-text{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange)}
+.hdr-title{font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.5px}
+.hdr-title span{color:var(--orange)}
+.hdr-sub{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.status-pill{
+  display:flex;align-items:center;gap:8px;
+  background:var(--green-dim);border:1px solid rgba(34,197,94,0.2);
+  border-radius:100px;padding:8px 16px;
+}
+.status-dot{width:7px;height:7px;background:var(--green);border-radius:50%;
+  box-shadow:0 0 8px var(--green);animation:hb-pulse 2s ease-in-out infinite}
+.status-dot.red{background:var(--red);box-shadow:0 0 8px var(--red)}
+.status-text{font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.5px}
+.status-text.red{color:var(--red)}
+.time-chip{font-size:11px;color:var(--muted);background:var(--surface);
+  border:1px solid var(--border);border-radius:8px;padding:6px 12px}
+.time-chip span{color:var(--text);font-weight:600}
+
+/* ── STAT ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{
+  background:rgba(6,9,16,0.6);border:1px solid var(--border);border-radius:16px;
+  padding:20px 22px;position:relative;overflow:hidden;cursor:default;
+  transition:border-color 0.3s,transform 0.2s,box-shadow 0.3s;
+  backdrop-filter:blur(10px);
+}
+.stat:hover{border-color:var(--orange-glow);transform:translateY(-2px);box-shadow:0 8px 32px rgba(249,115,22,0.08)}
+.stat::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(249,115,22,0.06) 0%,transparent 60%);
+  opacity:0;transition:opacity 0.3s;
+}
+.stat:hover::before{opacity:1}
+.stat-top-bar{position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--orange),rgba(249,115,22,0.3),transparent)}
+.stat-icon{font-size:20px;margin-bottom:12px;display:block}
+.stat-lbl{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-val{font-size:34px;font-weight:900;color:var(--orange);line-height:1;letter-spacing:-1px;
+  font-variant-numeric:tabular-nums}
+.stat-val sup{font-size:16px;font-weight:700;vertical-align:super}
+.stat-note{font-size:10px;color:#334155;margin-top:6px;font-weight:500}
+
+/* ── MAIN GRID ── */
+.main{display:grid;grid-template-columns:1fr 360px;gap:16px}
+
+/* ── PANELS ── */
+.panel{
+  background:rgba(6,9,16,0.7);border:1px solid var(--border);border-radius:18px;
+  overflow:hidden;backdrop-filter:blur(20px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+  display:flex;flex-direction:column;
+}
+.panel-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,0.01);flex-shrink:0;
+}
+.panel-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;
+  color:var(--text);letter-spacing:0.3px}
+.live-dot{width:6px;height:6px;background:var(--orange);border-radius:50%;
+  box-shadow:0 0 6px var(--orange);animation:hb-pulse 1.5s ease-in-out infinite}
+.ctrl-row{display:flex;gap:6px}
+.btn{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;
+  padding:5px 11px;border-radius:7px;border:none;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif}
+.btn-ghost{background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{background:rgba(255,255,255,0.08);color:var(--text)}
+.btn-primary{background:var(--orange);color:#fff;border:1px solid transparent}
+.btn-primary:hover{background:#ea580c;box-shadow:0 4px 14px rgba(249,115,22,0.3)}
+.btn-active{background:rgba(249,115,22,0.15);color:var(--orange);border:1px solid var(--orange-glow)}
+
+/* ── LOG BODY ── */
+.log-scroll{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.75;
+  padding:12px 16px;flex:1;overflow-y:auto;height:440px;
+}
+.log-scroll::-webkit-scrollbar{width:3px}
+.log-scroll::-webkit-scrollbar-track{background:transparent}
+.log-scroll::-webkit-scrollbar-thumb{background:rgba(249,115,22,0.25);border-radius:2px}
+.log-row{display:grid;grid-template-columns:64px 18px 1fr;gap:8px;padding:3px 0;
+  border-bottom:1px solid rgba(255,255,255,0.015);
+  animation:slideIn 0.25s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.log-ts{color:#1e293b;font-size:10px;padding-top:1px;user-select:none}
+.log-ico{text-align:center;font-size:11px}
+.log-txt{color:#475569;word-break:break-all}
+.log-txt.success{color:#22c55e}
+.log-txt.error{color:#ef4444}
+.log-txt.warn{color:#f59e0b}
+.log-txt.info{color:#38bdf8}
+.log-txt.header{color:var(--orange);font-weight:600}
+.log-txt.skip{color:#1e293b}
+
+/* ── LOG FOOTER TICKER ── */
+.ticker-bar{
+  border-top:1px solid var(--border);padding:8px 16px;
+  display:flex;align-items:center;gap:10px;overflow:hidden;flex-shrink:0;
+  background:rgba(249,115,22,0.02);
+}
+.ticker-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--orange);flex-shrink:0;display:flex;align-items:center;gap:6px}
+.ticker-lbl::before{content:'';width:5px;height:5px;background:var(--orange);
+  border-radius:50%;animation:hb-pulse 1.5s ease-in-out infinite;box-shadow:0 0 6px var(--orange)}
+.ticker-track{flex:1;overflow:hidden;position:relative;height:16px}
+.ticker-inner{display:flex;gap:40px;white-space:nowrap;animation:tick 25s linear infinite;position:absolute;top:0}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tick-item{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px;flex-shrink:0}
+.tick-item .ok{color:var(--green)}
+
+/* ── RIGHT COL ── */
+.right-col{display:flex;flex-direction:column;gap:14px}
+
+/* ── FLOW CARDS ── */
+.flow-list{padding:12px 16px;display:flex;flex-direction:column;gap:2px}
+.flow-row{
+  display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;
+  transition:background 0.2s;cursor:default;
+}
+.flow-row:hover{background:rgba(255,255,255,0.03)}
+.flow-ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;background:var(--orange-dim);border:1px solid var(--orange-glow)}
+.flow-meta{flex:1;min-width:0}
+.flow-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flow-desc{font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flow-badge{font-size:9px;font-weight:700;letter-spacing:0.5px;padding:3px 8px;border-radius:6px;flex-shrink:0}
+.flow-badge.ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.flow-badge.running{background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-glow);
+  animation:badge-pulse 1s ease-in-out infinite}
+@keyframes badge-pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+.flow-badge.idle{background:rgba(255,255,255,0.03);color:#334155;border:1px solid var(--border)}
+
+/* ── ACTIVITY ── */
+.activity-list{padding:12px 16px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;max-height:220px}
+.activity-list::-webkit-scrollbar{width:2px}
+.activity-list::-webkit-scrollbar-thumb{background:rgba(249,115,22,0.2);border-radius:2px}
+.act-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.act-row:last-child{border-bottom:none}
+.act-dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-top:4px;
+  flex-shrink:0;box-shadow:0 0 5px var(--green)}
+.act-dot.red{background:var(--red);box-shadow:0 0 5px var(--red)}
+.act-dot.orange{background:var(--orange);box-shadow:0 0 5px var(--orange)}
+.act-body{flex:1;min-width:0}
+.act-text{font-size:11px;color:#64748b;line-height:1.5;word-break:break-word}
+.act-time{font-size:9px;color:#1e293b;margin-top:2px;font-family:'JetBrains Mono',monospace}
+
+/* ── INFO BAR ── */
+.info-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.info-card{
+  background:rgba(6,9,16,0.6);border:1px solid var(--border);border-radius:14px;
+  padding:14px 18px;display:flex;align-items:center;gap:12px;
+  transition:border-color 0.2s;backdrop-filter:blur(10px);
+}
+.info-card:hover{border-color:var(--orange-glow)}
+.info-ico{font-size:20px;flex-shrink:0}
+.info-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.info-val{font-size:12px;font-weight:600;color:var(--text);margin-top:3px}
+
+/* ── PLACEHOLDER ── */
+.placeholder{display:flex;align-items:center;gap:10px;padding:20px 16px;color:var(--muted);font-size:11px}
+.spinner{width:13px;height:13px;border:2px solid rgba(249,115,22,0.15);border-top-color:var(--orange);
+  border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-log{text-align:center;padding:48px 20px;color:#1e293b;font-size:11px;font-family:'JetBrains Mono',monospace}
+
+@media(max-width:1100px){
+  .main{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .info-bar{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="canvas">
+  <div class="grid-lines"></div>
+  <div class="glow-orb glow-1"></div>
+  <div class="glow-orb glow-2"></div>
+  <div class="glow-orb glow-3"></div>
+</div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header class="hdr" id="hdr">
+    <div class="hdr-left">
+      <div class="hdr-badge"><div class="hdr-badge-dot"></div><span class="hdr-badge-text">Live</span></div>
+      <div>
+        <div class="hdr-title">Sinister Diesel <span>Sync</span></div>
+        <div class="hdr-sub">Miva ↔ NetSuite Automation &nbsp;·&nbsp; Oracle Cloud US West · San Jose</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="status-pill" id="statusPill">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="status-text" id="statusText">SERVICE ONLINE</span>
+      </div>
+      <div class="time-chip">Last sync: <span id="lastSync">—</span></div>
+      <div class="time-chip" id="clockChip">—</div>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat">
+      <div class="stat-top-bar"></div>
+      <span class="stat-icon">💰</span>
+      <div class="stat-lbl">Saved Per Year</div>
+      <div class="stat-val"><sup>$</sup><span id="s1" data-target="17797">0</span></div>
+      <div class="stat-note">vs Celigo middleware ($17,797)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top-bar"></div>
+      <span class="stat-icon">⚡</span>
+      <div class="stat-lbl">Sync Interval</div>
+      <div class="stat-val"><span id="s2">5</span><span style="font-size:16px;color:#334155">min</span></div>
+      <div class="stat-note">Every 5 minutes, 24/7</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top-bar"></div>
+      <span class="stat-icon">📦</span>
+      <div class="stat-lbl">Orders Today</div>
+      <div class="stat-val" id="s3">—</div>
+      <div class="stat-note">Synced to NetSuite today</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top-bar"></div>
+      <span class="stat-icon">🕐</span>
+      <div class="stat-lbl">Service Uptime</div>
+      <div class="stat-val" id="s4">—</div>
+      <div class="stat-note">Running continuously</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main">
+
+    <!-- LOG PANEL -->
+    <div class="panel" id="logPanel">
+      <div class="panel-hdr">
+        <div class="panel-title">
+          <div class="live-dot"></div>
+          Live Sync Log
+        </div>
+        <div class="ctrl-row">
+          <button class="btn btn-ghost" onclick="clearLogs()">Clear</button>
+          <button class="btn btn-ghost" id="pauseBtn" onclick="togglePause()">Pause</button>
+          <button class="btn btn-ghost" id="scrollBtn" onclick="toggleScroll()">Auto-scroll ✓</button>
+          <button class="btn btn-primary" onclick="fetchLogs()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="log-scroll" id="logBody">
+        <div class="placeholder"><div class="spinner"></div>Connecting to sync service...</div>
+      </div>
+      <div class="ticker-bar">
+        <div class="ticker-lbl">Live</div>
+        <div class="ticker-track">
+          <div class="ticker-inner">
+            <span class="tick-item"><span class="ok">✅</span> Orders → NetSuite</span>
+            <span class="tick-item"><span class="ok">✅</span> Shipments → Miva</span>
+            <span class="tick-item"><span class="ok">✅</span> Deposits & Invoices auto-closed</span>
+            <span class="tick-item"><span class="ok">✅</span> Product IDs synced</span>
+            <span class="tick-item"><span class="ok">✅</span> Customers → NetSuite</span>
+            <span class="tick-item">⚡ Syncing every 5 minutes</span>
+            <span class="tick-item">💰 Saving $17,797/year</span>
+            <span class="tick-item">☁️ Oracle Cloud Always Free</span>
+            <span class="tick-item">🔒 TBA OAuth 1.0a · HMAC-SHA256</span>
+            <!-- duplicate for seamless loop -->
+            <span class="tick-item"><span class="ok">✅</span> Orders → NetSuite</span>
+            <span class="tick-item"><span class="ok">✅</span> Shipments → Miva</span>
+            <span class="tick-item"><span class="ok">✅</span> Deposits & Invoices auto-closed</span>
+            <span class="tick-item"><span class="ok">✅</span> Product IDs synced</span>
+            <span class="tick-item"><span class="ok">✅</span> Customers → NetSuite</span>
+            <span class="tick-item">⚡ Syncing every 5 minutes</span>
+            <span class="tick-item">💰 Saving $17,797/year</span>
+            <span class="tick-item">☁️ Oracle Cloud Always Free</span>
+            <span class="tick-item">🔒 TBA OAuth 1.0a · HMAC-SHA256</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COL -->
+    <div class="right-col">
+
+      <!-- FLOWS -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title"><div class="live-dot"></div>Automated Flows</div>
+          <span style="font-size:10px;color:#334155;font-weight:600">5 ACTIVE</span>
+        </div>
+        <div class="flow-list">
+          <div class="flow-row">
+            <div class="flow-ico">📦</div>
+            <div class="flow-meta">
+              <div class="flow-name">Orders → NetSuite</div>
+              <div class="flow-desc">Miva orders become Sales Orders</div>
+            </div>
+            <div class="flow-badge ok" id="f1">OK</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-ico">🚚</div>
+            <div class="flow-meta">
+              <div class="flow-name">Shipments → Miva</div>
+              <div class="flow-desc">Tracking numbers pushed back</div>
+            </div>
+            <div class="flow-badge ok" id="f2">OK</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-ico">🧾</div>
+            <div class="flow-meta">
+              <div class="flow-name">Deposits & Invoices</div>
+              <div class="flow-desc">Auto-creates & closes invoices</div>
+            </div>
+            <div class="flow-badge ok" id="f3">OK</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-ico">🏷️</div>
+            <div class="flow-meta">
+              <div class="flow-name">Product ID Sync</div>
+              <div class="flow-desc">Miva ↔ NetSuite product linking</div>
+            </div>
+            <div class="flow-badge ok" id="f4">OK</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-ico">👤</div>
+            <div class="flow-meta">
+              <div class="flow-name">Customers → NetSuite</div>
+              <div class="flow-desc">Customer records synced</div>
+            </div>
+            <div class="flow-badge ok" id="f5">OK</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY -->
+      <div class="panel" style="flex:1">
+        <div class="panel-hdr">
+          <div class="panel-title"><div class="live-dot"></div>Recent Activity</div>
+        </div>
+        <div class="activity-list" id="activityList">
+          <div class="placeholder"><div class="spinner"></div>Loading activity...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- INFO BAR -->
+  <div class="info-bar">
+    <div class="info-card">
+      <div class="info-ico">☁️</div>
+      <div>
+        <div class="info-lbl">Server</div>
+        <div class="info-val">Oracle Cloud · US West (San Jose) · Always Free</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-ico">🛠️</div>
+      <div>
+        <div class="info-lbl">Stack</div>
+        <div class="info-val">Node.js · PM2 · Nginx · Ubuntu 24.04</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-ico">👨‍💻</div>
+      <div>
+        <div class="info-lbl">Built By</div>
+        <div class="info-val">Rizwan Khalid — Ecommerce Coordinator</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── CONFIG ──
+const API_BASE = '';  // same origin — nginx proxies /api/* to port 3001
+
+// ── STATE ──
+let paused = false;
+let autoScroll = true;
+let knownCount = 0;
+let allLines = [];
+
+// ── CLOCK ──
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clockChip').textContent =
+    now.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'}) + ' UTC' ;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── GSAP ENTRANCE ──
+window.addEventListener('DOMContentLoaded', () => {
+  gsap.set(['#hdr','#statsRow','.main','.info-bar'], {opacity:0, y:20});
+  gsap.timeline()
+    .to('#hdr',        {opacity:1, y:0, duration:0.5, ease:'power3.out'})
+    .to('#statsRow',   {opacity:1, y:0, duration:0.4, ease:'power3.out', stagger:0.05}, '-=0.2')
+    .to('.main',       {opacity:1, y:0, duration:0.4, ease:'power3.out'}, '-=0.1')
+    .to('.info-bar',   {opacity:1, y:0, duration:0.3, ease:'power3.out'}, '-=0.1');
+
+  // counter animation for $17,797
+  gsap.fromTo('#s1',
+    {textContent: 0},
+    {textContent: 17797, duration: 1.8, delay: 0.6, ease:'power2.out',
+     snap:{textContent:1},
+     onUpdate: function(){
+       document.getElementById('s1').textContent = Math.round(this.targets()[0].textContent).toLocaleString();
+     }
+    }
+  );
+});
+
+// ── TOGGLE ──
+function togglePause() {
+  paused = !paused;
+  document.getElementById('pauseBtn').textContent = paused ? '▶ Resume' : 'Pause';
+  document.getElementById('pauseBtn').className = paused ? 'btn btn-active' : 'btn btn-ghost';
+}
+function toggleScroll() {
+  autoScroll = !autoScroll;
+  document.getElementById('scrollBtn').textContent = autoScroll ? 'Auto-scroll ✓' : 'Auto-scroll';
+  document.getElementById('scrollBtn').className = autoScroll ? 'btn btn-active' : 'btn btn-ghost';
+}
+function clearLogs() {
+  allLines = [];
+  knownCount = 0;
+  document.getElementById('logBody').innerHTML = '<div class="empty-log">// log cleared</div>';
+}
+
+// ── HELPERS ──
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtTime(raw) {
+  const m = raw && raw.match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
+  if (!m) return '';
+  return new Date(m[1]).toLocaleTimeString('en-US',{hour12:false});
+}
+function classify(line) {
+  if (/✅|All flows completed successfully/.test(line)) return 'success';
+  if (/❌|\[ERROR\]/.test(line)) return 'error';
+  if (/⚠️|\[WARN\]/.test(line)) return 'warn';
+  if (/={3,}|Sinister Diesel.*Sync Start/.test(line)) return 'header';
+  if (/skipping|No Miva match|skip/.test(line)) return 'skip';
+  if (/\[INFO\]/.test(line)) return 'info';
+  return '';
+}
+function icon(cls) {
+  return {success:'✅',error:'❌',warn:'⚠️',header:'▶',skip:'·',info:'·'}[cls] || '·';
+}
+function strip(line) {
+  return line
+    .replace(/\[\d{4}-\d{2}-\d{2}T[\d:.]+Z\]\s*/,'')
+    .replace(/\[(INFO|ERROR|WARN)\]\s*/g,'')
+    .trim();
+}
+
+// ── RENDER LOGS ──
+function renderLines(lines) {
+  const body = document.getElementById('logBody');
+  const atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 80;
+
+  lines.forEach(raw => {
+    const cls = classify(raw);
+    if (cls === 'skip') return; // hide noise
+    const row = document.createElement('div');
+    row.className = 'log-row';
+    row.innerHTML =
+      `<span class="log-ts">${esc(fmtTime(raw))}</span>` +
+      `<span class="log-ico">${icon(cls)}</span>` +
+      `<span class="log-txt ${cls}">${esc(strip(raw))}</span>`;
+    body.appendChild(row);
+  });
+
+  // cap DOM at 600 rows
+  while (body.children.length > 600) body.removeChild(body.firstChild);
+
+  if (autoScroll && atBottom) body.scrollTop = body.scrollHeight;
+}
+
+// ── ACTIVITY ──
+function renderActivity(lines) {
+  const feed = document.getElementById('activityList');
+  const relevant = lines
+    .filter(l => /✅|❌|All flows completed|Sales Order|Invoice|Tracking/.test(l))
+    .slice(-8)
+    .reverse();
+
+  if (!relevant.length) { feed.innerHTML = '<div class="placeholder"><div class="spinner"></div>No activity yet...</div>'; return; }
+
+  feed.innerHTML = relevant.map(l => {
+    const isErr = l.includes('❌');
+    const isWarn = l.includes('⚠️');
+    const dotCls = isErr ? 'red' : isWarn ? 'orange' : '';
+    return `<div class="act-row">
+      <div class="act-dot ${dotCls}"></div>
+      <div class="act-body">
+        <div class="act-text">${esc(strip(l))}</div>
+        <div class="act-time">${fmtTime(l)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── STATS ──
+function updateStats(lines) {
+  const today = new Date().toISOString().slice(0,10);
+  const ordersToday = lines.filter(l => l.includes(today) && l.includes('→ NetSuite Sales Order')).length;
+  if (ordersToday > 0) document.getElementById('s3').textContent = ordersToday;
+
+  // last completed sync
+  for (let i = lines.length - 1; i >= 0; i--) {
+    if (lines[i].includes('All flows completed')) {
+      document.getElementById('lastSync').textContent = fmtTime(lines[i]);
+      break;
+    }
+  }
+
+  // flow statuses
+  const recent = lines.slice(-150);
+  const hasComplete = recent.some(l => l.includes('All flows completed'));
+  ['f1','f2','f3','f4','f5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = hasComplete ? 'OK' : 'IDLE';
+    el.className = 'flow-badge ' + (hasComplete ? 'ok' : 'idle');
+  });
+}
+
+// ── UPTIME ──
+async function fetchUptime() {
+  try {
+    const r = await fetch(`${API_BASE}/api/stats`);
+    if (r.ok) {
+      const d = await r.json();
+      if (d.uptime) document.getElementById('s4').textContent = d.uptime;
+    }
+  } catch {}
+}
+
+// ── MAIN FETCH ──
+async function fetchLogs() {
+  if (paused) return;
+  try {
+    const r = await fetch(`${API_BASE}/api/logs`);
+    if (!r.ok) throw new Error('api error');
+    const data = await r.json();
+    const lines = data.lines || [];
+
+    if (knownCount === 0) {
+      document.getElementById('logBody').innerHTML = '';
+      renderLines(lines.slice(-120));
+      knownCount = lines.length;
+    } else {
+      const newLines = lines.slice(knownCount);
+      if (newLines.length) {
+        renderLines(newLines);
+        knownCount = lines.length;
+      }
+    }
+    allLines = lines;
+    renderActivity(lines);
+    updateStats(lines);
+
+    // show online
+    document.getElementById('statusDot').className = 'status-dot';
+    document.getElementById('statusText').textContent = 'SERVICE ONLINE';
+    document.getElementById('statusText').className = 'status-text';
+    document.getElementById('statusPill').style.background = 'rgba(34,197,94,0.1)';
+    document.getElementById('statusPill').style.borderColor = 'rgba(34,197,94,0.2)';
+
+  } catch(e) {
+    if (knownCount === 0) {
+      document.getElementById('logBody').innerHTML =
+        `<div class="empty-log">⚠️ Cannot reach log API at /api/logs<br><br>` +
+        `Make sure dashboard-server.js is running:<br>` +
+        `<span style="color:#f97316">pm2 start dashboard-server.js --name dashboard-api</span></div>`;
+    }
+    document.getElementById('statusDot').className = 'status-dot red';
+    document.getElementById('statusText').textContent = 'API UNREACHABLE';
+    document.getElementById('statusText').className = 'status-text red';
+  }
+}
+
+// ── BOOT ──
+fetchLogs();
+fetchUptime();
+setInterval(fetchLogs, 10000);
+setInterval(fetchUptime, 60000);
+</script>
+</body>
+</html>
