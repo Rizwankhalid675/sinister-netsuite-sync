@@ -1,0 +1,22 @@
+{
+  "name": "sinister-netsuite-sync",
+  "version": "1.0.0",
+  "description": "Sinister Diesel — Miva to NetSuite sync service",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop sinister-diesel-sync",
+    "pm2:restart": "pm2 restart sinister-diesel-sync",
+    "pm2:logs": "pm2 logs sinister-diesel-sync",
+    "pm2:status": "pm2 status"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.3.1",
+    "node-cron": "^3.0.3",
+    "oauth-1.0a": "^2.2.6",
+    "uuid": "^9.0.0"
+  }
+}

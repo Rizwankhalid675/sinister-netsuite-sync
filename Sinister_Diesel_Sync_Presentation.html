@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sinister Diesel Sync — System Overview</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;font-size:13px;color:#0f172a;background:#fff;line-height:1.6}
+
+/* ── COVER ── */
+.cover{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  background:#0f172a;color:#fff;text-align:center;padding:64px 48px;page-break-after:always;
+  position:relative;overflow:hidden;
+}
+.cover::before{
+  content:'';position:absolute;top:-120px;right:-120px;width:500px;height:500px;
+  background:radial-gradient(circle,rgba(249,115,22,0.12) 0%,transparent 70%);
+  border-radius:50%;
+}
+.cover::after{
+  content:'';position:absolute;bottom:-100px;left:-100px;width:400px;height:400px;
+  background:radial-gradient(circle,rgba(249,115,22,0.07) 0%,transparent 70%);
+  border-radius:50%;
+}
+.cover-label{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#f97316;
+  font-weight:700;margin-bottom:24px;z-index:1}
+.cover h1{font-size:52px;font-weight:900;line-height:1.05;margin-bottom:16px;z-index:1}
+.cover h1 em{color:#f97316;font-style:normal}
+.cover-sub{font-size:15px;color:#94a3b8;margin-bottom:56px;z-index:1;max-width:520px;line-height:1.7}
+.cover-line{width:48px;height:3px;background:#f97316;margin:0 auto 40px;border-radius:2px;z-index:1}
+.cover-stats{display:flex;gap:0;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);
+  margin-bottom:56px;z-index:1}
+.cs-item{padding:28px 40px;text-align:center;background:#1e293b}
+.cs-item+.cs-item{border-left:1px solid rgba(255,255,255,0.08)}
+.cs-val{font-size:36px;font-weight:900;color:#f97316;line-height:1}
+.cs-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#64748b;font-weight:600;margin-top:6px}
+.cover-meta{font-size:11px;color:#334155;line-height:2.2;z-index:1}
+.cover-meta strong{color:#475569}
+
+/* ── PAGES ── */
+.page{max-width:960px;margin:0 auto;padding:64px 72px;page-break-after:always}
+.page:last-child{page-break-after:avoid}
+.sec{font-size:9.5px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:#f97316;margin-bottom:6px}
+h2{font-size:26px;font-weight:800;color:#0f172a;margin-bottom:6px}
+.rule{height:3px;background:linear-gradient(90deg,#f97316,#fb923c,transparent);
+  border-radius:2px;margin-bottom:32px}
+p{margin-bottom:14px;color:#475569;font-size:13px;line-height:1.75}
+
+/* ── FLOW DIAGRAM ── */
+.flow-wrap{display:flex;align-items:center;justify-content:center;gap:0;margin:32px 0;flex-wrap:nowrap}
+.flow-node{background:#0f172a;color:#fff;border-radius:14px;padding:18px 22px;text-align:center;
+  min-width:120px;position:relative}
+.flow-node .fn-icon{font-size:22px;margin-bottom:6px}
+.flow-node .fn-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8}
+.flow-node .fn-name{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
+.flow-node.orange{background:linear-gradient(135deg,#f97316,#ea580c)}
+.flow-node.orange .fn-label{color:rgba(255,255,255,0.7)}
+.flow-arrow{color:#f97316;font-size:20px;font-weight:900;padding:0 8px;flex-shrink:0}
+
+/* ── FLOW CARDS ── */
+.flow-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.flow-card{border-radius:14px;border:1px solid #e2e8f0;padding:22px 20px;position:relative;overflow:hidden}
+.flow-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f97316,#fb923c)}
+.fc-num{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f97316;margin-bottom:8px}
+.fc-title{font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px}
+.fc-dir{font-size:10px;color:#64748b;font-weight:600;margin-bottom:12px}
+.fc-body{font-size:12px;color:#475569;line-height:1.65}
+
+/* ── TWO-COL FLOWS ── */
+.flow-cards-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:28px}
+
+/* ── SAVINGS HERO ── */
+.savings-hero{background:#0f172a;border-radius:20px;padding:48px;text-align:center;margin-bottom:32px;position:relative;overflow:hidden}
+.savings-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;
+  background:radial-gradient(circle,rgba(249,115,22,0.15) 0%,transparent 70%);border-radius:50%}
+.sh-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#f97316;margin-bottom:12px}
+.sh-amount{font-size:72px;font-weight:900;color:#fff;line-height:1;margin-bottom:8px}
+.sh-amount span{color:#f97316}
+.sh-sub{font-size:14px;color:#64748b}
+.savings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.sg-item{background:#f8fafc;border-radius:12px;padding:20px;text-align:center;border:1px solid #e2e8f0}
+.sg-val{font-size:28px;font-weight:900;color:#f97316;line-height:1;margin-bottom:4px}
+.sg-label{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:1px}
+
+/* ── COMPARISON TABLE ── */
+.comp-table{width:100%;border-collapse:collapse;margin-bottom:28px;font-size:12.5px}
+.comp-table th{background:#0f172a;color:#94a3b8;font-size:9px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;padding:12px 16px;text-align:left}
+.comp-table th:last-child,.comp-table td:last-child{text-align:center}
+.comp-table th:nth-child(2),.comp-table td:nth-child(2){text-align:center}
+.comp-table td{padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#334155;vertical-align:middle}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table tr:nth-child(even) td{background:#fafafa}
+.check{color:#22c55e;font-size:15px;font-weight:900}
+.cross{color:#ef4444;font-size:15px;font-weight:900}
+.badge-new{display:inline-block;background:#dcfce7;color:#166534;font-size:9px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:4px;margin-left:6px}
+
+/* ── TIMELINE ── */
+.timeline{position:relative;padding-left:32px;margin-bottom:28px}
+.timeline::before{content:'';position:absolute;left:10px;top:8px;bottom:8px;width:2px;background:#f1f5f9}
+.tl-item{position:relative;margin-bottom:24px}
+.tl-item:last-child{margin-bottom:0}
+.tl-dot{position:absolute;left:-30px;top:4px;width:20px;height:20px;border-radius:50%;
+  background:#f97316;display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:900;color:#fff;z-index:1}
+.tl-title{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:3px}
+.tl-body{font-size:12px;color:#64748b;line-height:1.65}
+
+/* ── STATUS TABLE ── */
+.status-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:28px}
+.status-item{border-radius:10px;padding:16px 12px;text-align:center;border:1px solid #e2e8f0}
+.status-item .si-code{font-size:28px;font-weight:900;margin-bottom:4px}
+.status-item .si-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#64748b}
+.status-item .si-desc{font-size:10px;color:#94a3b8;margin-top:4px}
+.status-item.active{background:#0f172a;border-color:#0f172a}
+.status-item.active .si-code{color:#f97316}
+.status-item.active .si-name{color:#94a3b8}
+.status-item.active .si-desc{color:#64748b}
+.status-item.inactive .si-code{color:#cbd5e1}
+.invoice-arrow{text-align:center;font-size:11px;color:#f97316;font-weight:700;
+  margin-bottom:28px;padding:10px;background:#fff7ed;border-radius:8px;border:1px solid #fed7aa}
+
+/* ── MAPPING TABLE ── */
+.map-table{width:100%;border-collapse:collapse;margin-bottom:22px;font-size:12px}
+.map-table th{background:#f8fafc;color:#64748b;font-size:9px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:2px solid #e2e8f0}
+.map-table td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#334155;vertical-align:top}
+.map-table tr:last-child td{border-bottom:none}
+.map-table .field{font-weight:600;color:#0f172a;font-family:monospace;font-size:11px;
+  background:#f1f5f9;padding:2px 6px;border-radius:4px}
+
+/* ── FILE TREE ── */
+.file-tree{background:#0f172a;border-radius:14px;padding:28px 32px;margin-bottom:28px;
+  font-family:monospace;font-size:12px;line-height:2}
+.ft-dir{color:#94a3b8}
+.ft-file{color:#e2e8f0}
+.ft-file .ft-comment{color:#475569;font-family:'Inter',sans-serif;font-size:11px}
+.ft-hl{color:#f97316}
+.ft-green{color:#22c55e}
+
+/* ── INFO BOXES ── */
+.info-box{border-radius:12px;padding:20px 22px;margin-bottom:16px;display:flex;gap:14px;align-items:flex-start}
+.info-box.warning{background:#fff7ed;border:1px solid #fed7aa}
+.info-box.info{background:#eff6ff;border:1px solid #bfdbfe}
+.info-box.success{background:#f0fdf4;border:1px solid #bbf7d0}
+.ib-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.ib-body .ib-title{font-size:12px;font-weight:700;color:#0f172a;margin-bottom:3px}
+.ib-body .ib-text{font-size:12px;color:#475569;line-height:1.65}
+
+/* ── TEAM MESSAGE ── */
+.msg-wrap{background:#f8fafc;border-radius:20px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:28px}
+.msg-header{background:#0f172a;padding:20px 28px;display:flex;align-items:center;gap:14px}
+.msg-avatar{width:40px;height:40px;border-radius:50%;background:#f97316;display:flex;
+  align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
+.msg-from{color:#fff;font-size:13px;font-weight:700}
+.msg-to{color:#64748b;font-size:11px;margin-top:2px}
+.msg-body{padding:28px;font-size:13px;color:#334155;line-height:1.85}
+.msg-body p{margin-bottom:14px}
+.msg-body p:last-child{margin-bottom:0}
+.msg-body strong{color:#0f172a}
+.msg-list{margin:10px 0 14px 20px}
+.msg-list li{margin-bottom:6px;font-size:13px;color:#334155;line-height:1.65}
+.msg-sig{margin-top:20px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b}
+.msg-sig strong{color:#0f172a;display:block;font-size:13px}
+
+/* ── FOOTER ── */
+.pg-footer{text-align:center;padding:24px;font-size:10px;color:#94a3b8;border-top:1px solid #f1f5f9;margin-top:8px}
+
+/* ── PRINT ── */
+@media print{
+  .page{padding:40px 48px}
+  .cover{min-height:auto;padding:48px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ COVER -->
+<div class="cover">
+  <div class="cover-label">Internal System Overview · June 2026</div>
+  <h1>Sinister Diesel <em>Sync</em></h1>
+  <p class="cover-sub">A custom-built integration that keeps Miva and NetSuite in perfect sync — automatically, every 5 minutes, 24/7.</p>
+  <div class="cover-line"></div>
+  <div class="cover-stats">
+    <div class="cs-item">
+      <div class="cs-val">$17,797</div>
+      <div class="cs-label">Saved Per Year</div>
+    </div>
+    <div class="cs-item">
+      <div class="cs-val">5 min</div>
+      <div class="cs-label">Sync Interval</div>
+    </div>
+    <div class="cs-item">
+      <div class="cs-val">5</div>
+      <div class="cs-label">Automated Flows</div>
+    </div>
+    <div class="cs-item">
+      <div class="cs-val">24/7</div>
+      <div class="cs-label">Always Running</div>
+    </div>
+  </div>
+  <div class="cover-meta">
+    <strong>Built by:</strong> Rizwan Khalid — Ecommerce Coordinator &nbsp;·&nbsp;
+    <strong>Replaces:</strong> Celigo Middleware &nbsp;·&nbsp;
+    <strong>Stack:</strong> Node.js · Windows Service · Miva API · NetSuite REST API
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE 1 — WHAT IS THIS? -->
+<div class="page">
+  <div class="sec">Overview</div>
+  <h2>What Is Sinister Diesel Sync?</h2>
+  <div class="rule"></div>
+
+  <p>Sinister Diesel Sync is a fully custom-built Windows background service that automatically bridges our <strong>Miva storefront</strong> (sinisterdiesel.com) and our <strong>NetSuite ERP</strong> — replacing the $17,797/year Celigo subscription with an in-house solution we own completely.</p>
+
+  <p>It runs silently in the background on our Windows server, wakes up every 5 minutes, and executes 5 automated flows covering everything from order creation to invoice closing.</p>
+
+  <div class="flow-wrap">
+    <div class="flow-node orange">
+      <div class="fn-icon">🛒</div>
+      <div class="fn-label">Storefront</div>
+      <div class="fn-name">Miva</div>
+    </div>
+    <div class="flow-arrow">⟷</div>
+    <div class="flow-node orange">
+      <div class="fn-icon">⚙️</div>
+      <div class="fn-label">Every 5 min</div>
+      <div class="fn-name">SD Sync</div>
+    </div>
+    <div class="flow-arrow">⟷</div>
+    <div class="flow-node orange">
+      <div class="fn-icon">📊</div>
+      <div class="fn-label">ERP</div>
+      <div class="fn-name">NetSuite</div>
+    </div>
+  </div>
+
+  <div class="flow-cards">
+    <div class="flow-card">
+      <div class="fc-num">Flow 01</div>
+      <div class="fc-title">Orders</div>
+      <div class="fc-dir">Miva → NetSuite</div>
+      <div class="fc-body">New Miva orders become Sales Orders in NetSuite with all items, discounts, shipping, and customer data mapped.</div>
+    </div>
+    <div class="flow-card">
+      <div class="fc-num">Flow 02</div>
+      <div class="fc-title">Shipments</div>
+      <div class="fc-dir">NetSuite → Miva</div>
+      <div class="fc-body">When NS ships an order, tracking numbers are automatically pushed back to Miva for customer notifications.</div>
+    </div>
+    <div class="flow-card">
+      <div class="fc-num">Flow 03</div>
+      <div class="fc-title">Deposits & Invoices</div>
+      <div class="fc-dir">NetSuite Internal</div>
+      <div class="fc-body">Creates customer deposits, generates invoices after fulfillment, and auto-closes them. Zero manual payment entry.</div>
+    </div>
+    <div class="flow-card">
+      <div class="fc-num">Flow 04</div>
+      <div class="fc-title">Product IDs</div>
+      <div class="fc-dir">Miva ↔ NetSuite</div>
+      <div class="fc-body">Keeps Miva Product IDs linked on NS inventory items so products stay cross-referenced between both systems.</div>
+    </div>
+    <div class="flow-card">
+      <div class="fc-num">Flow 05</div>
+      <div class="fc-title">Customers</div>
+      <div class="fc-dir">Miva → NetSuite</div>
+      <div class="fc-body">Syncs customer records — names, emails, phones, addresses — keeping the NS customer database current.</div>
+    </div>
+    <div class="flow-card" style="background:#f8fafc;border-style:dashed;">
+      <div class="fc-num" style="color:#94a3b8;">Always On</div>
+      <div class="fc-title" style="color:#94a3b8;">Windows Service</div>
+      <div class="fc-dir">sinisterdieselsync.exe</div>
+      <div class="fc-body">Registered as a Windows Service. Starts automatically with the server. No manual intervention needed.</div>
+    </div>
+  </div>
+  <div class="pg-footer">Sinister Diesel Sync · Internal Documentation · June 2026</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE 2 — FLOW 1 ORDERS -->
+<div class="page">
+  <div class="sec">Flow 01</div>
+  <h2>Orders: Miva → NetSuite</h2>
+  <div class="rule"></div>
+
+  <p>When a customer places an order on sinisterdiesel.com, this flow picks it up within 5 minutes and creates a fully populated Sales Order in NetSuite — no manual data entry, no copy-paste.</p>
+
+  <table class="map-table">
+    <thead>
+      <tr>
+        <th>Miva Field</th>
+        <th>NetSuite Field</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Customer email</td><td>Entity (Customer)</td><td>Auto-looked up by email; auto-created if new</td></tr>
+      <tr><td>Shipping address</td><td>Shipping Address</td><td>Full address block with phone</td></tr>
+      <tr><td>Billing address</td><td>Billing Address</td><td>Full address block</td></tr>
+      <tr><td>Order items (SKUs)</td><td>Line Items</td><td>Matched by SKU; auto-created in NS if missing</td></tr>
+      <tr><td>Shipping cost</td><td>Shipping Cost</td><td>Maps all UPS, USPS, and Will Call methods</td></tr>
+      <tr><td>Discount / Promo Code</td><td>Discount Item + Discount Rate</td><td>Shows in header fields; NS auto-deducts</td></tr>
+      <tr><td>Enshield Protection</td><td>Line Item (ID 10322)</td><td>Added as a separate line</td></tr>
+      <tr><td>Phone number</td><td>Ship Phone + custbody231</td><td>Bill phone used as fallback</td></tr>
+      <tr><td>Payment module</td><td>custbody_hb_miva_payment_method</td><td>Payment type reference</td></tr>
+      <tr><td>Order total</td><td>custbody_hb_miva_order_total</td><td>Stored for reconciliation</td></tr>
+      <tr><td>Miva Order ID</td><td>custbody_hb_miva_order_id</td><td>Cross-reference between systems</td></tr>
+    </tbody>
+  </table>
+
+  <div class="flow-cards-2">
+    <div class="info-box success">
+      <div class="ib-icon">🎯</div>
+      <div class="ib-body">
+        <div class="ib-title">Smart SKU Matching</div>
+        <div class="ib-text">Checks hardcoded overrides → exact SKU match → strips suffixes for partial match → auto-creates the item in NS if still not found. No order ever loses a line.</div>
+      </div>
+    </div>
+    <div class="info-box success">
+      <div class="ib-icon">💰</div>
+      <div class="ib-body">
+        <div class="ib-title">Discount / Promo Codes</div>
+        <div class="ib-text">Discount amount from Miva is mapped to the NS Discount Item and Discount Rate header fields. Sales reps can see the promo value at a glance on every order.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box warning">
+    <div class="ib-icon">🔒</div>
+    <div class="ib-body">
+      <div class="ib-title">Duplicate Prevention</div>
+      <div class="ib-text">Every synced order ID is saved to <strong>synced_orders.json</strong>. On each sync cycle, the system checks this file first — an order is never created twice in NetSuite, even if it appears in multiple sync windows.</div>
+    </div>
+  </div>
+  <div class="pg-footer">Sinister Diesel Sync · Internal Documentation · June 2026</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE 3 — FLOW 3 INVOICES -->
+<div class="page">
+  <div class="sec">Flow 03</div>
+  <h2>Deposits & Invoices: The Financial Flow</h2>
+  <div class="rule"></div>
+
+  <p>This is the most critical flow — it handles all the financial transactions in NetSuite for every order, from payment capture to invoice closure. Everything is fully automated.</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot">1</div>
+      <div class="tl-title">Order Placed on Miva</div>
+      <div class="tl-body">Customer completes checkout. Full payment is collected at time of purchase.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">2</div>
+      <div class="tl-title">Sales Order Created in NetSuite</div>
+      <div class="tl-body">Flow 1 runs — a Sales Order is created in NS with status <strong>Pending Approval (A)</strong>.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">3</div>
+      <div class="tl-title">Customer Deposit Created</div>
+      <div class="tl-body">A Customer Deposit is created immediately, linked to the Sales Order, for the full order amount. This records the payment received.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">4</div>
+      <div class="tl-title">Order Approved & Fulfilled</div>
+      <div class="tl-body">The team approves the order and creates an Item Fulfillment in NS. SO status moves to <strong>E</strong> or <strong>F</strong> (Pending Billing).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">5</div>
+      <div class="tl-title">Invoice Auto-Generated</div>
+      <div class="tl-body">The sync detects the Pending Billing status and automatically transforms the Sales Order into an Invoice in NetSuite.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">6</div>
+      <div class="tl-title">Invoice Auto-Closed ✅</div>
+      <div class="tl-body">The Customer Deposit from Step 3 is applied to the Invoice — balance becomes $0.00 and the invoice is marked <strong>CLOSED</strong>. No manual payment entry needed.</div>
+    </div>
+  </div>
+
+  <div class="invoice-arrow">
+    ⚠️ Invoice is NEVER created until the Sales Order is approved AND fulfilled — this matches real-world fulfillment timing exactly
+  </div>
+
+  <div class="sec" style="margin-top:8px">Sales Order Status Reference</div>
+  <div style="height:8px"></div>
+  <div class="status-grid">
+    <div class="status-item inactive">
+      <div class="si-code">A</div>
+      <div class="si-name">Pending Approval</div>
+      <div class="si-desc">No invoice</div>
+    </div>
+    <div class="status-item inactive">
+      <div class="si-code">B</div>
+      <div class="si-name">Pending Fulfillment</div>
+      <div class="si-desc">No invoice</div>
+    </div>
+    <div class="status-item active">
+      <div class="si-code">E</div>
+      <div class="si-name">Partial Billing</div>
+      <div class="si-desc">✅ Invoice created</div>
+    </div>
+    <div class="status-item active">
+      <div class="si-code">F</div>
+      <div class="si-name">Pending Billing</div>
+      <div class="si-desc">✅ Invoice created</div>
+    </div>
+    <div class="status-item inactive">
+      <div class="si-code">G</div>
+      <div class="si-name">Billed / Closed</div>
+      <div class="si-desc">Already done</div>
+    </div>
+  </div>
+  <div class="pg-footer">Sinister Diesel Sync · Internal Documentation · June 2026</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE 4 — SAVINGS & COMPARISON -->
+<div class="page">
+  <div class="sec">Business Impact</div>
+  <h2>What We Replaced & What We Saved</h2>
+  <div class="rule"></div>
+
+  <div class="savings-hero">
+    <div class="sh-label">Annual Cost Eliminated</div>
+    <div class="sh-amount"><span>$17,797</span></div>
+    <div class="sh-sub">Previously paid to Celigo for middleware subscription</div>
+  </div>
+
+  <div class="savings-grid" style="margin-bottom:32px">
+    <div class="sg-item">
+      <div class="sg-val">$0</div>
+      <div class="sg-label">Ongoing License Cost</div>
+    </div>
+    <div class="sg-item">
+      <div class="sg-val">100%</div>
+      <div class="sg-label">Owned In-House</div>
+    </div>
+    <div class="sg-item">
+      <div class="sg-val">5 min</div>
+      <div class="sg-label">Sync Frequency</div>
+    </div>
+  </div>
+
+  <table class="comp-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Celigo</th>
+        <th>Sinister Diesel Sync</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Orders → NetSuite</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+      </tr>
+      <tr>
+        <td>Shipments → Miva (tracking numbers)</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+      </tr>
+      <tr>
+        <td>Customer Deposits</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+      </tr>
+      <tr>
+        <td>Invoice Generation</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+      </tr>
+      <tr>
+        <td>Invoice Auto-Close (apply deposit)</td>
+        <td><span class="cross">✗</span> Manual</td>
+        <td><span class="check">✓</span> <span class="badge-new">New</span></td>
+      </tr>
+      <tr>
+        <td>Discount / Promo Code Fields</td>
+        <td><span class="cross">✗</span> Not populated</td>
+        <td><span class="check">✓</span> <span class="badge-new">New</span></td>
+      </tr>
+      <tr>
+        <td>Auto-Create New Customers</td>
+        <td class="cross">✗</td>
+        <td><span class="check">✓</span> <span class="badge-new">New</span></td>
+      </tr>
+      <tr>
+        <td>Auto-Create Missing NS Items</td>
+        <td class="cross">✗</td>
+        <td><span class="check">✓</span> <span class="badge-new">New</span></td>
+      </tr>
+      <tr>
+        <td>Product ID Sync</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+      </tr>
+      <tr>
+        <td>Customer Sync</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+      </tr>
+      <tr>
+        <td>Annual Cost</td>
+        <td style="color:#ef4444;font-weight:700">$17,797</td>
+        <td style="color:#22c55e;font-weight:700">$0</td>
+      </tr>
+      <tr>
+        <td>Ownership</td>
+        <td style="color:#64748b">Third-party vendor</td>
+        <td style="color:#22c55e;font-weight:700">100% in-house</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="pg-footer">Sinister Diesel Sync · Internal Documentation · June 2026</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE 5 — TECHNICAL -->
+<div class="page">
+  <div class="sec">Technical Reference</div>
+  <h2>System Architecture & File Structure</h2>
+  <div class="rule"></div>
+
+  <div class="file-tree">
+    <div class="ft-dir">sinister-netsuite-sync/</div>
+    <div class="ft-dir">&nbsp;&nbsp;│</div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-hl">index.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Main entry point · scheduler · runs all 5 flows</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">miva.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Miva API client (orders, shipments, products)</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">netsuite.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← NetSuite REST API client (TBA OAuth 1.0a)</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">logger.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Timestamped logging to console + sync.log</span></div>
+    <div class="ft-dir">&nbsp;&nbsp;│</div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── flows/</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-hl">ordersToNetsuite.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;← Flow 1: Miva orders → NS Sales Orders</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-file">shipmentsToMiva.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;← Flow 2: NS shipments → Miva tracking</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-hl">invoices.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Flow 3: Deposits + Invoice + Auto-Close</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-file">productSync.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Flow 4: Product ID sync</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── </span><span class="ft-file">customersToNetsuite.js</span><span class="ft-file ft-comment">&nbsp;← Flow 5: Miva customers → NetSuite</span></div>
+    <div class="ft-dir">&nbsp;&nbsp;│</div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── logs/</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-green">sync.log</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Full timestamped activity log</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-green">synced_orders.json</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;← Tracks synced Miva → NS orders</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── </span><span class="ft-green">synced_invoices.json</span><span class="ft-file ft-comment">&nbsp;← Tracks deposit + invoice per order</span></div>
+    <div class="ft-dir">&nbsp;&nbsp;│</div>
+    <div><span class="ft-dir">&nbsp;&nbsp;└── </span><span class="ft-file">.env</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← API credentials (never share)</span></div>
+  </div>
+
+  <div class="flow-cards-2">
+    <div class="info-box info">
+      <div class="ib-icon">🔑</div>
+      <div class="ib-body">
+        <div class="ib-title">NetSuite Authentication</div>
+        <div class="ib-text">Token-Based Authentication (TBA) — OAuth 1.0a with HMAC-SHA256. Application: <strong>Sinister MFG Connector Sync</strong>. Role: <strong>NetSuite Connector Web Services</strong>.</div>
+      </div>
+    </div>
+    <div class="info-box info">
+      <div class="ib-icon">🛒</div>
+      <div class="ib-body">
+        <div class="ib-title">Miva Authentication</div>
+        <div class="ib-text">POST requests to <strong>sinisterdiesel.com/mm5/json.mvc</strong> with <strong>X-Miva-API-Authorization</strong> header. Store Code: <strong>SD</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box warning">
+    <div class="ib-icon">⚙️</div>
+    <div class="ib-body">
+      <div class="ib-title">Restarting the Service (Admin PowerShell required)</div>
+      <div class="ib-text">
+        Open <strong>PowerShell as Administrator</strong> and run:<br>
+        <code style="background:#0f172a;color:#f97316;padding:3px 8px;border-radius:4px;font-size:11px;display:inline-block;margin-top:6px">net stop sinisterdieselsync.exe</code><br>
+        <code style="background:#0f172a;color:#22c55e;padding:3px 8px;border-radius:4px;font-size:11px;display:inline-block;margin-top:4px">net start sinisterdieselsync.exe</code>
+      </div>
+    </div>
+  </div>
+  <div class="pg-footer">Sinister Diesel Sync · Internal Documentation · June 2026</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE 6 — TEAM MESSAGE -->
+<div class="page">
+  <div class="sec">Team Communication</div>
+  <h2>Message to the Team</h2>
+  <div class="rule"></div>
+
+  <div class="msg-wrap">
+    <div class="msg-header">
+      <div class="msg-avatar">RK</div>
+      <div>
+        <div class="msg-from">Rizwan Khalid</div>
+        <div class="msg-to">To: Brian · Jordy · Dee · Alejandro · Michael</div>
+      </div>
+    </div>
+    <div class="msg-body">
+      <p>Hey team,</p>
+      <p>I wanted to share an exciting update with all of you — one that's been in the works for a while and is now fully live.</p>
+      <p>We have officially replaced our <strong>Celigo middleware subscription</strong> with a fully custom-built integration called <strong>Sinister Diesel Sync</strong> — a background service that runs on our Windows server and keeps Miva and NetSuite in perfect sync, automatically, every 5 minutes, 24 hours a day.</p>
+      <p><strong>Here's what it handles end to end:</strong></p>
+      <ul class="msg-list">
+        <li>Every new order on sinisterdiesel.com is automatically created in NetSuite as a Sales Order — with the customer, all line items, shipping method, discounts, promo codes, and taxes mapped correctly</li>
+        <li>When NetSuite ships an order, the tracking number is automatically pushed back to Miva so the customer gets notified</li>
+        <li>Customer deposits are created automatically at order time — recording full payment received</li>
+        <li>Once an order is approved and fulfilled, an invoice is generated and <strong>automatically closed</strong> against the deposit — no manual "Accept Payment" needed</li>
+        <li>New customers and products are auto-created in NetSuite if they don't exist yet — no orders are ever lost</li>
+        <li>Discount and promo codes now populate the dedicated <strong>Discount Item and Discount Rate</strong> fields on the Sales Order, so the sales team can see them instantly</li>
+      </ul>
+      <p><strong>What this means for us:</strong> We are eliminating <strong>$17,797 per year</strong> in Celigo subscription costs. This is fully owned, fully custom, and built specifically for how Sinister Diesel operates.</p>
+      <p>A full technical documentation has been written covering every flow, field mapping, troubleshooting guide, and system reference — available for anyone who needs it.</p>
+      <p><strong>Special thanks to Jordy</strong> for quickly setting up the NetSuite integration token and permissions — your help made the final piece click into place, and I really appreciate it.</p>
+      <p>If you have any questions, notice anything unexpected in NetSuite, or want me to walk you through how it all works — I'm happy to jump on a call anytime.</p>
+      <p>More improvements to come. This is just the beginning.</p>
+      <div class="msg-sig">
+        <strong>Rizwan Khalid</strong>
+        Ecommerce Coordinator — Sinister Diesel
+      </div>
+    </div>
+  </div>
+  <div class="pg-footer">Sinister Diesel Sync · Internal Documentation · June 2026</div>
+</div>
+
+</body>
+</html>
