@@ -36,80 +36,108 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 /* ── HERO BANNER ── */
 .hero{
-  background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);
+  background:#060c18;
   position:relative;overflow:hidden;padding:0 32px;
+  border-bottom:1px solid rgba(249,115,22,0.15);
 }
-/* animated grid */
-.hero-grid{
+/* deep blur background layers */
+.hero-blur-1{position:absolute;width:800px;height:800px;border-radius:50%;
+  background:radial-gradient(circle,rgba(249,115,22,0.18) 0%,transparent 65%);
+  top:-400px;left:-200px;filter:blur(60px);
+  animation:hb1 12s ease-in-out infinite}
+.hero-blur-2{position:absolute;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(249,115,22,0.12) 0%,transparent 65%);
+  top:-300px;right:-100px;filter:blur(60px);
+  animation:hb2 15s ease-in-out infinite}
+.hero-blur-3{position:absolute;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(251,146,60,0.2) 0%,transparent 70%);
+  bottom:-100px;left:45%;filter:blur(40px);
+  animation:hb3 8s ease-in-out infinite}
+@keyframes hb1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,30px) scale(1.1)}}
+@keyframes hb2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,20px) scale(1.08)}}
+@keyframes hb3{0%,100%{transform:translate(-50%,0) scale(1)}50%{transform:translate(-50%,-20px) scale(1.15)}}
+
+/* dot grid */
+.hero-dots{
   position:absolute;inset:0;
-  background-image:
-    linear-gradient(rgba(249,115,22,0.08) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(249,115,22,0.08) 1px,transparent 1px);
-  background-size:40px 40px;
-  animation:grid-shift 20s linear infinite;
+  background-image:radial-gradient(rgba(249,115,22,0.15) 1px,transparent 1px);
+  background-size:28px 28px;
+  mask-image:radial-gradient(ellipse 100% 100% at 50% 50%,black 30%,transparent 80%);
 }
-@keyframes grid-shift{from{transform:translateY(0)}to{transform:translateY(40px)}}
-/* glowing orbs */
-.hero-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
-.ho1{width:500px;height:300px;background:rgba(249,115,22,0.15);top:-80px;left:-80px;animation:orb1 8s ease-in-out infinite}
-.ho2{width:400px;height:300px;background:rgba(249,115,22,0.1);top:-60px;right:-60px;animation:orb2 10s ease-in-out infinite}
-.ho3{width:200px;height:200px;background:rgba(249,115,22,0.12);bottom:-40px;left:40%;animation:orb3 6s ease-in-out infinite}
-@keyframes orb1{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,20px)}}
-@keyframes orb2{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,15px)}}
-@keyframes orb3{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-15px)}}
+/* canvas for particles */
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%;opacity:0.6}
+
 /* scan line */
 .hero-scan{
-  position:absolute;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,rgba(249,115,22,0.6),transparent);
-  animation:scan 4s linear infinite;
+  position:absolute;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent 0%,rgba(249,115,22,0.8) 40%,rgba(251,146,60,1) 50%,rgba(249,115,22,0.8) 60%,transparent 100%);
+  animation:scan 5s linear infinite;box-shadow:0 0 12px rgba(249,115,22,0.6);
 }
-@keyframes scan{from{top:-2px}to{top:100%}}
+@keyframes scan{from{top:-1px}to{top:100%}}
 
+/* glass inner */
 .hero-inner{
-  position:relative;z-index:1;display:flex;align-items:center;
-  justify-content:space-between;padding:28px 0;gap:24px;
+  position:relative;z-index:2;display:flex;align-items:center;
+  justify-content:space-between;padding:24px 0;gap:24px;
 }
-.hero-left{display:flex;align-items:center;gap:20px}
-/* logo mark */
-.logo-mark{
-  width:52px;height:52px;background:var(--orange);border-radius:14px;
-  display:flex;align-items:center;justify-content:center;font-size:22px;
-  box-shadow:0 0 30px rgba(249,115,22,0.5);
-  animation:logo-glow 3s ease-in-out infinite;
-  flex-shrink:0;
-}
-@keyframes logo-glow{0%,100%{box-shadow:0 0 20px rgba(249,115,22,0.4)}50%{box-shadow:0 0 40px rgba(249,115,22,0.7)}}
-.hero-brand{}
-.hero-title{font-size:24px;font-weight:900;color:#fff;letter-spacing:-0.5px}
-.hero-title span{color:var(--orange)}
-.hero-sub{font-size:12px;color:#64748b;margin-top:3px;font-weight:500}
-.hero-divider{width:1px;height:40px;background:rgba(255,255,255,0.08);flex-shrink:0}
-.hero-tag{
-  display:flex;align-items:center;gap:7px;
-  background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);
-  border-radius:100px;padding:6px 14px;
-}
-.hero-tag-dot{width:7px;height:7px;background:var(--orange);border-radius:50%;
-  box-shadow:0 0 8px var(--orange);animation:tag-pulse 2s ease-in-out infinite}
-@keyframes tag-pulse{0%,100%{opacity:1;box-shadow:0 0 8px var(--orange)}50%{opacity:0.5;box-shadow:0 0 16px var(--orange)}}
-.hero-tag-text{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange)}
+.hero-left{display:flex;align-items:center;gap:18px}
 
-.hero-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+/* logo */
+.logo-mark{
+  width:50px;height:50px;border-radius:14px;flex-shrink:0;
+  background:linear-gradient(135deg,#f97316,#ea580c);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:0 0 0 1px rgba(249,115,22,0.3),0 0 30px rgba(249,115,22,0.5),0 4px 16px rgba(0,0,0,0.4);
+  animation:logo-glow 3s ease-in-out infinite;position:relative;overflow:hidden;
+}
+.logo-mark::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.2) 0%,transparent 60%);
+  border-radius:14px;
+}
+@keyframes logo-glow{
+  0%,100%{box-shadow:0 0 0 1px rgba(249,115,22,0.3),0 0 20px rgba(249,115,22,0.4),0 4px 16px rgba(0,0,0,0.4)}
+  50%{box-shadow:0 0 0 1px rgba(249,115,22,0.5),0 0 50px rgba(249,115,22,0.7),0 4px 20px rgba(0,0,0,0.5)}
+}
+
+.hero-title{font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;line-height:1.2}
+.hero-title span{color:var(--orange)}
+.hero-sub{font-size:11px;color:#475569;margin-top:3px;font-weight:500;letter-spacing:0.2px}
+
+.hero-divider{width:1px;height:36px;background:rgba(255,255,255,0.07);flex-shrink:0;margin:0 4px}
+
+/* glass pill */
+.glass-pill{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(249,115,22,0.2);
+  border-radius:100px;padding:6px 14px;
+  backdrop-filter:blur(12px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.glass-pill-dot{width:6px;height:6px;background:var(--orange);border-radius:50%;
+  box-shadow:0 0 8px var(--orange);animation:tag-pulse 1.8s ease-in-out infinite}
+@keyframes tag-pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--orange)}50%{opacity:0.4;box-shadow:0 0 14px var(--orange)}}
+.glass-pill-text{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange)}
+
+.hero-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .status-pill{
   display:flex;align-items:center;gap:8px;
-  border-radius:100px;padding:8px 16px;
-  border:1px solid;font-size:11px;font-weight:700;letter-spacing:0.3px;
+  border-radius:100px;padding:7px 14px;
+  border:1px solid;font-size:10px;font-weight:700;letter-spacing:0.5px;
+  backdrop-filter:blur(12px);
 }
-.status-pill.green{background:rgba(22,163,74,0.15);border-color:rgba(22,163,74,0.3);color:#4ade80}
-.status-pill.red{background:rgba(220,38,38,0.15);border-color:rgba(220,38,38,0.3);color:#f87171}
-.s-dot{width:6px;height:6px;border-radius:50%;animation:tag-pulse 2s ease-in-out infinite}
+.status-pill.green{background:rgba(22,163,74,0.12);border-color:rgba(34,197,94,0.25);color:#4ade80}
+.status-pill.red{background:rgba(220,38,38,0.12);border-color:rgba(248,113,113,0.25);color:#f87171}
+.s-dot{width:6px;height:6px;border-radius:50%;animation:tag-pulse 2s ease-in-out infinite;flex-shrink:0}
 .s-dot.green{background:#4ade80;box-shadow:0 0 6px #4ade80}
 .s-dot.red{background:#f87171;box-shadow:0 0 6px #f87171}
 .hero-chip{
-  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-  border-radius:8px;padding:7px 13px;font-size:11px;color:#94a3b8;font-weight:500;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;padding:7px 12px;font-size:10px;color:#475569;font-weight:500;
+  backdrop-filter:blur(12px);white-space:nowrap;
 }
-.hero-chip span{color:#e2e8f0;font-weight:600}
+.hero-chip span{color:#94a3b8;font-weight:600}
 
 /* ── TICKER ── */
 .ticker-wrap{
@@ -306,22 +334,23 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <!-- ── HERO ── -->
 <div class="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-orb ho1"></div>
-  <div class="hero-orb ho2"></div>
-  <div class="hero-orb ho3"></div>
+  <div class="hero-blur-1"></div>
+  <div class="hero-blur-2"></div>
+  <div class="hero-blur-3"></div>
+  <div class="hero-dots"></div>
+  <canvas id="heroCanvas"></canvas>
   <div class="hero-scan"></div>
   <div class="hero-inner">
     <div class="hero-left">
       <div class="logo-mark">⚡</div>
-      <div class="hero-brand">
+      <div>
         <div class="hero-title">Sinister Diesel <span>Sync</span></div>
         <div class="hero-sub">Miva ↔ NetSuite Automation &nbsp;·&nbsp; Oracle Cloud US West · San Jose</div>
       </div>
       <div class="hero-divider"></div>
-      <div class="hero-tag">
-        <div class="hero-tag-dot"></div>
-        <span class="hero-tag-text">Live Dashboard</span>
+      <div class="glass-pill">
+        <div class="glass-pill-dot"></div>
+        <span class="glass-pill-text">Live Dashboard</span>
       </div>
     </div>
     <div class="hero-right">
@@ -761,6 +790,82 @@ async function fetchLogs(){
 fetchLogs();fetchUptime();
 setInterval(fetchLogs,10000);
 setInterval(fetchUptime,60000);
+
+// ── PARTICLE CANVAS ──
+(function(){
+  const canvas = document.getElementById('heroCanvas');
+  const hero = canvas.parentElement;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles=[], animId;
+
+  function resize(){
+    W = canvas.width = hero.offsetWidth;
+    H = canvas.height = hero.offsetHeight;
+  }
+
+  function Particle(){
+    this.reset = function(){
+      this.x = Math.random()*W;
+      this.y = Math.random()*H;
+      this.r = Math.random()*1.5+0.3;
+      this.vx = (Math.random()-0.5)*0.4;
+      this.vy = (Math.random()-0.5)*0.4;
+      this.alpha = Math.random()*0.5+0.1;
+      this.color = Math.random()>0.6 ? '#f97316' : '#fb923c';
+      this.life = Math.random()*200+100;
+      this.age = 0;
+    };
+    this.reset();
+    this.y = Math.random()*H; // spread on init
+  }
+
+  function init(){
+    particles=[];
+    for(let i=0;i<80;i++){const p=new Particle();particles.push(p);}
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // draw connections
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x;
+        const dy=particles[i].y-particles[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<120){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(249,115,22,${0.06*(1-dist/120)})`;
+          ctx.lineWidth=0.5;
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // draw particles
+    particles.forEach(p=>{
+      p.age++;
+      const fade = p.age<20 ? p.age/20 : p.age>p.life-20 ? (p.life-p.age)/20 : 1;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.color;
+      ctx.globalAlpha=p.alpha*fade;
+      ctx.fill();
+      ctx.globalAlpha=1;
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.age>=p.life||p.x<0||p.x>W||p.y<0||p.y>H) p.reset();
+    });
+
+    animId=requestAnimationFrame(draw);
+  }
+
+  resize();
+  init();
+  draw();
+  window.addEventListener('resize',()=>{cancelAnimationFrame(animId);resize();init();draw();});
+})();
 </script>
 </body>
 </html>
