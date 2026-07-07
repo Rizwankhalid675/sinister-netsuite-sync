@@ -207,7 +207,7 @@ p{margin-bottom:14px;color:#475569;font-size:13px;line-height:1.75}
   <div class="cover-meta">
     <strong>Built by:</strong> Rizwan Khalid — Ecommerce Coordinator &nbsp;·&nbsp;
     <strong>Replaces:</strong> Celigo Middleware &nbsp;·&nbsp;
-    <strong>Stack:</strong> Node.js · Windows Service · Miva API · NetSuite REST API
+    <strong>Stack:</strong> Node.js · PM2 · Nginx · Oracle Cloud · Miva API · NetSuite REST API
   </div>
 </div>
 
@@ -217,9 +217,9 @@ p{margin-bottom:14px;color:#475569;font-size:13px;line-height:1.75}
   <h2>What Is Sinister Diesel Sync?</h2>
   <div class="rule"></div>
 
-  <p>Sinister Diesel Sync is a fully custom-built Windows background service that automatically bridges our <strong>Miva storefront</strong> (sinisterdiesel.com) and our <strong>NetSuite ERP</strong> — replacing the $17,797/year Celigo subscription with an in-house solution we own completely.</p>
+  <p>Sinister Diesel Sync is a fully custom-built integration service that automatically bridges our <strong>Miva storefront</strong> (sinisterdiesel.com) and our <strong>NetSuite ERP</strong> — replacing the $17,797/year Celigo subscription with an in-house solution we own completely.</p>
 
-  <p>It runs silently in the background on our Windows server, wakes up every 5 minutes, and executes 5 automated flows covering everything from order creation to invoice closing.</p>
+  <p>It runs 24/7 on an <strong>Oracle Cloud Always Free</strong> Linux server, managed by PM2, waking up every 5 minutes to execute 5 automated flows covering everything from order creation to invoice closing. A live password-protected dashboard shows real-time sync logs and flow health at a glance.</p>
 
   <div class="flow-wrap">
     <div class="flow-node orange">
@@ -274,9 +274,9 @@ p{margin-bottom:14px;color:#475569;font-size:13px;line-height:1.75}
     </div>
     <div class="flow-card" style="background:#f8fafc;border-style:dashed;">
       <div class="fc-num" style="color:#94a3b8;">Always On</div>
-      <div class="fc-title" style="color:#94a3b8;">Windows Service</div>
-      <div class="fc-dir">sinisterdieselsync.exe</div>
-      <div class="fc-body">Registered as a Windows Service. Starts automatically with the server. No manual intervention needed.</div>
+      <div class="fc-title" style="color:#94a3b8;">Live Dashboard</div>
+      <div class="fc-dir">Oracle Cloud · PM2 · Nginx</div>
+      <div class="fc-body">Runs on a Linux server via PM2. A live password-protected dashboard shows real-time logs, flow health, and sync stats — accessible from any browser.</div>
     </div>
   </div>
   <div class="pg-footer">Sinister Diesel Sync · Internal Documentation · June 2026</div>
@@ -525,12 +525,16 @@ p{margin-bottom:14px;color:#475569;font-size:13px;line-height:1.75}
   <div class="rule"></div>
 
   <div class="file-tree">
-    <div class="ft-dir">sinister-netsuite-sync/</div>
+    <div class="ft-dir">/opt/sinister-diesel-sync/</div>
     <div class="ft-dir">&nbsp;&nbsp;│</div>
-    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-hl">index.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Main entry point · scheduler · runs all 5 flows</span></div>
-    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">miva.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Miva API client (orders, shipments, products)</span></div>
-    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">netsuite.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← NetSuite REST API client (TBA OAuth 1.0a)</span></div>
-    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">logger.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Timestamped logging to console + sync.log</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-hl">index.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Main entry point · scheduler · runs all 5 flows</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">miva.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Miva API client (orders, shipments, products)</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">netsuite.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← NetSuite REST API client (TBA OAuth 1.0a)</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">logger.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Timestamped logging to console + sync.log</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-hl">dashboard.html</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Live dashboard UI (served by Nginx)</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">dashboard-server.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Dashboard API on port 3001 (/api/logs, /api/stats)</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">nginx.conf</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Nginx site config (Basic Auth + reverse proxy)</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;├── </span><span class="ft-file">ecosystem.config.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← PM2 config (sync service + dashboard API)</span></div>
     <div class="ft-dir">&nbsp;&nbsp;│</div>
     <div><span class="ft-dir">&nbsp;&nbsp;├── flows/</span></div>
     <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-hl">ordersToNetsuite.js</span><span class="ft-file ft-comment">&nbsp;&nbsp;← Flow 1: Miva orders → NS Sales Orders</span></div>
@@ -540,11 +544,12 @@ p{margin-bottom:14px;color:#475569;font-size:13px;line-height:1.75}
     <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── </span><span class="ft-file">customersToNetsuite.js</span><span class="ft-file ft-comment">&nbsp;← Flow 5: Miva customers → NetSuite</span></div>
     <div class="ft-dir">&nbsp;&nbsp;│</div>
     <div><span class="ft-dir">&nbsp;&nbsp;├── logs/</span></div>
-    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-green">sync.log</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Full timestamped activity log</span></div>
-    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-green">synced_orders.json</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;← Tracks synced Miva → NS orders</span></div>
-    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── </span><span class="ft-green">synced_invoices.json</span><span class="ft-file ft-comment">&nbsp;← Tracks deposit + invoice per order</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-green">sync.log</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Full timestamped activity log</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-green">synced_orders.json</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;← Tracks synced Miva → NS orders (prevents duplicates)</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── </span><span class="ft-green">synced_invoices.json</span><span class="ft-file ft-comment">&nbsp;&nbsp;← Tracks deposit + invoice per order</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── </span><span class="ft-green">synced_customers.json</span><span class="ft-file ft-comment">&nbsp;← Tracks synced customer records</span></div>
     <div class="ft-dir">&nbsp;&nbsp;│</div>
-    <div><span class="ft-dir">&nbsp;&nbsp;└── </span><span class="ft-file">.env</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← API credentials (never share)</span></div>
+    <div><span class="ft-dir">&nbsp;&nbsp;└── </span><span class="ft-file">.env</span><span class="ft-file ft-comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← API credentials (never share)</span></div>
   </div>
 
   <div class="flow-cards-2">
@@ -567,11 +572,14 @@ p{margin-bottom:14px;color:#475569;font-size:13px;line-height:1.75}
   <div class="info-box warning">
     <div class="ib-icon">⚙️</div>
     <div class="ib-body">
-      <div class="ib-title">Restarting the Service (Admin PowerShell required)</div>
+      <div class="ib-title">Managing the Service (SSH into Oracle Cloud server)</div>
       <div class="ib-text">
-        Open <strong>PowerShell as Administrator</strong> and run:<br>
-        <code style="background:#0f172a;color:#f97316;padding:3px 8px;border-radius:4px;font-size:11px;display:inline-block;margin-top:6px">net stop sinisterdieselsync.exe</code><br>
-        <code style="background:#0f172a;color:#22c55e;padding:3px 8px;border-radius:4px;font-size:11px;display:inline-block;margin-top:4px">net start sinisterdieselsync.exe</code>
+        Check status of both PM2 apps:<br>
+        <code style="background:#0f172a;color:#f97316;padding:3px 8px;border-radius:4px;font-size:11px;display:inline-block;margin-top:6px">pm2 status</code><br>
+        Restart sync service:<br>
+        <code style="background:#0f172a;color:#22c55e;padding:3px 8px;border-radius:4px;font-size:11px;display:inline-block;margin-top:4px">pm2 restart sinister-diesel-sync</code><br>
+        View live logs:<br>
+        <code style="background:#0f172a;color:#94a3b8;padding:3px 8px;border-radius:4px;font-size:11px;display:inline-block;margin-top:4px">pm2 logs sinister-diesel-sync</code>
       </div>
     </div>
   </div>
@@ -589,13 +597,13 @@ p{margin-bottom:14px;color:#475569;font-size:13px;line-height:1.75}
       <div class="msg-avatar">RK</div>
       <div>
         <div class="msg-from">Rizwan Khalid</div>
-        <div class="msg-to">To: Brian · Jordy · Dee · Alejandro · Michael</div>
+        <div class="msg-to">To: Brian · Michael</div>
       </div>
     </div>
     <div class="msg-body">
       <p>Hey team,</p>
       <p>I wanted to share an exciting update with all of you — one that's been in the works for a while and is now fully live.</p>
-      <p>We have officially replaced our <strong>Celigo middleware subscription</strong> with a fully custom-built integration called <strong>Sinister Diesel Sync</strong> — a background service that runs on our Windows server and keeps Miva and NetSuite in perfect sync, automatically, every 5 minutes, 24 hours a day.</p>
+      <p>We have officially replaced our <strong>Celigo middleware subscription</strong> with a fully custom-built integration called <strong>Sinister Diesel Sync</strong> — a background service that runs on our own <strong>Oracle Cloud server</strong> (always free) and keeps Miva and NetSuite in perfect sync, automatically, every 5 minutes, 24 hours a day.</p>
       <p><strong>Here's what it handles end to end:</strong></p>
       <ul class="msg-list">
         <li>Every new order on sinisterdiesel.com is automatically created in NetSuite as a Sales Order — with the customer, all line items, shipping method, discounts, promo codes, and taxes mapped correctly</li>
@@ -606,7 +614,7 @@ p{margin-bottom:14px;color:#475569;font-size:13px;line-height:1.75}
         <li>Discount and promo codes now populate the dedicated <strong>Discount Item and Discount Rate</strong> fields on the Sales Order, so the sales team can see them instantly</li>
       </ul>
       <p><strong>What this means for us:</strong> We are eliminating <strong>$17,797 per year</strong> in Celigo subscription costs. This is fully owned, fully custom, and built specifically for how Sinister Diesel operates.</p>
-      <p>A full technical documentation has been written covering every flow, field mapping, troubleshooting guide, and system reference — available for anyone who needs it.</p>
+      <p>A <strong>live dashboard</strong> is available showing real-time sync logs, flow status, and today's activity — password protected and accessible from any browser. Full technical documentation has also been written covering every flow, field mapping, troubleshooting guide, and system reference.</p>
       <p><strong>Special thanks to Jordy</strong> for quickly setting up the NetSuite integration token and permissions — your help made the final piece click into place, and I really appreciate it.</p>
       <p>If you have any questions, notice anything unexpected in NetSuite, or want me to walk you through how it all works — I'm happy to jump on a call anytime.</p>
       <p>More improvements to come. This is just the beginning.</p>

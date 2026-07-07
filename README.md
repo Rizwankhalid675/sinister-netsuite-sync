@@ -203,54 +203,36 @@ You should see output like:
 
 ---
 
+## Live Dashboard
+
+The repo includes a live dashboard (`dashboard.html`) that shows real-time sync logs, stats, and flow health. It's served by Nginx as static HTML and talks to a small Node API (`dashboard-server.js`, port 3001) for log/stat data. Both run under PM2 alongside the sync service — see `ecosystem.config.js`.
+
+The dashboard is password-protected via Nginx HTTP Basic Auth (see Step 2 below) and the API enforces a 30 requests/minute per-IP rate limit.
+
 ## Nginx Configuration
 
-Nginx is used to serve the documentation/presentation page at your domain.
+Nginx serves the dashboard as the site root and reverse-proxies `/api/` calls to the dashboard API on port 3001. The repo's `nginx.conf` is the source of truth — copy it into place rather than hand-writing a config.
 
-### Step 1 — Create the web root
+### Step 1 — Create the web root and deploy the dashboard
 
 ```bash
 sudo mkdir -p /var/www/sinister-diesel
+sudo cp /opt/sinister-diesel-sync/dashboard.html /var/www/sinister-diesel/index.html
 ```
 
-Copy the presentation HTML:
+### Step 2 — Set up password protection
 
 ```bash
-sudo cp /opt/sinister-diesel-sync/Sinister_Diesel_Sync_Presentation.html /var/www/sinister-diesel/index.html
+sudo apt install -y apache2-utils
+sudo htpasswd -c /etc/nginx/.htpasswd sinister
 ```
 
-### Step 2 — Create the Nginx site config
+You'll be prompted to set a password (current credentials: username `sinister`, password `SD2026!sync`).
+
+### Step 3 — Install the Nginx site config
 
 ```bash
-sudo nano /etc/nginx/sites-available/sinister-diesel
-```
-
-Paste the following (replace `your-domain.com` with your actual domain):
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com www.your-domain.com;
-
-    root /var/www/sinister-diesel;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ =404;
-    }
-
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-Content-Type-Options "nosniff";
-
-    access_log /var/log/nginx/sinister-diesel-access.log;
-    error_log  /var/log/nginx/sinister-diesel-error.log;
-}
-```
-
-### Step 3 — Enable the site
-
-```bash
+sudo cp /opt/sinister-diesel-sync/nginx.conf /etc/nginx/sites-available/sinister-diesel
 sudo ln -s /etc/nginx/sites-available/sinister-diesel /etc/nginx/sites-enabled/sinister-diesel
 sudo rm -f /etc/nginx/sites-enabled/default
 ```
@@ -267,7 +249,19 @@ Reload Nginx:
 sudo systemctl reload nginx
 ```
 
-Your documentation page is now live at `http://your-domain.com`.
+The dashboard is now live at `http://your-server-ip` (prompts for the Basic Auth credentials above).
+
+### Deploying dashboard changes
+
+The dashboard is edited locally, committed to git, then pulled and copied into the web root on the server:
+
+```bash
+cd /opt/sinister-diesel-sync
+sudo git pull
+sudo cp dashboard.html /var/www/sinister-diesel/index.html
+```
+
+`dashboard.html` is saved as UTF-16 (Windows default) — if editing on Linux, watch for encoding issues.
 
 ---
 
@@ -293,13 +287,16 @@ Your site will be available at `https://your-domain.com`.
 
 ## PM2 Command Reference
 
+`ecosystem.config.js` runs two PM2 apps: `sinister-diesel-sync` (the sync flows) and `dashboard-api` (the dashboard's data API on port 3001).
+
 | Task | Command |
 |---|---|
-| Start service | `pm2 start ecosystem.config.js` |
-| Stop service | `pm2 stop sinister-diesel-sync` |
-| Restart service | `pm2 restart sinister-diesel-sync` |
+| Start everything | `pm2 start ecosystem.config.js` |
+| Stop sync service | `pm2 stop sinister-diesel-sync` |
+| Restart sync service | `pm2 restart sinister-diesel-sync` |
+| Restart dashboard API | `pm2 restart dashboard-api` |
 | View live logs | `pm2 logs sinister-diesel-sync` |
-| Check status | `pm2 status` |
+| Check status (both apps) | `pm2 status` |
 | View last 100 log lines | `pm2 logs sinister-diesel-sync --lines 100` |
 
 ---
@@ -340,10 +337,15 @@ Log symbols:
 | Service not running | `pm2 start ecosystem.config.js` |
 | Auth errors (401/403) | Update `.env` with new NetSuite token credentials |
 | Orders not syncing | Check `logs/sync.log` for the specific order ID |
-| Duplicate orders in NS | Do not delete `logs/synced_orders.json` |
+| Duplicate orders in NS | Do not delete `logs/synced_orders.json`. Also confirm the sync is **not running on two machines at once** (e.g. Windows service + Linux PM2) — running both against the same NetSuite account causes duplicate Sales Orders since each has its own tracking file. |
+| Dashboard shows "API UNREACHABLE" | `dashboard-api` PM2 process is down — check `pm2 status` and `pm2 logs dashboard-api` |
+| Dashboard flows stuck on IDLE / Last sync shows — | Sync service isn't writing to `logs/sync.log`, or log format changed — check `pm2 logs sinister-diesel-sync` |
 | Nginx 502 Bad Gateway | The Node service is not running — check `pm2 status` |
 | Nginx 404 | Check `/var/www/sinister-diesel/index.html` exists |
 | Permission denied on `.env` | Run `chmod 600 .env` |
+| Dashboard prompts for login repeatedly | Confirm `/etc/nginx/.htpasswd` exists and credentials match what was set with `htpasswd` |
+
+> **Important — only run the sync on one machine at a time.** If migrating from Windows to Linux (or vice versa), stop the old service before starting the new one. Running both simultaneously causes duplicate orders/invoices in NetSuite because each machine has its own independent tracking JSON files.
 
 ---
 
@@ -355,7 +357,10 @@ Log symbols:
 ├── miva.js                     ← Miva API client
 ├── netsuite.js                 ← NetSuite REST API client (TBA OAuth 1.0a)
 ├── logger.js                   ← Logging
-├── ecosystem.config.js         ← PM2 process config
+├── dashboard.html              ← Live dashboard UI (copied to /var/www/sinister-diesel/index.html)
+├── dashboard-server.js         ← Dashboard API (port 3001): /api/logs, /api/stats
+├── nginx.conf                  ← Source of truth for the Nginx site config
+├── ecosystem.config.js         ← PM2 process config (sync service + dashboard API)
 ├── .env                        ← Your credentials (never share)
 ├── .env.example                ← Credentials template
 ├── flows/

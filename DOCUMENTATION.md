@@ -1,17 +1,21 @@
 # Sinister Diesel Sync — System Documentation
 
-**Service Name:** Sinister Diesel Sync (`sinisterdieselsync.exe`)
+**Service Name:** Sinister Diesel Sync
 **Built By:** Rizwan Khalid (Ecommerce Coordinator)
 **Purpose:** Replaces Celigo middleware ($17,797/year) with a custom, fully owned integration
-**Stack:** Node.js · Windows Service · Miva JSON API · NetSuite REST API (TBA OAuth 1.0a)
+**Stack:** Node.js · PM2 · Nginx · Linux (Oracle Cloud) · Miva JSON API · NetSuite REST API (TBA OAuth 1.0a)
+
+> **Note:** This service originally ran as a Windows Service (`sinisterdieselsync.exe`). It has since been migrated to run on a Linux VM under PM2 — see [README.md](README.md) and [DEPLOY.md](DEPLOY.md) for the current deployment. Only one instance should ever run at a time; running it on both Windows and Linux simultaneously causes duplicate Sales Orders in NetSuite.
 
 ---
 
 ## What Is This?
 
-This is a custom-built Windows background service that automatically keeps **Miva** (our storefront) and **NetSuite** (our ERP) in sync — 24 hours a day, 7 days a week, every 5 minutes — with zero manual effort.
+This is a custom-built background service that automatically keeps **Miva** (our storefront) and **NetSuite** (our ERP) in sync — 24 hours a day, 7 days a week, every 5 minutes — with zero manual effort.
 
 Every time a customer places an order on sinisterdiesel.com, the sync service picks it up, creates everything needed in NetSuite, and keeps both systems perfectly aligned.
+
+A live dashboard (password-protected) shows real-time sync logs, flow health, and stats — see "Live Dashboard" below.
 
 ---
 
@@ -26,7 +30,7 @@ CUSTOMER PLACES ORDER
         ↓
 ┌─────────────────────────────┐
 │   Sinister Diesel Sync      │
-│   (Windows Background Svc)  │
+│   (PM2 process on Linux)    │
 │                             │
 │  Flow 1 → Sales Order       │
 │  Flow 2 → Shipments         │
@@ -148,6 +152,19 @@ Syncs customer records from Miva into NetSuite — names, emails, phone numbers,
 
 ---
 
+## Live Dashboard
+
+A password-protected dashboard at the server's URL shows real-time sync activity:
+
+- **Stat cards** — next sync countdown, sync interval, orders synced today, service uptime
+- **Live log panel** — streams the last 300 lines of `sync.log`, polling every 10 seconds, color-coded by severity
+- **Flow status panel** — shows OK/IDLE for each of the 5 flows based on recent log activity
+- **Recent Activity feed** — human-readable summary of the latest sync events
+
+It's served by Nginx as static HTML (`dashboard.html` → `/var/www/sinister-diesel/index.html`) and backed by a small API (`dashboard-server.js`, port 3001) exposing `/api/logs` and `/api/stats`. The API is rate-limited (30 requests/minute/IP) and the dashboard itself sits behind HTTP Basic Auth configured in Nginx. See [README.md](README.md) for deployment and credential details.
+
+---
+
 ## File Structure
 
 ```
@@ -157,6 +174,10 @@ sinister-netsuite-sync/
 ├── miva.js                     ← Miva API client (orders, shipments, products)
 ├── netsuite.js                 ← NetSuite API client (TBA auth, REST, SuiteQL)
 ├── logger.js                   ← Logging to console + logs/sync.log
+├── dashboard.html              ← Live dashboard UI
+├── dashboard-server.js         ← Dashboard API (port 3001): /api/logs, /api/stats
+├── nginx.conf                  ← Nginx site config (reverse proxy + Basic Auth)
+├── ecosystem.config.js         ← PM2 config — runs sync service + dashboard API
 │
 ├── flows/
 │   ├── ordersToNetsuite.js     ← Flow 1: Miva orders → NS Sales Orders
@@ -168,10 +189,10 @@ sinister-netsuite-sync/
 ├── logs/
 │   ├── sync.log                ← Full activity log (every action logged with timestamp)
 │   ├── synced_orders.json      ← Tracks which Miva orders are in NS (prevents duplicates)
-│   └── synced_invoices.json    ← Tracks deposit/invoice status per order
+│   ├── synced_invoices.json    ← Tracks deposit/invoice status per order
+│   └── synced_customers.json   ← Tracks synced customer records
 │
 ├── .env                        ← API credentials (never share this file)
-├── install-service.js          ← Installs/registers the Windows Service
 └── package.json
 ```
 
@@ -228,29 +249,45 @@ sinister-netsuite-sync/
 
 ---
 
-## Windows Service
+## Service Management (PM2 on Linux)
 
-**Service Name:** `sinisterdieselsync.exe`
-**Display Name:** Sinister Diesel Sync
-**Runs as:** Background Windows Service (starts automatically with Windows)
+**Runs on:** Oracle Cloud Always Free VM — Ubuntu 24.04, US West (San Jose)
 **Sync Interval:** Every 5 minutes
+**Process manager:** PM2 (auto-restarts on crash, survives server reboots)
 
-### How to Restart the Service (requires Admin)
-Open **PowerShell as Administrator** and run:
-```
-net stop sinisterdieselsync.exe
-net start sinisterdieselsync.exe
+Two PM2 apps are configured in `ecosystem.config.js`:
+- `sinister-diesel-sync` — the main sync service (all 5 flows)
+- `dashboard-api` — serves the live dashboard's `/api/logs` and `/api/stats` endpoints on port 3001
+
+### Managing the Service
+
+```bash
+pm2 status                                  # view both app statuses
+pm2 logs sinister-diesel-sync               # live log stream
+pm2 restart sinister-diesel-sync            # restart sync service
+pm2 restart dashboard-api                   # restart dashboard API
+pm2 stop sinister-diesel-sync               # stop sync (does not affect dashboard)
+pm2 start ecosystem.config.js               # start everything
 ```
 
 ### How to View Logs
-Open the log file at:
+
+SSH into the server and run:
+```bash
+pm2 logs sinister-diesel-sync --lines 100
 ```
-sinister-netsuite-sync\logs\sync.log
+
+Or read the log file directly:
+```bash
+tail -f /opt/sinister-diesel-sync/logs/sync.log
 ```
+
 Every action is timestamped. Look for:
 - `✅` = Success
 - `⚠️` = Warning (non-critical)
 - `❌` = Error (needs attention)
+
+Or just open the live dashboard in a browser — it shows the same log in real time, color-coded.
 
 ---
 
@@ -287,8 +324,9 @@ The system uses two JSON tracking files to make sure nothing is processed twice:
 |---|---|---|
 | Order not showing in NetSuite | SKU not found, customer create failed | Check `sync.log` for that order ID |
 | Invoice showing as OPEN | Deposit not applied yet | Check if deposit application ran; verify NS permissions |
-| Duplicate orders | `synced_orders.json` was cleared | Do not delete or edit JSON tracking files |
-| Service not running | Windows restarted or crashed | Run `net start sinisterdieselsync.exe` as Admin |
+| Duplicate orders | `synced_orders.json` was cleared, **or the sync was running on two machines at once** | Do not delete or edit JSON tracking files. Never run the sync on Windows and Linux simultaneously — each has its own tracking files and will both try to create the same order. |
+| Service not running | Server restarted or process crashed | SSH in and run `pm2 start ecosystem.config.js`; `pm2 status` to confirm |
+| Dashboard unreachable / shows "API UNREACHABLE" | `dashboard-api` PM2 process down, or Nginx not running | `pm2 logs dashboard-api`, `sudo systemctl status nginx` |
 | Auth errors (401/403) | Token expired or permissions changed | Update `.env` with new token credentials |
 | Wrong discount value | Miva charge type mismatch | Check order charges in Miva API response |
 
@@ -314,5 +352,5 @@ SYNC_INTERVAL_MINUTES = 5
 
 ---
 
-*Built in-house by the Sinister Diesel Ecommerce team — June 2026*
+*Built in-house by the Sinister Diesel Ecommerce team*
 *Replacing Celigo middleware and saving $17,797/year*
