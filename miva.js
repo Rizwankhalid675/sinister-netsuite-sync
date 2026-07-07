@@ -66,4 +66,25 @@ async function updateProductId(productCode, netsuiteId) {
   return await mivaRequest(body);
 }
 
-module.exports = { getOrders, updateOrderShipment, updateProductId };
+async function getActiveProductCodes({ batchSize = 200 } = {}) {
+  const codes = new Set();
+  let offset = 0;
+  while (true) {
+    const body = {
+      Store_Code: STORE_CODE,
+      Function: 'ProductList_Load_Query',
+      Count: batchSize,
+      Offset: offset,
+      Miva_Request_Timestamp: Math.floor(Date.now() / 1000),
+      Filter: [{ name: 'search', value: [{ field: 'product_active', operator: 'EQ', value: '1' }] }]
+    };
+    const result = await mivaRequest(body);
+    const page = result.data?.data || result.data || [];
+    for (const p of page) codes.add(p.code || p.product_code);
+    if (page.length < batchSize) break;
+    offset += batchSize;
+  }
+  return codes;
+}
+
+module.exports = { getOrders, updateOrderShipment, updateProductId, getActiveProductCodes };

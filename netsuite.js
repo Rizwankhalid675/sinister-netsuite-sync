@@ -56,15 +56,25 @@ async function nsRequest(method, path, data = null) {
 
 async function suiteQL(query) {
   const url = `${BASE_URL}/query/v1/suiteql`;
+  const limit = 1000;
+  let offset = 0;
+  let items = [];
   try {
-    const response = await axios.post(url, { q: query }, {
-      headers: {
-        'Authorization': getTBAHeader('POST', url),
-        'Content-Type': 'application/json',
-        'Prefer': 'transient'
-      }
-    });
-    return response.data.items || [];
+    while (true) {
+      const pagedUrl = `${url}?limit=${limit}&offset=${offset}`;
+      const response = await axios.post(pagedUrl, { q: query }, {
+        headers: {
+          'Authorization': getTBAHeader('POST', pagedUrl),
+          'Content-Type': 'application/json',
+          'Prefer': 'transient'
+        }
+      });
+      const page = response.data.items || [];
+      items = items.concat(page);
+      if (response.data.hasMore !== true) break;
+      offset += limit;
+    }
+    return items;
   } catch (err) {
     const detail = err.response?.data ? JSON.stringify(err.response.data) : err.message;
     throw new Error(`SuiteQL failed: ${detail}`);

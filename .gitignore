@@ -11,6 +11,10 @@ logs/pm2-*.log
 # Dependencies
 node_modules/
 
+# Margin check — generated reports and large vendor price files
+margin-check/reports/
+margin-check/price-files/
+
 # OS
 .DS_Store
 Thumbs.db
