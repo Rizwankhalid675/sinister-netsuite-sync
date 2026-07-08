@@ -1,7 +1,6 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { runCheck } = require('./margin-check/check-priceoffile');
 
 const LOG_FILE = path.join(__dirname, 'logs', 'sync.log');
 const REPORTS_DIR = path.join(__dirname, 'margin-check', 'reports');
@@ -101,6 +100,7 @@ const server = http.createServer(async (req, res) => {
     }
     marginReportRunning = true;
     try {
+      const { runCheck } = require('./margin-check/check-priceoffile');
       const result = await runCheck();
       res.end(JSON.stringify({
         ok: true,
