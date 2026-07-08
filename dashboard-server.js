@@ -72,10 +72,20 @@ setInterval(() => {
   }
 }, 300000);
 
+// Reads only the trailing chunk of the file instead of the whole thing — sync.log grows
+// unbounded (hit 389MB in production) and a full readFileSync on every poll was spiking
+// RSS to 600MB+ and getting dashboard-api OOM-killed by the kernel every ~90 seconds.
+const TAIL_CHUNK_BYTES = 512 * 1024;
+
 function readLastLines(filePath, maxLines = 300) {
   try {
-    const content = fs.readFileSync(filePath, 'utf8');
-    const lines = content.split('\n').filter(l => l.trim());
+    const { size } = fs.statSync(filePath);
+    const start = Math.max(0, size - TAIL_CHUNK_BYTES);
+    const fd = fs.openSync(filePath, 'r');
+    const buf = Buffer.alloc(size - start);
+    fs.readSync(fd, buf, 0, buf.length, start);
+    fs.closeSync(fd);
+    const lines = buf.toString('utf8').split('\n').filter(l => l.trim());
     return lines.slice(-maxLines);
   } catch { return []; }
 }
