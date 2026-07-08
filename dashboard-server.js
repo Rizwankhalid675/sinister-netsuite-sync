@@ -1,10 +1,41 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { execFile } = require('child_process');
 
 const LOG_FILE = path.join(__dirname, 'logs', 'sync.log');
 const REPORTS_DIR = path.join(__dirname, 'margin-check', 'reports');
+const MARGIN_CHECK_SCRIPT = path.join(__dirname, 'margin-check', 'check-priceoffile.js');
 const PORT = 3001;
+
+// Runs the XLSX-parsing report generator in its own process (it can spike to 400MB+
+// while parsing the 14MB Holley price file) so it can never trip dashboard-api's own
+// memory limit and take the whole API down with it.
+function runMarginCheckInSubprocess() {
+  return new Promise((resolve, reject) => {
+    execFile(
+      process.execPath,
+      [MARGIN_CHECK_SCRIPT, '--json'],
+      { cwd: __dirname, timeout: 5 * 60 * 1000, maxBuffer: 10 * 1024 * 1024 },
+      (err, stdout) => {
+        if (err) {
+          reject(new Error(err.killed ? 'Report generation timed out or was killed' : err.message));
+          return;
+        }
+        const line = stdout.split('\n').find(l => l.startsWith('RESULT_JSON:'));
+        if (!line) {
+          reject(new Error('Report process finished without returning a result'));
+          return;
+        }
+        try {
+          resolve(JSON.parse(line.slice('RESULT_JSON:'.length)));
+        } catch {
+          reject(new Error('Could not parse report result'));
+        }
+      }
+    );
+  });
+}
 
 let marginReportRunning = false;
 
@@ -100,8 +131,7 @@ const server = http.createServer(async (req, res) => {
     }
     marginReportRunning = true;
     try {
-      const { runCheck } = require('./margin-check/check-priceoffile');
-      const result = await runCheck();
+      const result = await runMarginCheckInSubprocess();
       res.end(JSON.stringify({
         ok: true,
         totalIssues: result.totalIssues,

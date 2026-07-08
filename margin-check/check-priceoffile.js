@@ -210,8 +210,16 @@ async function runCheck() {
 module.exports = { runCheck };
 
 if (require.main === module) {
-  runCheck().catch(err => {
-    console.error('Price file check failed:', err.message);
-    process.exit(1);
-  });
+  const asJson = process.argv.includes('--json');
+  runCheck()
+    .then(result => {
+      if (asJson) {
+        // Marker line lets the parent process pull the JSON result out of normal stdout logging.
+        console.log('RESULT_JSON:' + JSON.stringify(result));
+      }
+    })
+    .catch(err => {
+      console.error('Price file check failed:', err.message);
+      process.exit(1);
+    });
 }
