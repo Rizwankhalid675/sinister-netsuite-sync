@@ -21,7 +21,7 @@ module.exports = {
       exec_mode: 'fork',
       autorestart: true,
       watch: false,
-      max_memory_restart: '100M',
+      max_memory_restart: '500M',
       env: { NODE_ENV: 'production' },
       out_file: './logs/dashboard-out.log',
       error_file: './logs/dashboard-error.log',
