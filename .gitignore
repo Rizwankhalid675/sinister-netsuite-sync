@@ -11,7 +11,7 @@ logs/pm2-*.log
 # Dependencies
 node_modules/
 
-# Margin check — generated reports and large vendor price files
+# Margin check — generated reports and vendor price files (XLSX + converted CSV)
 margin-check/reports/
 margin-check/price-files/
 

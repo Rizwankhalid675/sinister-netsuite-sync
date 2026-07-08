@@ -1,40 +1,78 @@
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const XLSX = require('xlsx');
+const readline = require('readline');
 const { suiteQL } = require('../netsuite');
 const { getActiveProductCodes } = require('../miva');
 const { generateMarginReviewPdf } = require('./pdf-report');
 
-const PRICE_FILE = path.join(__dirname, 'price-files', '2026-06-22_ Holley Price File.xlsx');
-const ACTIVE_SHEETS = ['06.22 All', 'Memory Impacted Skus', '06.22 Overstock Sale'];
+// Flat CSV produced locally by convert-price-file.js from the vendor's XLSX. Parsing the
+// 14MB XLSX in-process was spiking memory to 350-400MB, which the production server (under
+// 1GB total RAM) can't absorb — streaming this pre-flattened CSV keeps memory near-zero
+// regardless of file size. Re-run convert-price-file.js locally whenever a new price file
+// arrives, then upload the resulting CSV here.
+const PRICE_FILE = path.join(__dirname, 'price-files', '2026-06-22_ Holley Price File.csv');
 
 // Confirmed with Amanda Morales (2026-07-06): Sinister's Holley/Edge account is Platinum tier.
 const COST_TIER = 'Platinum';
+const COST_COLUMN = { Platinum: 'Cost' }[COST_TIER] || 'Cost';
 
 // Confirmed with Amanda Morales (2026-07-06): Sinister does not source B&M through Holley — exclude.
 const EXCLUDED_BRANDS = ['B&M'];
 
-function loadPriceFile() {
-  const wb = XLSX.readFile(PRICE_FILE);
-  const bySku = new Map();
-  for (const sheetName of ACTIVE_SHEETS) {
-    const ws = wb.Sheets[sheetName];
-    if (!ws) continue;
-    const rows = XLSX.utils.sheet_to_json(ws, { defval: null });
-    for (const r of rows) {
-      const sku = String(r.Item || '').trim();
-      if (!sku) continue;
-      if (EXCLUDED_BRANDS.includes(r.Brand)) continue;
-      bySku.set(sku, {
-        brand: r.Brand,
-        status: r.Item_Status,
-        cost: typeof r[COST_TIER] === 'number' ? r[COST_TIER] : null,
-        map: typeof r.MAP === 'number' ? r.MAP : null,
-        srp: typeof r.SRP === 'number' ? r.SRP : null,
-        sheet: sheetName
-      });
+function parseCsvLine(line) {
+  const fields = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQuotes) {
+      if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+      else if (c === '"') { inQuotes = false; }
+      else { cur += c; }
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ',') {
+      fields.push(cur); cur = '';
+    } else {
+      cur += c;
     }
+  }
+  fields.push(cur);
+  return fields;
+}
+
+async function loadPriceFile() {
+  const bySku = new Map();
+  const rl = readline.createInterface({
+    input: fs.createReadStream(PRICE_FILE),
+    crlfDelay: Infinity
+  });
+
+  let header = null;
+  for await (const line of rl) {
+    if (!line) continue;
+    const fields = parseCsvLine(line);
+    if (!header) { header = fields; continue; }
+    const row = {};
+    header.forEach((h, i) => { row[h] = fields[i]; });
+
+    const sku = String(row.Item || '').trim();
+    if (!sku) continue;
+    if (EXCLUDED_BRANDS.includes(row.Brand)) continue;
+
+    const cost = row[COST_COLUMN] !== '' && row[COST_COLUMN] != null ? parseFloat(row[COST_COLUMN]) : null;
+    const map = row.MAP !== '' && row.MAP != null ? parseFloat(row.MAP) : null;
+    const srp = row.SRP !== '' && row.SRP != null ? parseFloat(row.SRP) : null;
+
+    bySku.set(sku, {
+      brand: row.Brand,
+      status: row.Item_Status,
+      cost: Number.isFinite(cost) ? cost : null,
+      map: Number.isFinite(map) ? map : null,
+      srp: Number.isFinite(srp) ? srp : null,
+      sheet: row.Sheet
+    });
   }
   return bySku;
 }
@@ -78,7 +116,7 @@ async function getMapPrices(itemIds) {
 
 async function runCheck() {
   console.log('Loading Holley/Edge price file...');
-  const priceFile = loadPriceFile();
+  const priceFile = await loadPriceFile();
   console.log(`Loaded ${priceFile.size} SKUs from price file.`);
 
   console.log('Fetching NetSuite items...');
