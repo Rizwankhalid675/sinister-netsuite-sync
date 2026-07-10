@@ -1,0 +1,20 @@
+# Credentials — never commit
+.env
+
+# Tracking files — contain order/invoice data
+logs/synced_orders.json
+logs/synced_invoices.json
+logs/synced_customers.json
+logs/sync.log
+logs/pm2-*.log
+
+# Dependencies
+node_modules/
+
+# Margin check — generated reports and vendor price files (XLSX + converted CSV)
+margin-check/reports/
+margin-check/price-files/
+
+# OS
+.DS_Store
+Thumbs.db

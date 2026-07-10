@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sinister Diesel Sync — Live Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --orange:#f97316;
+  --orange-light:#fff7ed;
+  --orange-mid:#fed7aa;
+  --green:#16a34a;
+  --green-light:#f0fdf4;
+  --red:#dc2626;
+  --red-light:#fef2f2;
+  --blue:#2563eb;
+  --yellow:#d97706;
+  --bg:#f8fafc;
+  --white:#ffffff;
+  --border:#e2e8f0;
+  --border-strong:#cbd5e1;
+  --text:#0f172a;
+  --text2:#334155;
+  --muted:#64748b;
+  --muted2:#94a3b8;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04);
+  --shadow-lg:0 10px 40px rgba(0,0,0,0.1),0 4px 12px rgba(0,0,0,0.06);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── HERO BANNER ── */
+.hero{
+  background:linear-gradient(135deg,#ffffff 0%,#fff7ed 50%,#ffffff 100%);
+  position:relative;overflow:hidden;padding:0 32px;
+  border-bottom:2px solid var(--orange-mid);
+}
+/* soft blur orbs — light version */
+.hero-blur-1{position:absolute;width:600px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(249,115,22,0.12) 0%,transparent 65%);
+  top:-200px;left:-100px;filter:blur(50px);
+  animation:hb1 12s ease-in-out infinite;pointer-events:none}
+.hero-blur-2{position:absolute;width:500px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(249,115,22,0.08) 0%,transparent 65%);
+  top:-150px;right:-80px;filter:blur(50px);
+  animation:hb2 15s ease-in-out infinite;pointer-events:none}
+.hero-blur-3{position:absolute;width:250px;height:250px;border-radius:50%;
+  background:radial-gradient(circle,rgba(251,146,60,0.1) 0%,transparent 70%);
+  bottom:-80px;left:45%;filter:blur(30px);
+  animation:hb3 8s ease-in-out infinite;pointer-events:none}
+@keyframes hb1{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,20px)}}
+@keyframes hb2{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,15px)}}
+@keyframes hb3{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-15px)}}
+
+/* dot grid — light */
+.hero-dots{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(249,115,22,0.2) 1px,transparent 1px);
+  background-size:24px 24px;
+  mask-image:radial-gradient(ellipse 90% 90% at 50% 50%,black 20%,transparent 75%);
+}
+/* canvas particles */
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%;opacity:0.5;pointer-events:none}
+
+/* scan line — subtle on light bg */
+.hero-scan{
+  position:absolute;left:0;right:0;height:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(249,115,22,0.4) 40%,rgba(249,115,22,0.7) 50%,rgba(249,115,22,0.4) 60%,transparent);
+  animation:scan 6s linear infinite;
+}
+@keyframes scan{from{top:-1px}to{top:100%}}
+
+.hero-inner{
+  position:relative;z-index:2;display:flex;align-items:center;
+  justify-content:space-between;padding:22px 0;gap:24px;
+}
+.hero-left{display:flex;align-items:center;gap:16px}
+
+/* logo */
+.logo-mark{
+  width:48px;height:48px;border-radius:13px;flex-shrink:0;
+  background:linear-gradient(135deg,#f97316,#ea580c);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:0 4px 16px rgba(249,115,22,0.35),0 1px 3px rgba(0,0,0,0.1);
+  animation:logo-glow 3s ease-in-out infinite;position:relative;overflow:hidden;
+}
+.logo-mark::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.25) 0%,transparent 55%);border-radius:13px}
+@keyframes logo-glow{
+  0%,100%{box-shadow:0 4px 14px rgba(249,115,22,0.3),0 1px 3px rgba(0,0,0,0.1)}
+  50%{box-shadow:0 4px 28px rgba(249,115,22,0.55),0 1px 3px rgba(0,0,0,0.1)}
+}
+
+.hero-title{font-size:22px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;line-height:1.2}
+.hero-title span{color:var(--orange)}
+.hero-sub{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
+.hero-divider{width:1px;height:32px;background:var(--border-strong);flex-shrink:0;margin:0 4px}
+
+/* live pill */
+.glass-pill{
+  display:flex;align-items:center;gap:6px;
+  background:var(--orange-light);border:1px solid var(--orange-mid);
+  border-radius:100px;padding:5px 13px;
+}
+.glass-pill-dot{width:6px;height:6px;background:var(--orange);border-radius:50%;
+  box-shadow:0 0 6px rgba(249,115,22,0.6);animation:tag-pulse 1.8s ease-in-out infinite}
+@keyframes tag-pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.glass-pill-text{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange)}
+
+.hero-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.status-pill{
+  display:flex;align-items:center;gap:7px;
+  border-radius:100px;padding:7px 14px;border:1px solid;
+  font-size:10px;font-weight:700;letter-spacing:0.5px;
+}
+.status-pill.green{background:var(--green-light);border-color:#bbf7d0;color:var(--green)}
+.status-pill.red{background:var(--red-light);border-color:#fecaca;color:var(--red)}
+.s-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;animation:tag-pulse 2s ease-in-out infinite}
+.s-dot.green{background:var(--green);box-shadow:0 0 5px rgba(22,163,74,0.5)}
+.s-dot.red{background:var(--red);box-shadow:0 0 5px rgba(220,38,38,0.5)}
+.hero-chip{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:8px;padding:7px 12px;font-size:10px;color:var(--muted);
+  font-weight:500;white-space:nowrap;box-shadow:var(--shadow);
+}
+.hero-chip span{color:var(--text2);font-weight:600}
+
+/* ── TICKER ── */
+.ticker-wrap{
+  background:var(--white);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;overflow:hidden;
+}
+.ticker-label{
+  padding:9px 16px;background:var(--orange);font-size:9px;font-weight:800;
+  letter-spacing:2px;text-transform:uppercase;color:#fff;flex-shrink:0;
+  display:flex;align-items:center;gap:6px;
+}
+.ticker-label::before{content:'';width:5px;height:5px;background:rgba(255,255,255,0.7);
+  border-radius:50%;animation:tag-pulse 1.5s ease-in-out infinite}
+.ticker-track{flex:1;overflow:hidden;position:relative;height:36px}
+.ticker-inner{display:flex;gap:0;white-space:nowrap;animation:ticker 35s linear infinite;position:absolute;top:0;left:0}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tick-item{
+  display:inline-flex;align-items:center;gap:8px;padding:0 24px;height:36px;
+  font-size:11px;color:var(--muted);border-right:1px solid var(--border);font-weight:500;
+}
+.tick-item .ok{color:var(--green);font-size:10px}
+.tick-item .num{color:var(--orange);font-weight:700}
+
+/* ── MAIN CONTENT ── */
+.content{max-width:1440px;margin:0 auto;padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+
+/* ── STAT CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{
+  background:var(--white);border:1px solid var(--border);border-radius:16px;
+  padding:22px 24px;position:relative;overflow:hidden;
+  box-shadow:var(--shadow);transition:box-shadow 0.25s,transform 0.2s,border-color 0.25s;cursor:default;
+}
+.stat:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:var(--orange-mid)}
+.stat-accent{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--orange),#fb923c)}
+.stat-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.stat-icon-wrap{
+  width:40px;height:40px;border-radius:10px;background:var(--orange-light);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  border:1px solid var(--orange-mid);
+}
+.stat-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px}
+.stat-val{font-size:32px;font-weight:900;color:var(--text);line-height:1;
+  letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.stat-val .orange{color:var(--orange)}
+.stat-note{font-size:10px;color:var(--muted2);margin-top:6px;font-weight:500}
+.stat-badge{
+  font-size:9px;font-weight:700;padding:3px 8px;border-radius:100px;
+  background:var(--green-light);color:var(--green);border:1px solid #bbf7d0;
+}
+
+/* ── MAIN GRID ── */
+.main-grid{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+
+/* ── CARD ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:16px;
+  box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.card-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,#fafcff 0%,var(--white) 100%);flex-shrink:0;
+}
+.card-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;
+  color:var(--text);letter-spacing:0.2px}
+.live-badge{
+  display:flex;align-items:center;gap:5px;background:var(--orange-light);
+  border:1px solid var(--orange-mid);border-radius:100px;padding:3px 8px;
+}
+.live-dot{width:5px;height:5px;background:var(--orange);border-radius:50%;
+  box-shadow:0 0 5px var(--orange);animation:tag-pulse 1.5s ease-in-out infinite}
+.live-text{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange)}
+.ctrl-row{display:flex;gap:6px}
+.btn{font-size:10px;font-weight:600;letter-spacing:0.3px;padding:5px 12px;
+  border-radius:7px;border:1px solid;cursor:pointer;transition:all 0.15s;font-family:'Inter',sans-serif}
+.btn-ghost{background:#fff;color:var(--muted);border-color:var(--border)}
+.btn-ghost:hover{background:var(--bg);color:var(--text);border-color:var(--border-strong)}
+.btn-orange{background:var(--orange);color:#fff;border-color:var(--orange)}
+.btn-orange:hover{background:#ea580c;box-shadow:0 3px 10px rgba(249,115,22,0.3)}
+.btn-active{background:var(--orange-light);color:var(--orange);border-color:var(--orange-mid)}
+
+/* ── LOG ── */
+.log-body{
+  font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;
+  padding:12px 16px;height:460px;overflow-y:auto;background:#fafbfc;
+  border-bottom:1px solid var(--border);
+}
+.log-body::-webkit-scrollbar{width:4px}
+.log-body::-webkit-scrollbar-track{background:transparent}
+.log-body::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:2px}
+.log-body::-webkit-scrollbar-thumb:hover{background:var(--orange)}
+.log-row{display:grid;grid-template-columns:58px 16px 1fr;gap:8px;padding:2px 0;
+  border-bottom:1px solid rgba(0,0,0,0.025);
+  animation:row-in 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes row-in{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+.log-ts{color:var(--muted2);font-size:9.5px;padding-top:1px;user-select:none}
+.log-ico{text-align:center;font-size:10px}
+.log-txt{color:var(--text2);word-break:break-all;font-size:11px}
+.log-txt.success{color:#15803d}
+.log-txt.error{color:var(--red)}
+.log-txt.warn{color:var(--yellow)}
+.log-txt.info{color:var(--blue)}
+.log-txt.header{color:var(--orange);font-weight:600}
+.log-txt.skip{color:var(--muted2)}
+
+/* log footer */
+.log-footer{
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+  background:var(--white);flex-shrink:0;
+}
+.log-count{font-size:10px;color:var(--muted);font-weight:500}
+.log-count span{color:var(--text);font-weight:700}
+
+/* ── FLOWS ── */
+.flow-list{padding:8px 12px}
+.flow-row{
+  display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:10px;
+  transition:background 0.15s;cursor:default;
+}
+.flow-row:hover{background:var(--bg)}
+.flow-ico{
+  width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0;
+  background:var(--orange-light);border:1px solid var(--orange-mid);
+}
+.flow-meta{flex:1;min-width:0}
+.flow-name{font-size:12px;font-weight:600;color:var(--text)}
+.flow-desc{font-size:10px;color:var(--muted);margin-top:1px}
+.flow-pill{font-size:9px;font-weight:700;letter-spacing:0.5px;padding:3px 9px;
+  border-radius:100px;flex-shrink:0;border:1px solid}
+.flow-pill.ok{background:var(--green-light);color:var(--green);border-color:#bbf7d0}
+.flow-pill.idle{background:var(--bg);color:var(--muted);border-color:var(--border)}
+.flow-pill.running{background:var(--orange-light);color:var(--orange);border-color:var(--orange-mid);
+  animation:badge-pulse 1s ease-in-out infinite}
+@keyframes badge-pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+
+/* ── ACTIVITY ── */
+.act-list{padding:8px 16px;max-height:200px;overflow-y:auto}
+.act-list::-webkit-scrollbar{width:3px}
+.act-list::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:2px}
+.act-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.act-row:last-child{border-bottom:none}
+.act-dot{width:7px;height:7px;border-radius:50%;background:var(--green);
+  margin-top:4px;flex-shrink:0;box-shadow:0 0 4px rgba(22,163,74,0.4)}
+.act-dot.red{background:var(--red);box-shadow:0 0 4px rgba(220,38,38,0.4)}
+.act-dot.orange{background:var(--orange);box-shadow:0 0 4px rgba(249,115,22,0.4)}
+.act-body{flex:1;min-width:0}
+.act-text{font-size:11px;color:var(--text2);line-height:1.5;word-break:break-word}
+.act-time{font-size:9px;color:var(--muted2);margin-top:2px;font-family:'JetBrains Mono',monospace}
+
+/* ── BOTTOM BAR ── */
+.bottom-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.info-card{
+  background:var(--white);border:1px solid var(--border);border-radius:14px;
+  padding:16px 20px;display:flex;align-items:center;gap:14px;
+  box-shadow:var(--shadow);transition:box-shadow 0.2s,border-color 0.2s;
+}
+.info-card:hover{box-shadow:var(--shadow-md);border-color:var(--orange-mid)}
+.info-ico-wrap{
+  width:38px;height:38px;border-radius:10px;background:var(--orange-light);
+  border:1px solid var(--orange-mid);display:flex;align-items:center;
+  justify-content:center;font-size:17px;flex-shrink:0;
+}
+.info-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.info-val{font-size:12px;font-weight:600;color:var(--text);margin-top:3px}
+
+/* ── PLACEHOLDER ── */
+.placeholder{display:flex;align-items:center;gap:10px;padding:20px;
+  color:var(--muted);font-size:11px;font-style:italic}
+.spinner{width:13px;height:13px;border:2px solid var(--border-strong);
+  border-top-color:var(--orange);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-log{text-align:center;padding:48px 20px;color:var(--muted2);
+  font-size:11px;font-family:'JetBrains Mono',monospace}
+
+/* ── SECTION LABEL ── */
+.section-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);padding:0 4px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── RIGHT COL ── */
+.right-col{display:flex;flex-direction:column;gap:14px}
+
+@media(max-width:1100px){
+  .main-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .bottom-bar{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-blur-1"></div>
+  <div class="hero-blur-2"></div>
+  <div class="hero-blur-3"></div>
+  <div class="hero-dots"></div>
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-scan"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div>
+        <div class="hero-title">Sinister Diesel <span>Sync</span></div>
+        <div class="hero-sub">Miva ↔ NetSuite Automation &nbsp;·&nbsp; Oracle Cloud US West · San Jose</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="glass-pill">
+        <div class="glass-pill-dot"></div>
+        <span class="glass-pill-text">Live Dashboard</span>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="status-pill green" id="statusPill">
+        <div class="s-dot green" id="statusDot"></div>
+        <span id="statusText">SERVICE ONLINE</span>
+      </div>
+      <div class="hero-chip">Last sync: <span id="lastSync">—</span></div>
+      <div class="hero-chip" id="clock">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TICKER ── -->
+<div class="ticker-wrap">
+  <div class="ticker-label">Live</div>
+  <div class="ticker-track">
+    <div class="ticker-inner">
+      <span class="tick-item"><span class="ok">✅</span> Orders → NetSuite</span>
+      <span class="tick-item"><span class="ok">✅</span> Shipments → Miva</span>
+      <span class="tick-item"><span class="ok">✅</span> Deposits & Invoices auto-closed</span>
+      <span class="tick-item"><span class="ok">✅</span> Product IDs synced</span>
+      <span class="tick-item"><span class="ok">✅</span> Customers → NetSuite</span>
+      <span class="tick-item">⚡ Syncing every <span class="num">5</span> minutes</span>
+      <span class="tick-item">🔒 TBA OAuth 1.0a · HMAC-SHA256</span>
+      <span class="tick-item"><span class="ok">✅</span> Orders → NetSuite</span>
+      <span class="tick-item"><span class="ok">✅</span> Shipments → Miva</span>
+      <span class="tick-item"><span class="ok">✅</span> Deposits & Invoices auto-closed</span>
+      <span class="tick-item"><span class="ok">✅</span> Product IDs synced</span>
+      <span class="tick-item"><span class="ok">✅</span> Customers → NetSuite</span>
+      <span class="tick-item">⚡ Syncing every <span class="num">5</span> minutes</span>
+      <span class="tick-item">🔒 TBA OAuth 1.0a · HMAC-SHA256</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONTENT ── -->
+<div class="content">
+
+  <!-- STATS -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat">
+      <div class="stat-accent"></div>
+      <div class="stat-header">
+        <div>
+          <div class="stat-lbl">Next Sync In</div>
+          <div class="stat-val"><span id="s1" style="font-size:28px">—</span></div>
+          <div class="stat-note">Countdown to next scheduled run</div>
+        </div>
+        <div class="stat-icon-wrap">🔄</div>
+      </div>
+      <div class="stat-badge" id="s1badge">Scheduler active</div>
+    </div>
+    <div class="stat">
+      <div class="stat-accent"></div>
+      <div class="stat-header">
+        <div>
+          <div class="stat-lbl">Sync Interval</div>
+          <div class="stat-val"><span id="s2">5</span><span style="font-size:16px;color:var(--muted2);font-weight:600"> min</span></div>
+          <div class="stat-note">Every 5 minutes, 24/7 automated</div>
+        </div>
+        <div class="stat-icon-wrap">⚡</div>
+      </div>
+      <div class="stat-badge">5 automated flows</div>
+    </div>
+    <div class="stat">
+      <div class="stat-accent"></div>
+      <div class="stat-header">
+        <div>
+          <div class="stat-lbl">Orders Today</div>
+          <div class="stat-val" id="s3">—</div>
+          <div class="stat-note">Synced to NetSuite today</div>
+        </div>
+        <div class="stat-icon-wrap">📦</div>
+      </div>
+      <div class="stat-badge" id="s3badge">Monitoring...</div>
+    </div>
+    <div class="stat">
+      <div class="stat-accent"></div>
+      <div class="stat-header">
+        <div>
+          <div class="stat-lbl">Service Uptime</div>
+          <div class="stat-val" id="s4">—</div>
+          <div class="stat-note">Running continuously on cloud</div>
+        </div>
+        <div class="stat-icon-wrap">🕐</div>
+      </div>
+      <div class="stat-badge">Auto-restart enabled</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LOG PANEL -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">
+          <div class="live-badge"><div class="live-dot"></div><span class="live-text">Live</span></div>
+          Sync Log Stream
+        </div>
+        <div class="ctrl-row">
+          <button class="btn btn-ghost" onclick="clearLogs()">Clear</button>
+          <button class="btn btn-ghost" id="pauseBtn" onclick="togglePause()">Pause</button>
+          <button class="btn btn-ghost" id="scrollBtn" onclick="toggleScroll()">Auto-scroll ✓</button>
+          <button class="btn btn-orange" onclick="fetchLogs()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="log-body" id="logBody">
+        <div class="placeholder"><div class="spinner"></div>Connecting to sync service...</div>
+      </div>
+      <div class="log-footer">
+        <div class="log-count">Showing <span id="logCount">0</span> log entries · updates every 10s</div>
+        <div style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace" id="logUpdated">—</div>
+      </div>
+    </div>
+
+    <!-- RIGHT COL -->
+    <div class="right-col">
+
+      <!-- FLOWS -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">
+            <div class="live-badge"><div class="live-dot"></div><span class="live-text">Live</span></div>
+            Automated Flows
+          </div>
+          <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--muted);
+            background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px 8px">5 ACTIVE</span>
+        </div>
+        <div class="flow-list">
+          <div class="flow-row">
+            <div class="flow-ico">📦</div>
+            <div class="flow-meta">
+              <div class="flow-name">Orders → NetSuite</div>
+              <div class="flow-desc">Miva orders become Sales Orders</div>
+            </div>
+            <div class="flow-pill ok" id="f1">OK</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-ico">🚚</div>
+            <div class="flow-meta">
+              <div class="flow-name">Shipments → Miva</div>
+              <div class="flow-desc">Tracking numbers pushed back</div>
+            </div>
+            <div class="flow-pill ok" id="f2">OK</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-ico">🧾</div>
+            <div class="flow-meta">
+              <div class="flow-name">Deposits & Invoices</div>
+              <div class="flow-desc">Auto-creates & closes invoices</div>
+            </div>
+            <div class="flow-pill ok" id="f3">OK</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-ico">🏷️</div>
+            <div class="flow-meta">
+              <div class="flow-name">Product ID Sync</div>
+              <div class="flow-desc">Miva ↔ NetSuite product linking</div>
+            </div>
+            <div class="flow-pill ok" id="f4">OK</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-ico">👤</div>
+            <div class="flow-meta">
+              <div class="flow-name">Customers → NetSuite</div>
+              <div class="flow-desc">Customer records synced</div>
+            </div>
+            <div class="flow-pill ok" id="f5">OK</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARGIN REPORT -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">
+            <div class="live-badge" style="background:var(--green-light);border-color:#bbf7d0">
+              <div class="live-dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div>
+              <span class="live-text" style="color:var(--green)">Report</span>
+            </div>
+            Holley/Edge Margin Check
+          </div>
+        </div>
+        <div style="padding:14px 20px 6px">
+          <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:12px">
+            Vendor-verified cost/MAP comparison against Holley's latest price file, plus SKUs
+            obsolete or delisted from the live website. Generates a fresh PDF + CSV on demand.
+          </div>
+          <button class="btn btn-orange" id="marginGenBtn" onclick="generateMarginReport()" style="width:100%;padding:9px 12px;font-size:11px">
+            ↻ Generate Report
+          </button>
+          <div id="marginStatus" style="font-size:10px;color:var(--muted2);margin-top:8px;min-height:14px"></div>
+        </div>
+        <div id="marginReportList" style="padding:4px 12px 12px"></div>
+      </div>
+
+      <!-- ACTIVITY -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">
+            <div class="live-badge"><div class="live-dot"></div><span class="live-text">Live</span></div>
+            Recent Activity
+          </div>
+        </div>
+        <div class="act-list" id="actList">
+          <div class="placeholder"><div class="spinner"></div>Loading...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="bottom-bar">
+    <div class="info-card">
+      <div class="info-ico-wrap">☁️</div>
+      <div>
+        <div class="info-lbl">Server</div>
+        <div class="info-val">Oracle Cloud · US West (San Jose) · Always Free</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-ico-wrap">🛠️</div>
+      <div>
+        <div class="info-lbl">Stack</div>
+        <div class="info-val">Node.js · PM2 · Nginx · Ubuntu 24.04</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-ico-wrap">👨‍💻</div>
+      <div>
+        <div class="info-lbl">Built By</div>
+        <div class="info-val">Rizwan Khalid — Ecommerce Coordinator, Sinister Diesel</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── CLOCK ──
+function updateClock(){
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    n.toLocaleTimeString('en-US',{hour12:true});
+}
+setInterval(updateClock,1000); updateClock();
+
+// ── NEXT SYNC COUNTDOWN ──
+let lastSyncEpoch = null;
+function updateCountdown(){
+  const el = document.getElementById('s1');
+  const badge = document.getElementById('s1badge');
+  if(!lastSyncEpoch){ el.textContent='—'; return; }
+  const nextSync = lastSyncEpoch + 5 * 60 * 1000;
+  const remaining = Math.max(0, nextSync - Date.now());
+  const m = Math.floor(remaining / 60000);
+  const s = Math.floor((remaining % 60000) / 1000);
+  el.textContent = remaining === 0 ? 'Now' : `${m}m ${String(s).padStart(2,'0')}s`;
+  badge.textContent = remaining === 0 ? 'Syncing now...' : 'Next sync scheduled';
+}
+setInterval(updateCountdown, 1000);
+
+// ── GSAP ENTRANCE ──
+window.addEventListener('DOMContentLoaded',()=>{
+  gsap.set(['.stats-row','.main-grid','.bottom-bar'],{opacity:0,y:24});
+  gsap.timeline({delay:0.1})
+    .to('.stats-row',{opacity:1,y:0,duration:0.5,ease:'power3.out'})
+    .to('.main-grid',{opacity:1,y:0,duration:0.45,ease:'power3.out'},'-=0.2')
+    .to('.bottom-bar',{opacity:1,y:0,duration:0.4,ease:'power3.out'},'-=0.2');
+
+  // init countdown
+  updateCountdown();
+});
+
+// ── STATE ──
+let paused=false, autoScroll=true, knownCount=0, allLines=[];
+
+function togglePause(){
+  paused=!paused;
+  const b=document.getElementById('pauseBtn');
+  b.textContent=paused?'▶ Resume':'Pause';
+  b.className=paused?'btn btn-active':'btn btn-ghost';
+}
+function toggleScroll(){
+  autoScroll=!autoScroll;
+  const b=document.getElementById('scrollBtn');
+  b.textContent=autoScroll?'Auto-scroll ✓':'Auto-scroll';
+  b.className=autoScroll?'btn btn-active':'btn btn-ghost';
+}
+function clearLogs(){
+  allLines=[];knownCount=0;
+  document.getElementById('logBody').innerHTML='<div class="empty-log">// log cleared</div>';
+  document.getElementById('logCount').textContent='0';
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function fmtTime(raw){
+  const m=raw&&raw.match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
+  if(!m)return'';
+  return new Date(m[1]).toLocaleTimeString('en-US',{hour12:true});
+}
+function classify(l){
+  if(/✅|All flows completed/.test(l))return'success';
+  if(/❌|\[ERROR\]/.test(l))return'error';
+  if(/⚠️|\[WARN\]/.test(l))return'warn';
+  if(/={3,}|Sinister Diesel.*Sync Start/.test(l))return'header';
+  if(/skipping|No Miva match/.test(l))return'skip';
+  if(/\[INFO\]/.test(l))return'info';
+  return'';
+}
+function ico(c){return{success:'✅',error:'❌',warn:'⚠️',header:'▶',skip:'·',info:'›'}[c]||'·'}
+function strip(l){
+  return l.replace(/\[\d{4}-\d{2}-\d{2}T[\d:.]+Z\]\s*/,'')
+    .replace(/\[(INFO|ERROR|WARN)\]\s*/g,'').trim();
+}
+
+function renderLines(lines){
+  const body=document.getElementById('logBody');
+  const atBot=body.scrollHeight-body.scrollTop-body.clientHeight<80;
+  lines.forEach(raw=>{
+    const cls=classify(raw);
+    if(cls==='skip')return;
+    const row=document.createElement('div');
+    row.className='log-row';
+    row.innerHTML=
+      `<span class="log-ts">${esc(fmtTime(raw))}</span>`+
+      `<span class="log-ico">${ico(cls)}</span>`+
+      `<span class="log-txt ${cls}">${esc(strip(raw))}</span>`;
+    body.appendChild(row);
+  });
+  while(body.children.length>600)body.removeChild(body.firstChild);
+  if(autoScroll&&atBot)body.scrollTop=body.scrollHeight;
+}
+
+function renderActivity(lines){
+  const feed=document.getElementById('actList');
+  const rel=lines.filter(l=>/✅|❌|All flows completed|Sales Order|Invoice|Tracking/.test(l))
+    .slice(-8).reverse();
+  if(!rel.length){feed.innerHTML='<div class="placeholder"><div class="spinner"></div>No activity yet...</div>';return;}
+  feed.innerHTML=rel.map(l=>{
+    const isErr=l.includes('❌'),isWrn=l.includes('⚠️');
+    const dc=isErr?'red':isWrn?'orange':'';
+    return`<div class="act-row">
+      <div class="act-dot ${dc}"></div>
+      <div class="act-body">
+        <div class="act-text">${esc(strip(l))}</div>
+        <div class="act-time">${fmtTime(l)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats(lines){
+  const today=new Date().toISOString().slice(0,10);
+  const cnt=lines.filter(l=>l.includes(today)&&l.includes('→ NetSuite Sales Order')).length;
+  if(cnt>0){
+    document.getElementById('s3').textContent=cnt;
+    document.getElementById('s3badge').textContent=cnt+' orders synced';
+  }
+
+  // find last sync completion — check multiple possible phrases
+  let foundSync=false;
+  for(let i=lines.length-1;i>=0;i--){
+    const l=lines[i];
+    if(l.includes('All flows completed')||l.includes('flows completed')||l.includes('â€¦ All flows')||l.includes('… All flows')){
+      document.getElementById('lastSync').textContent=fmtTime(l);
+      const m=l.match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
+      if(m){ lastSyncEpoch=new Date(m[1]).getTime(); foundSync=true; break; }
+    }
+  }
+  // fallback: use last timestamp in log
+  if(!lastSyncEpoch){
+    for(let i=lines.length-1;i>=0;i--){
+      const m=lines[i].match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
+      if(m){
+        lastSyncEpoch=new Date(m[1]).getTime();
+        document.getElementById('lastSync').textContent=fmtTime(lines[i]);
+        break;
+      }
+    }
+  }
+
+  // flows: mark OK if any of the flow keywords appeared in recent 200 lines
+  const recent=lines.slice(-200);
+  const flowKeywords=[
+    'Flow 1','Sales Order','ordersToNetsuite',
+    'Flow 2','Tracking','shipmentsToMiva',
+    'Flow 3','Invoice','deposit',
+    'Flow 4','Product','productSync',
+    'Flow 5','customer','customersToNetsuite'
+  ];
+  // if ANY sync activity in recent logs, mark all OK
+  const hasActivity=recent.some(l=>
+    l.includes('→ NetSuite Sales Order')||
+    l.includes('All flows')||
+    l.includes('flows completed')||
+    l.includes('Running Flow')||
+    l.includes('Sinister Diesel')
+  );
+  ['f1','f2','f3','f4','f5'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.textContent=hasActivity?'OK':'IDLE';
+    el.className='flow-pill '+(hasActivity?'ok':'idle');
+  });
+}
+
+async function fetchUptime(){
+  try{
+    const r=await fetch('/api/stats');
+    if(r.ok){const d=await r.json();if(d.uptime)document.getElementById('s4').textContent=d.uptime;}
+  }catch{}
+}
+
+async function fetchLogs(){
+  if(paused)return;
+  try{
+    const r=await fetch('/api/logs');
+    if(!r.ok)throw new Error();
+    const data=await r.json();
+    const lines=data.lines||[];
+    if(knownCount===0){
+      document.getElementById('logBody').innerHTML='';
+      renderLines(lines.slice(-150));
+      knownCount=lines.length;
+    }else{
+      const nw=lines.slice(knownCount);
+      if(nw.length){renderLines(nw);knownCount=lines.length;}
+    }
+    allLines=lines;
+    renderActivity(lines);
+    updateStats(lines);
+    document.getElementById('logCount').textContent=document.getElementById('logBody').children.length;
+    document.getElementById('logUpdated').textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour12:false});
+    // status online
+    document.getElementById('statusPill').className='status-pill green';
+    document.getElementById('statusDot').className='s-dot green';
+    document.getElementById('statusText').textContent='SERVICE ONLINE';
+  }catch{
+    if(knownCount===0){
+      document.getElementById('logBody').innerHTML=
+        `<div class="empty-log">⚠️ Cannot reach /api/logs<br><br>`+
+        `Make sure dashboard-server.js is running via PM2</div>`;
+    }
+    document.getElementById('statusPill').className='status-pill red';
+    document.getElementById('statusDot').className='s-dot red';
+    document.getElementById('statusText').textContent='API UNREACHABLE';
+  }
+}
+
+fetchLogs();fetchUptime();
+setInterval(fetchLogs,10000);
+setInterval(fetchUptime,60000);
+
+// ── MARGIN REPORT ──
+function fmtBytes(n){
+  if(n<1024)return n+' B';
+  if(n<1024*1024)return (n/1024).toFixed(1)+' KB';
+  return (n/1024/1024).toFixed(1)+' MB';
+}
+function fmtReportDate(mtime){
+  return new Date(mtime).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'});
+}
+function renderMarginReports(reports){
+  const el=document.getElementById('marginReportList');
+  if(!reports||!reports.length){
+    el.innerHTML='<div class="placeholder" style="padding:8px 4px">No reports generated yet</div>';
+    return;
+  }
+  // group PDF+CSV pairs by their shared date stamp so each run shows as one row
+  const byStamp={};
+  reports.forEach(r=>{
+    const stamp=r.file.replace(/\.(pdf|csv)$/,'');
+    if(!byStamp[stamp])byStamp[stamp]={pdf:null,csv:null,mtime:r.mtime};
+    byStamp[stamp][r.file.endsWith('.pdf')?'pdf':'csv']=r;
+  });
+  const rows=Object.values(byStamp).sort((a,b)=>b.mtime-a.mtime).slice(0,8);
+  el.innerHTML=rows.map(r=>`
+    <div class="flow-row" style="padding:8px 6px">
+      <div class="flow-ico" style="font-size:14px">📄</div>
+      <div class="flow-meta">
+        <div class="flow-name" style="font-size:11px">${esc(fmtReportDate(r.mtime))}</div>
+        <div class="flow-desc" style="font-size:9px">
+          ${r.pdf?`<a href="/api/margin-report/download?file=${encodeURIComponent(r.pdf.file)}" style="color:var(--orange);text-decoration:none;font-weight:600">PDF (${fmtBytes(r.pdf.size)})</a>`:''}
+          ${r.pdf&&r.csv?' · ':''}
+          ${r.csv?`<a href="/api/margin-report/download?file=${encodeURIComponent(r.csv.file)}" style="color:var(--muted);text-decoration:none;font-weight:600">CSV (${fmtBytes(r.csv.size)})</a>`:''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadMarginReports(){
+  try{
+    const r=await fetch('/api/margin-report/list');
+    if(!r.ok)throw new Error();
+    const data=await r.json();
+    renderMarginReports(data.reports);
+    if(data.running)setMarginStatus('Generating…',true);
+  }catch{
+    document.getElementById('marginReportList').innerHTML=
+      '<div class="placeholder" style="padding:8px 4px">Cannot reach report service</div>';
+  }
+}
+
+function setMarginStatus(text,busy){
+  const el=document.getElementById('marginStatus');
+  el.textContent=text;
+  el.style.color=busy?'var(--orange)':'var(--muted2)';
+}
+
+async function generateMarginReport(){
+  const btn=document.getElementById('marginGenBtn');
+  btn.disabled=true;
+  btn.textContent='⏳ Generating… (~30s)';
+  setMarginStatus('Querying NetSuite and the live website — this takes about 30 seconds.',true);
+  try{
+    const r=await fetch('/api/margin-report/generate',{method:'POST'});
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error||'Failed to generate report');
+    renderMarginReports(data.reports);
+    setMarginStatus(`Done — ${data.totalIssues} items flagged (${data.obsoleteCount} obsolete, ${data.notOnWebsiteCount} delisted, ${data.priceMismatchCount} pricing).`,false);
+  }catch(err){
+    setMarginStatus('Error: '+err.message,false);
+  }finally{
+    btn.disabled=false;
+    btn.textContent='↻ Generate Report';
+  }
+}
+
+loadMarginReports();
+
+// ── PARTICLE CANVAS ──
+(function(){
+  const canvas = document.getElementById('heroCanvas');
+  const hero = canvas.parentElement;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles=[], animId;
+
+  function resize(){
+    W = canvas.width = hero.offsetWidth;
+    H = canvas.height = hero.offsetHeight;
+  }
+
+  function Particle(){
+    this.reset = function(){
+      this.x = Math.random()*W;
+      this.y = Math.random()*H;
+      this.r = Math.random()*1.5+0.3;
+      this.vx = (Math.random()-0.5)*0.4;
+      this.vy = (Math.random()-0.5)*0.4;
+      this.alpha = Math.random()*0.3+0.05;
+      this.color = Math.random()>0.6 ? '#f97316' : '#fb923c';
+      this.life = Math.random()*200+100;
+      this.age = 0;
+    };
+    this.reset();
+    this.y = Math.random()*H; // spread on init
+  }
+
+  function init(){
+    particles=[];
+    for(let i=0;i<80;i++){const p=new Particle();particles.push(p);}
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // draw connections
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x;
+        const dy=particles[i].y-particles[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<120){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(249,115,22,${0.12*(1-dist/120)})`;
+          ctx.lineWidth=0.5;
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // draw particles
+    particles.forEach(p=>{
+      p.age++;
+      const fade = p.age<20 ? p.age/20 : p.age>p.life-20 ? (p.life-p.age)/20 : 1;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.color;
+      ctx.globalAlpha=p.alpha*fade;
+      ctx.fill();
+      ctx.globalAlpha=1;
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.age>=p.life||p.x<0||p.x>W||p.y<0||p.y>H) p.reset();
+    });
+
+    animId=requestAnimationFrame(draw);
+  }
+
+  resize();
+  init();
+  draw();
+  window.addEventListener('resize',()=>{cancelAnimationFrame(animId);resize();init();draw();});
+})();
+</script>
+</body>
+</html>
+
