@@ -62,20 +62,50 @@ async function upsertNSCustomer(customer) {
 
   const existing = searchRes.data?.items?.[0];
 
+  // Derive a usable name. Prefer real name fields; otherwise fall back to
+  // company name, then the email local-part. Never invent "FNU LNU".
+  const firstName = customer.ship_fname || customer.bill_fname || '';
+  const lastName  = customer.ship_lname || customer.bill_lname || '';
+  const company   = customer.ship_comp || customer.bill_comp || '';
+  const emailAddr = customer.email || customer.pw_email || '';
+  const emailLocal = emailAddr.split('@')[0] || '';
+
   const payload = {
     isperson: true,
-    firstname: customer.ship_fname || customer.bill_fname || 'FNU',
-    lastname: customer.ship_lname || customer.bill_lname || 'LNU',
-    email: customer.email || customer.pw_email,
+    email: emailAddr,
     phone: customer.bill_phone || customer.ship_phone || '',
     billphone: customer.bill_phone || customer.ship_phone || '',
     mobilephone: customer.ship_phone || customer.bill_phone || '',
-    companyname: customer.ship_comp || customer.bill_comp || '',
+    companyname: company,
     subsidiary: { id: '1' },
     currency: { id: '1' },
     customform: { id: '355' },
     category: { id: '2' }
   };
+
+  if (existing) {
+    // UPDATE path: never clobber a name that was set (possibly hand-fixed in
+    // NetSuite). Only send name fields when we actually have real name data.
+    if (firstName) payload.firstname = firstName;
+    if (lastName)  payload.lastname = lastName;
+  } else {
+    // CREATE path: a name is required. Use real name, else company, else the
+    // email local-part — anything readable instead of "FNU LNU".
+    if (firstName || lastName) {
+      payload.firstname = firstName;
+      payload.lastname = lastName;
+    } else if (company) {
+      payload.companyname = company;
+      payload.isperson = false;
+    } else if (emailLocal) {
+      payload.firstname = emailLocal;
+      payload.lastname = '';
+    } else {
+      // Truly nothing to identify this customer — skip rather than invent one.
+      log(`⚠️ Skipping customer create — no name/company/email to derive a name`, 'error');
+      return null;
+    }
+  }
 
   const recordUrl = existing
     ? `${BASE}/record/v1/customer/${existing.id}`
