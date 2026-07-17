@@ -108,6 +108,29 @@ must be added to `settings.gadget.ts` if actually needed.
   deploy history).
 - `[ ]` Post-deploy smoke test: create test order, confirm Enshield receives it.
 
+**Pre-deploy smoke test (revamp-dev) — BLOCKED, root cause found:**
+Cannot run the scope-reduction smoke test on revamp-dev. Verified 2026-07-17 via
+Gadget + Shopify dashboards:
+- Gadget → Settings → Plugins → Shopify: scopes correct
+  (`read_products, write_products, read_orders, write_orders`, API v2026-01) BUT
+  "No Shopify apps connected" (connection is per-environment / "Unique to this env").
+- `admin.shopify.com` for this account shows "Create your first online store" —
+  **no Shopify store exists at all.** No store → no app to connect → no connection.
+Unblock path (in order): (1) create a **development store** (Partners account →
+Stores → Add store → Development store; free, Bogus Gateway test payments), NOT the
+generic merchant "Create store" flow; (2) revamp-dev → "Connect a Shopify app" →
+install on that dev store (install itself validates the 4-scope consent); (3) place a
+draft order (Orders → Drafts → Create → Mark as paid).
+Smoke-test procedure once connected — invoke in Gadget playground (revamp-dev):
+`sendOrderToEnshield(orderId, shopId)`. Get `shopId` via
+`query { shopifyShops { edges { node { id myshopifyDomain } } } }`.
+PASS = log line "Successfully fetched order from Shopify" (return `{success:false}`
+"skipping Enshield submission" is EXPECTED with a no-insurance test order — the
+Shopify `read_orders` fetch ran before the skip, zero Enshield side effect).
+FAIL = any 403 / access-denied / missing-scope error on the `order(id:...)` query.
+Note: the Enshield POST hits the REAL manage.enshield.com API — a no-insurance order
+avoids that write, which is why it's the recommended test.
+
 ---
 
 ## 3. Repo Hygiene  ⚠️ FINDING (open)
