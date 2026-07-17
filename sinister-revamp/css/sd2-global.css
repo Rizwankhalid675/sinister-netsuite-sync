@@ -216,6 +216,14 @@
 
 /* Standalone install-library pages: align legacy page records with the V2 storefront. */
 body.sd2-install-legacy{
+	--navy:#071329!important;
+	--navy-deep:#050a14!important;
+	--blue:#2454ff!important;
+	--blue-bright:#7194ff!important;
+	--paper:#f2f4f7!important;
+	--ink:#080d19!important;
+	--muted:#606a7b!important;
+	--line:#d5dbe5!important;
 	background:
 		linear-gradient(rgba(8,16,31,.045) 1px,transparent 1px),
 		linear-gradient(90deg,rgba(8,16,31,.045) 1px,transparent 1px),
