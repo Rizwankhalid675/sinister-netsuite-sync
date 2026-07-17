@@ -61,6 +61,21 @@ function nsHeaders(url, method) {
   return { Authorization: auth, 'Content-Type': 'application/json' };
 }
 
+// The IDs in Amanda's list are entityId (the visible "ID"/account number),
+// NOT the internal record id the REST API addresses records by. Resolve the
+// internal id first by querying the customer collection on entityId.
+async function resolveInternalId(entityId) {
+  const q = encodeURIComponent(`entityId IS ${entityId}`);
+  const url = `${BASE}/record/v1/customer?q=${q}`;
+  const res = await axios.get(url, { headers: nsHeaders(url, 'GET') });
+  const items = res.data?.items || [];
+  if (items.length === 0) return null;
+  if (items.length > 1) {
+    throw new Error(`entityId ${entityId} matched ${items.length} customers — ambiguous, skipping`);
+  }
+  return items[0].id;
+}
+
 async function getNSCustomer(id) {
   const url = `${BASE}/record/v1/customer/${id}`;
   const res = await axios.get(url, { headers: nsHeaders(url, 'GET') });
@@ -121,19 +136,27 @@ function looksLikePlaceholder(cust) {
 
   let fixed = 0, skipped = 0, failed = 0;
 
-  for (const id of TARGET_IDS) {
+  for (const entityId of TARGET_IDS) {
     try {
+      const id = await resolveInternalId(entityId);
+      if (!id) {
+        console.log(`- ${entityId}: no NetSuite customer with that entityId — skipping`);
+        skipped++;
+        continue;
+      }
       const cust = await getNSCustomer(id);
       const email = cust.email || '';
       const current = `${cust.firstName || ''} ${cust.lastName || ''}`.trim() || '(blank)';
 
+      const tag = `${entityId} (internal ${id})`;
+
       if (!looksLikePlaceholder(cust)) {
-        console.log(`- ${id}: name is "${current}" — not a FNU/LNU placeholder, skipping`);
+        console.log(`- ${tag}: name is "${current}" — not a FNU/LNU placeholder, skipping`);
         skipped++;
         continue;
       }
       if (!email) {
-        console.log(`- ${id}: no email on NetSuite record — cannot look up in Miva, skipping`);
+        console.log(`- ${tag}: no email on NetSuite record — cannot look up in Miva, skipping`);
         skipped++;
         continue;
       }
@@ -142,7 +165,7 @@ function looksLikePlaceholder(cust) {
       const payload = derivePayload(miva, email);
 
       if (!payload) {
-        console.log(`- ${id} <${email}>: no name/company/email-local derivable — leaving as-is`);
+        console.log(`- ${tag} <${email}>: no name/company/email-local derivable — leaving as-is`);
         skipped++;
         continue;
       }
@@ -154,14 +177,14 @@ function looksLikePlaceholder(cust) {
 
       if (APPLY) {
         await patchNSCustomer(id, body);
-        console.log(`✅ ${id} <${email}>: "${current}" -> ${preview} (from ${_src})`);
+        console.log(`✅ ${tag} <${email}>: "${current}" -> ${preview} (from ${_src})`);
       } else {
-        console.log(`   ${id} <${email}>: would set ${preview} (from ${_src})`);
+        console.log(`   ${tag} <${email}>: would set ${preview} (from ${_src})`);
       }
       fixed++;
     } catch (err) {
       const detail = err.response?.data ? JSON.stringify(err.response.data) : err.message;
-      console.log(`❌ ${id}: ${detail}`);
+      console.log(`❌ ${entityId}: ${detail}`);
       failed++;
     }
   }
