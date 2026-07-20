@@ -16,7 +16,7 @@
 	<mvt:item name="hdft" param="global_header" />
 	<mvt:item name="hdft" param="header" />
 
-	<main class="sd2-v2-search-page" data-v2-static-page>
+	<main class="sd2-v2-search-page" data-v2-static-page data-v2-editorial-page data-editorial-variant="legal-notice">
 		<div class="sd2-wrap">
 			<header class="sd2-v2-search-page__head">
 				<nav class="sd2-v2-breadcrumbs" aria-label="Breadcrumb">
@@ -35,9 +35,6 @@
 							<mvt:item name="readytheme" param="contentsection( 'sinister-notice' )" />
 						</div>
 					</div>
-					<aside class="sd2-v2-static-page__aside">
-						<mvt:item name="readytheme" param="navigationset( 'static_navigation' )" />
-					</aside>
 				</div>
 			</div>
 		</div>

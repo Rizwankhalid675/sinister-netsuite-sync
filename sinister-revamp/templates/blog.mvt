@@ -11,7 +11,7 @@
 </head>
 <body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass; sd2-blog-page">
 	<mvt:item name="hdft" param="global_header" />
-	<main class="sd2-blog">
+	<main class="sd2-blog" data-v2-editorial-page data-editorial-variant="blog">
 		<header class="sd2-blog__hero">
 			<div><p class="sd2-cp__eyebrow">The Sinister field log</p><h1>Build knowledge.<br>Run stronger.</h1></div>
 			<p>Technical guides, platform insight, installation notes and diesel-performance stories from the shop.</p>
