@@ -20,12 +20,151 @@
 </mvt:if>
 <mvt:item name="customfields" param="Read_Basket( 'state_via_ip', l.settings:state_via_ip )" />
 
-<mvt:if expr="'CTGY' CIN l.settings:page:code">
-	<link rel="canonical" href="&mvte:category:link;" itemprop="url">
-<mvt:elseif expr="'PROD' CIN l.settings:page:code OR l.settings:page:code EQ 'PATR'">
-	<link rel="canonical" href="&mvt:product:link;" itemprop="url">
+<mvt:comment>Commerce-first SEO foundation. Page templates may set the g.sd2_seo_* values before loading this shared head.</mvt:comment>
+<mvt:assign name="g.sd2_seo_page_code" value="toupper( l.settings:page:code )" />
+<mvt:assign name="g.sd2_seo_page_token" value="'|' $ g.sd2_seo_page_code $ '|'" />
+<mvt:assign name="g.sd2_seo_private_page_codes" value="'|ABAL|ACAD|ACCTV2|ACED|ACLN|ACRT|ACRW|AFAD|AFCL|AFED|AFFR|AFPW|AFRT|AMAZONPAY_OCST|AMAZONPAY_OPAY|AMAZONPAY_OSEL|BASK|BASKV2|BSKE|CABK|CADA|CADE|CEML|CPCA|CPCD|CPCE|CPRO|CPWD|CSBE|FPWD|INVC|LOGN|OCST|OCSTV2|OPAY|ORDH|ORDL|ORDS|ORHL|OSEL|OUS1|OUSM|POUT|RGFT|RSRQ|SRCH|SRCHV2|WISH|WLAD|WLED|WLGN|WLST|'" />
+
+<mvt:if expr="'CTGY' CIN g.sd2_seo_page_code">
+	<mvt:assign name="g.sd2_seo_canonical" value="l.settings:category:link" />
+<mvt:elseif expr="'PROD' CIN g.sd2_seo_page_code OR g.sd2_seo_page_code EQ 'PATR'">
+	<mvt:assign name="g.sd2_seo_canonical" value="l.settings:product:link" />
 <mvt:else>
-	<link rel="canonical" href="&mvte:urls:_self:auto;" itemprop="url">
+	<mvt:assign name="g.sd2_seo_canonical" value="l.settings:urls:_self:auto" />
+</mvt:if>
+
+<mvt:if expr="g.sd2_seo_page_code EQ 'SFNT' OR g.sd2_seo_page_code EQ 'SFNTV2'">
+	<mvt:assign name="g.sd2_seo_title" value="'Sinister Diesel Performance Parts | Powerstroke, Duramax ' $ asciichar(38) $ ' Cummins'" />
+	<mvt:if expr="ISNULL g.sd2_seo_description">
+		<mvt:assign name="g.sd2_seo_description" value="'Shop performance parts for Ford Powerstroke, Chevy Duramax and Dodge Cummins trucks, with live fitment guidance, installation resources and US-based support.'" />
+	</mvt:if>
+</mvt:if>
+
+<mvt:if expr="ISNULL g.sd2_seo_title">
+	<mvt:if expr="('PROD' CIN g.sd2_seo_page_code OR g.sd2_seo_page_code EQ 'PATR') AND NOT ISNULL l.settings:product:page_title">
+		<mvt:assign name="g.sd2_seo_title" value="l.settings:product:page_title" />
+	<mvt:elseif expr="'PROD' CIN g.sd2_seo_page_code OR g.sd2_seo_page_code EQ 'PATR'">
+		<mvt:assign name="g.sd2_seo_title" value="l.settings:product:name $ ' | ' $ g.Store:name" />
+	<mvt:elseif expr="'CTGY' CIN g.sd2_seo_page_code AND NOT ISNULL l.settings:category:page_title">
+		<mvt:assign name="g.sd2_seo_title" value="l.settings:category:page_title" />
+	<mvt:elseif expr="'CTGY' CIN g.sd2_seo_page_code">
+		<mvt:assign name="g.sd2_seo_title" value="l.settings:category:name $ ' | ' $ g.Store:name" />
+	<mvt:elseif expr="NOT ISNULL l.settings:page:title">
+		<mvt:assign name="g.sd2_seo_title" value="l.settings:page:title" />
+	<mvt:else>
+		<mvt:assign name="g.sd2_seo_title" value="g.Store:name" />
+	</mvt:if>
+</mvt:if>
+
+<mvt:if expr="ISNULL g.sd2_seo_description">
+	<mvt:if expr="('PROD' CIN g.sd2_seo_page_code OR g.sd2_seo_page_code EQ 'PATR') AND NOT ISNULL l.settings:product:descrip">
+		<mvt:assign name="g.sd2_seo_description" value="miva_html_strip( l.settings:product:descrip, '' )" />
+	<mvt:elseif expr="'CTGY' CIN g.sd2_seo_page_code AND NOT ISNULL l.settings:category:descrip">
+		<mvt:assign name="g.sd2_seo_description" value="miva_html_strip( l.settings:category:descrip, '' )" />
+	<mvt:else>
+		<mvt:assign name="g.sd2_seo_description" value="'Shop fitment-first diesel performance parts for Ford Powerstroke, Chevy and GMC Duramax, and Ram Cummins trucks from Sinister Diesel.'" />
+	</mvt:if>
+</mvt:if>
+
+<mvt:assign name="g.sd2_seo_description" value="glosub( glosub( glosub( g.sd2_seo_description, asciichar( 13 ), ' ' ), asciichar( 10 ), ' ' ), asciichar( 9 ), ' ' )" />
+<mvt:if expr="len( g.sd2_seo_description ) GT 200">
+	<mvt:assign name="g.sd2_seo_description" value="substring( g.sd2_seo_description, 1, 197 ) $ '...'" />
+</mvt:if>
+
+<mvt:if expr="ISNULL g.sd2_seo_image AND ('PROD' CIN g.sd2_seo_page_code OR g.sd2_seo_page_code EQ 'PATR') AND NOT ISNULL l.settings:product:imagetypes:main">
+	<mvt:assign name="g.sd2_seo_image" value="l.settings:product:imagetypes:main" />
+</mvt:if>
+
+<mvt:if expr="g.sd2_seo_page_token CIN g.sd2_seo_private_page_codes">
+	<meta name="robots" content="noindex,follow">
+</mvt:if>
+<link rel="canonical" href="&mvte:global:sd2_seo_canonical;" itemprop="url">
+<meta property="og:type" content="<mvt:if expr="'PROD' CIN g.sd2_seo_page_code OR g.sd2_seo_page_code EQ 'PATR'">product<mvt:else>website</mvt:if>">
+<meta property="og:site_name" content="&mvte:global:Store:name;">
+<meta property="og:title" content="&mvte:global:sd2_seo_title;">
+<meta property="og:description" content="&mvte:global:sd2_seo_description;">
+<meta property="og:url" content="&mvte:global:sd2_seo_canonical;">
+<mvt:if expr="NOT ISNULL g.sd2_seo_image"><meta property="og:image" content="&mvte:global:sd2_seo_image;"></mvt:if>
+<meta name="twitter:card" content="<mvt:if expr="NOT ISNULL g.sd2_seo_image">summary_large_image<mvt:else>summary</mvt:if>">
+<meta name="twitter:title" content="&mvte:global:sd2_seo_title;">
+<meta name="twitter:description" content="&mvte:global:sd2_seo_description;">
+<mvt:if expr="NOT ISNULL g.sd2_seo_image"><meta name="twitter:image" content="&mvte:global:sd2_seo_image;"></mvt:if>
+
+<mvt:if expr="g.sd2_seo_page_code EQ 'SFNT' OR g.sd2_seo_page_code EQ 'SFNTV2'">
+	<mvt:assign name="g.sd2_seo_search_target" value="l.settings:urls:SRCH:auto" />
+	<mvt:if expr="'?' CIN g.sd2_seo_search_target">
+		<mvt:assign name="g.sd2_seo_search_target" value="g.sd2_seo_search_target $ '&Search='" />
+	<mvt:else>
+		<mvt:assign name="g.sd2_seo_search_target" value="g.sd2_seo_search_target $ '?Search='" />
+	</mvt:if>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@graph": [
+			{
+				"@type": "Organization",
+				"@id": "https://sinisterdiesel.com/#organization",
+				"name": "Sinister Diesel",
+				"url": "https://sinisterdiesel.com/",
+				"logo": "https://sinisterdiesel.com/graphics/00000001/8/apple-icon-1_2.png"
+			},
+			{
+				"@type": "WebSite",
+				"@id": "https://sinisterdiesel.com/#website",
+				"url": "https://sinisterdiesel.com/",
+				"name": "Sinister Diesel",
+				"publisher": { "@id": "https://sinisterdiesel.com/#organization" },
+				"potentialAction": {
+					"@type": "SearchAction",
+					"target": "&mvtj:global:sd2_seo_search_target;{search_term_string}",
+					"query-input": "required name=search_term_string"
+				}
+			}
+		]
+	}
+	</script>
+</mvt:if>
+
+<mvt:if expr="'PROD' CIN g.sd2_seo_page_code OR g.sd2_seo_page_code EQ 'PATR'">
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "Product",
+		"@id": "&mvtj:global:sd2_seo_canonical;#product",
+		"name": "&mvtj:product:name;",
+		"url": "&mvtj:global:sd2_seo_canonical;",
+		"description": "&mvtj:global:sd2_seo_description;",
+		"sku": "<mvt:if expr="NOT ISNULL l.settings:product:sku">&mvtj:product:sku;<mvt:else>&mvtj:product:code;</mvt:if>",
+		"brand": { "@type": "Brand", "name": "Sinister Diesel" },
+		<mvt:if expr="NOT ISNULL l.settings:product:imagetypes:main">"image": "&mvtj:product:imagetypes:main;",</mvt:if>
+		"offers": {
+			"@type": "Offer",
+			"url": "&mvtj:global:sd2_seo_canonical;",
+			"priceCurrency": "USD",
+			"price": "&mvtj:product:price;",
+			<mvt:if expr="l.settings:product:inv_level EQ 'out'">
+			"availability": "https://schema.org/OutOfStock",
+			<mvt:else>
+			"availability": "https://schema.org/InStock",
+			</mvt:if>
+			"itemCondition": "https://schema.org/NewCondition"
+		}
+	}
+	</script>
+</mvt:if>
+
+<mvt:if expr="'CTGY' CIN g.sd2_seo_page_code OR 'PROD' CIN g.sd2_seo_page_code OR g.sd2_seo_page_code EQ 'PATR'">
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"@id": "&mvtj:global:sd2_seo_canonical;#breadcrumb",
+		"itemListElement": [
+			{ "@type": "ListItem", "position": 1, "name": "Home", "item": "https://sinisterdiesel.com/" },
+			{ "@type": "ListItem", "position": 2, "name": "<mvt:if expr="'CTGY' CIN g.sd2_seo_page_code">&mvtj:category:name;<mvt:else>&mvtj:product:name;</mvt:if>", "item": "&mvtj:global:sd2_seo_canonical;" }
+		]
+	}
+	</script>
 </mvt:if>
 <mvt:item name="prodctgy_meta" param="combined" />
 <script type="text/javascript" src="&mvt:global:clientside_url;Module_Code=mvga&amp;Filename=mvga.js"></script>
