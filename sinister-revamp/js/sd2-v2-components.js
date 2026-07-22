@@ -1694,13 +1694,15 @@ counters.forEach(run);
 		if (bar.dataset.v2Ready) { return; }
 		bar.dataset.v2Ready = '1';
 		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) { return; }
-		var target = document.querySelector('[data-v2-buy-button]');
+		var target = document.querySelector('#description') || document.querySelector('[data-v2-buy-button]');
 		if (!target) { return; }
 		var observer = new IntersectionObserver(function (entries) {
 			entries.forEach(function (entry) {
-				bar.classList.toggle('is-visible', !entry.isIntersecting);
+				// Show the sticky bar once the Overview section has scrolled
+				// above the top of the viewport (i.e. the user is past Overview).
+				bar.classList.toggle('is-visible', !entry.isIntersecting && entry.boundingClientRect.top < 0);
 			});
-		});
+		}, { threshold: 0 });
 		observer.observe(target);
 	});
 })();
