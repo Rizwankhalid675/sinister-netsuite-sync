@@ -523,14 +523,53 @@
 	var form = root.querySelector('form');
 	var header = document.querySelector('.sd2-v2-hdr');
 	var empty = root.querySelector('[data-v2-search-empty]');
+	var results = root.querySelector('.sd2-v2-search-console__results');
+	var fallbackTimer = null;
 	var opener = null;
+	var emptyPrompt = empty ? empty.textContent : '';
+
+	if (empty) {
+		empty.setAttribute('role', 'status');
+		empty.setAttribute('aria-live', 'polite');
+	}
 
 	function positionConsole() {
 		var bottom = header ? Math.max(0, Math.round(header.getBoundingClientRect().bottom)) : 0;
 		console_.style.setProperty('--sd2-search-top', bottom + 'px');
 	}
+	function hasProviderResults() {
+		if (!results) { return false; }
+		return Array.prototype.some.call(results.children, function (child) {
+			return child !== empty && !child.hidden && Boolean((child.textContent || '').trim());
+		});
+	}
+	function showSearchFallback() {
+		fallbackTimer = null;
+		if (!empty || !input || !(input.value || '').trim() || hasProviderResults()) { return; }
+		empty.textContent = 'No instant matches. Press Search to view all results.';
+		empty.hidden = false;
+	}
 	function syncEmptyState() {
-		if (empty && input) { empty.hidden = Boolean((input.value || '').trim()); }
+		if (!empty || !input) { return; }
+		window.clearTimeout(fallbackTimer);
+		fallbackTimer = null;
+		if (!(input.value || '').trim()) {
+			empty.textContent = emptyPrompt;
+			empty.hidden = false;
+			return;
+		}
+		if (hasProviderResults()) { empty.hidden = true; return; }
+		empty.textContent = 'Searching for instant matches...';
+		empty.hidden = false;
+		fallbackTimer = window.setTimeout(showSearchFallback, 900);
+	}
+	if (results && empty) {
+		new MutationObserver(function () {
+			if (!hasProviderResults()) { return; }
+			window.clearTimeout(fallbackTimer);
+			fallbackTimer = null;
+			empty.hidden = true;
+		}).observe(results, { childList: true, subtree: true });
 	}
 
 	function open(event) {

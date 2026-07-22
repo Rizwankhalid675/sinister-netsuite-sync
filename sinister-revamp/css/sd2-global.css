@@ -10262,3 +10262,13 @@ body.sd2-install-library-page .sd2-v3-shell > .sd2-v2-hdr-trust .sd2-v2-hdr-trus
 	line-height: 1.45;
 	letter-spacing: .1em;
 }
+
+/* LOGN DESKTOP HERO FIT GUARD
+   Keep the two commerce-entry headings inside their narrower auth panels. */
+#js-LOGN .sd2-v2-auth__panel .sd2-v2-account-hero {
+	padding-inline:clamp(28px,2.25vw,36px);
+}
+#js-LOGN .sd2-v2-auth__panel .sd2-v2-account-hero h1 {
+	max-width:100%;
+	font-size:clamp(44px,3vw,52px);
+}
