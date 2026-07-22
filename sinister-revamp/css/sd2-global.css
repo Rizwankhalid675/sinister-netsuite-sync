@@ -10272,3 +10272,70 @@ body.sd2-install-library-page .sd2-v3-shell > .sd2-v2-hdr-trust .sd2-v2-hdr-trus
 	max-width:100%;
 	font-size:clamp(44px,3vw,52px);
 }
+
+/* V45 MOBILE RESPONSIVE INTERACTION GUARDS
+   Preserve the V2 header and commerce composition at narrow widths while
+   keeping every primary action visible, complete, and comfortably operable. */
+.sd2-v2-hdr__mobile-search { display:none; }
+
+.sd2-v2-cart-vehicle a {
+	display:inline-flex;
+	align-items:center;
+	justify-content:center;
+	min-width:44px;
+	min-height:44px;
+}
+
+.sd2-v2-product-card__link {
+	flex-basis:44px!important;
+	width:44px!important;
+	height:44px!important;
+}
+
+@media (max-width:1040px) {
+	body.sd2-filter-sheet-open .grecaptcha-badge {
+		bottom:calc(93px + env(safe-area-inset-bottom))!important;
+	}
+}
+
+@media (max-width:960px) {
+	.sd2-v2-hdr__mobile-search {
+		display:inline-flex;
+		align-items:center;
+		justify-content:center;
+		flex:0 0 44px;
+		width:44px;
+		height:44px;
+		color:var(--sd2-text);
+		border-radius:var(--sd2-r-sm);
+	}
+	.sd2-v2-hdr__mobile-search:is(:hover,:focus-visible) {
+		background:var(--sd2-bg-subtle);
+		color:var(--sd2-blue);
+	}
+}
+
+@media (max-width:520px) {
+	.sd2-v3-shell .sd2-v2-hdr__logo { min-width:96px; }
+	.sd2-v2-hdr__logo img { max-width:96px; }
+}
+
+@media (max-width:380px) {
+	.sd2-v2-hdr__row {
+		padding-inline:8px;
+		gap:4px;
+	}
+	.sd2-v2-hdr__garage { display:none; }
+	.sd2-v3-shell .sd2-v2-hdr__logo { min-width:0; }
+	.sd2-v2-hdr__logo img { max-width:80px; }
+	.sd2-v2-hdr__util { gap:0; }
+	.sd2-v3-hero-data > div {
+		grid-template-columns:72px minmax(0,1fr);
+		padding-inline:12px;
+	}
+	.sd2-v3-hero-data strong {
+		overflow:visible;
+		text-overflow:clip;
+		white-space:normal;
+	}
+}

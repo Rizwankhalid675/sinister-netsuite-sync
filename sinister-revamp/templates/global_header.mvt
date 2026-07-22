@@ -83,6 +83,10 @@
 				</span>
 			</button>
 
+			<button class="sd2-v2-hdr__mobile-search" type="button" data-v2-search-open aria-label="Search" aria-haspopup="dialog" aria-controls="sd2-v2-search-dialog" aria-expanded="false">
+				<svg class="sd2-icon sd2-icon--lg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+			</button>
+
 			<div class="sd2-v2-hdr__search">
 				<button class="sd2-v2-hdr__search-btn" type="button" data-v2-search-open aria-haspopup="dialog" aria-controls="sd2-v2-search-dialog" aria-expanded="false">
 					<svg class="sd2-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>

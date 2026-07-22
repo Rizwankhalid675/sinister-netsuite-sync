@@ -26,6 +26,37 @@
 	});
 }());
 
+/* Keep translated closed drawers out of sequential keyboard navigation. Native
+   inert handles current browsers; the tabindex snapshot is a safe fallback for
+   older storefront WebViews without changing the controls' open-state order. */
+function setDialogInteractive(dialog, interactive) {
+	'use strict';
+	if (!dialog) { return; }
+	var supportsInert = 'inert' in dialog;
+	dialog.toggleAttribute('inert', !interactive);
+	if (supportsInert) { return; }
+	var selector = 'a[href], button, input, select, textarea, [tabindex]';
+	Array.prototype.forEach.call(dialog.querySelectorAll(selector), function (control) {
+		if (interactive) {
+			if (!control.hasAttribute('data-v2-stored-tabindex')) { return; }
+			var stored = control.getAttribute('data-v2-stored-tabindex');
+			if (stored) { control.setAttribute('tabindex', stored); }
+			else { control.removeAttribute('tabindex'); }
+			control.removeAttribute('data-v2-stored-tabindex');
+			return;
+		}
+		if (control.hasAttribute('data-v2-stored-tabindex')) { return; }
+		control.setAttribute('data-v2-stored-tabindex', control.getAttribute('tabindex') || '');
+		control.setAttribute('tabindex', '-1');
+	});
+	if (!supportsInert && !dialog._sd2InertFallbackObserver && 'MutationObserver' in window) {
+		dialog._sd2InertFallbackObserver = new MutationObserver(function () {
+			if (dialog.getAttribute('aria-hidden') === 'true') { setDialogInteractive(dialog, false); }
+		});
+		dialog._sd2InertFallbackObserver.observe(dialog, { childList: true, subtree: true });
+	}
+}
+
 /* Retired campaign aliases can remain in email, search, and old footer caches.
    Recover the known Special Offers screen instead of presenting a 404. */
 (function () {
@@ -114,9 +145,10 @@
 	var scrim = document.querySelector('.sd2-v2-scrim');
 	if (drawer && scrim && !drawer.dataset.v2Ready) {
 		drawer.dataset.v2Ready = '1';
+		setDialogInteractive(drawer, false);
 		var drawerOpener = null;
-		function openDrawer(event) { drawerOpener = event && event.currentTarget; drawer.classList.add('is-open'); scrim.classList.add('is-open'); drawer.setAttribute('aria-hidden', 'false'); if (drawerOpener) { drawerOpener.setAttribute('aria-expanded', 'true'); } document.body.style.overflow = 'hidden'; var first = drawer.querySelector('button, a[href], input, select'); if (first) { first.focus(); } }
-		function closeDrawer() { if (!drawer.classList.contains('is-open')) { return; } drawer.classList.remove('is-open'); scrim.classList.remove('is-open'); drawer.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; if (drawerOpener) { drawerOpener.setAttribute('aria-expanded', 'false'); drawerOpener.focus(); } }
+		function openDrawer(event) { drawerOpener = event && event.currentTarget; setDialogInteractive(drawer, true); drawer.classList.add('is-open'); scrim.classList.add('is-open'); drawer.setAttribute('aria-hidden', 'false'); if (drawerOpener) { drawerOpener.setAttribute('aria-expanded', 'true'); } document.body.style.overflow = 'hidden'; var first = drawer.querySelector('button, a[href], input, select'); if (first) { first.focus(); } }
+		function closeDrawer() { if (!drawer.classList.contains('is-open')) { return; } drawer.classList.remove('is-open'); scrim.classList.remove('is-open'); drawer.setAttribute('aria-hidden', 'true'); setDialogInteractive(drawer, false); document.body.style.overflow = ''; if (drawerOpener) { drawerOpener.setAttribute('aria-expanded', 'false'); drawerOpener.focus(); } }
 		document.querySelectorAll('[data-v2-drawer-open]').forEach(function (b) { b.addEventListener('click', openDrawer); });
 		document.querySelectorAll('[data-v2-drawer-close]').forEach(function (b) { b.addEventListener('click', closeDrawer); });
 		document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeDrawer(); } });
@@ -750,6 +782,8 @@
 		document.querySelectorAll('[data-v2-drawer], .sd2-v2-cart-drawer, .sd2-v2-search-console').forEach(function (item) {
 			item.classList.remove('is-open');
 			if (item.hasAttribute('aria-hidden')) { item.setAttribute('aria-hidden', 'true'); }
+			var dialog = item.matches('.sd2-v2-cart-drawer') ? item.querySelector('.sd2-v2-cart-panel') : item;
+			if (dialog && (dialog.matches('[data-v2-drawer]') || dialog.matches('.sd2-v2-cart-panel'))) { setDialogInteractive(dialog, false); }
 		});
 		document.querySelectorAll('[data-v2-search-open], [data-v2-cart-open]').forEach(function (item) { item.setAttribute('aria-expanded', 'false'); });
 		document.querySelectorAll('.sd2-v2-scrim, .sd2-v2-cart-scrim, .sd2-v2-search-scrim').forEach(function (item) {
@@ -868,6 +902,7 @@
 	var basketUrl = foot && foot.querySelector('a') ? foot.querySelector('a').href : '/basket-contents.html';
 	var cartRequest = null;
 	var cartLoadedAt = 0;
+	setDialogInteractive(panel, false);
 
 	function cartEscape(value) {
 		return String(value || '')
@@ -1039,6 +1074,7 @@
 		opener = toggle || document.querySelector('[data-v2-cart-open]');
 		syncCartContents();
 		loadLiveCart(true);
+		setDialogInteractive(panel, true);
 		panel.classList.add('is-open'); scrim.classList.add('is-open');
 		panel.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
 		if (opener) { opener.setAttribute('aria-expanded', 'true'); }
@@ -1048,7 +1084,7 @@
 	}
 	function close() {
 		if (!panel.classList.contains('is-open')) { return; }
-		panel.classList.remove('is-open'); scrim.classList.remove('is-open'); panel.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '';
+		panel.classList.remove('is-open'); scrim.classList.remove('is-open'); panel.setAttribute('aria-hidden', 'true'); setDialogInteractive(panel, false); document.body.style.overflow = '';
 		if (opener) { opener.setAttribute('aria-expanded', 'false'); opener.focus(); }
 	}
 
