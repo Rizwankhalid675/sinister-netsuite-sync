@@ -4905,7 +4905,7 @@ button.sd2-v2-badge { cursor: pointer; }
 .sd2-v2-media__viewer img { filter:drop-shadow(0 28px 24px rgba(6,15,31,.17)); transition:transform .8s cubic-bezier(.16,1,.3,1); }
 .sd2-v2-pdp__media:hover .sd2-v2-media__viewer img { transform:scale(1.035) rotate(-.6deg); }
 .sd2-v2-pdp-gallery { gap:10px; }
-.sd2-v2-buybox { position:sticky; top:116px; max-height:calc(100vh - 116px - 24px); overflow-x:hidden; overflow-y:auto; padding:30px; border:0; border-radius:28px; color:#fff; background:linear-gradient(145deg,#091426,#070b16 68%); box-shadow:0 26px 70px rgba(6,12,27,.27); }
+.sd2-v2-buybox { position:sticky; top:116px; max-height:calc(100vh - 132px); overflow-y:auto; overscroll-behavior:contain; padding:30px; border:0; border-radius:28px; color:#fff; background:linear-gradient(145deg,#091426,#070b16 68%); box-shadow:0 26px 70px rgba(6,12,27,.27); }
 .sd2-v2-buybox::before { content:"PURCHASE CONSOLE"; display:inline-flex; align-items:center; min-height:24px; margin-bottom:16px; padding:0 10px; border:1px solid rgba(110,145,255,.34); border-radius:99px; color:#8ca5ff; font:700 8px/1 var(--sd2-font-mono,monospace); letter-spacing:.18em; }
 .sd2-v2-buybox::after { content:""; position:absolute; top:37px; right:34px; width:8px; height:8px; border-radius:50%; background:#56efb1; box-shadow:0 0 0 6px rgba(86,239,177,.1),0 0 20px #56efb1; animation:sd2-v6-status 2s ease-in-out infinite; }
 @keyframes sd2-v6-status { 50%{opacity:.4} }
@@ -5560,7 +5560,7 @@ body .sd2-v2-account .sd2-v2-account-cards-2up--credentials { display:grid!impor
 .sd2-v2-pdp__layout[data-sd2-story] { min-height:0; }
 .sd2-v2-buybox { gap:16px; padding:26px; }
 .sd2-v2-buybox__header { gap:8px; }
-.sd2-v2-buybox__header h2 { font-size:clamp(26px,2.25vw,36px); line-height:.98; }
+.sd2-v2-buybox__header h2 { font-size:clamp(22px,1.9vw,30px); line-height:1.05; overflow-wrap:break-word; }
 .sd2-v2-buybox__form { gap:12px; }
 .sd2-v2-buybox__attributes .x-product-layout-purchase__options-attribute { margin-bottom:10px; }
 
