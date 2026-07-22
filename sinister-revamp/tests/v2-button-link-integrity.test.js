@@ -89,6 +89,71 @@ assert.match(
   'Truck Lab tilt must stand down over HUD controls so the target cannot move before pointer-down'
 );
 assert.match(
+  motion,
+  /pointerdown"[\s\S]*?event\.target\.closest\("button,\.sd2-v5-truck__hud"\)/,
+  'Truck Lab drag initiation must allow the visible truck image while protecting HUD controls'
+);
+assert.match(
+  motion,
+  /stage\.addEventListener\("click"[\s\S]*?suppressVisualClick[\s\S]*?event\.preventDefault\(\)[\s\S]*?event\.stopPropagation\(\)[\s\S]*?true\s*\)/,
+  'a completed Truck Lab image drag must suppress its synthetic follow-up navigation without disabling normal image links'
+);
+assert.match(
+  motion,
+  /stage\.addEventListener\("dragstart",\s*function\s*\(event\)\s*\{\s*event\.preventDefault\(\);\s*\}\)/,
+  'Truck Lab must prevent native image dragging from cancelling its pointer gesture'
+);
+assert.match(
+  css,
+  /\.sd2-v5-truck\.is-active\s*\{(?=[^}]*transition:\s*opacity\s+\.45s\s+ease,\s*filter\s+\.6s\s+ease)(?![^}]*transition:[^}]*transform)[^}]*\}/is,
+  'the active Truck Lab slide must immediately stabilize transform geometry while retaining opacity and filter motion'
+);
+assert.match(
+  motion,
+  /var\s+dragPointerId\s*=\s*null;/,
+  'Truck Lab drag handling must track the active pointer independently from its start position'
+);
+assert.match(
+  motion,
+  /pointermove"[\s\S]*?Math\.abs\(event\.clientX\s*-\s*dragStart\)\s*<=\s*8[\s\S]*?stage\.setPointerCapture\(event\.pointerId\)/,
+  'Truck Lab must capture only after pointer movement proves a drag, preserving normal image-link clicks'
+);
+assert.match(
+  motion,
+  /stage\.releasePointerCapture\(pointerId\)/,
+  'Truck Lab drag cleanup must release its captured pointer'
+);
+assert.match(
+  motion,
+  /stage\.addEventListener\("pointerleave"[\s\S]*?event\.pointerId\s*===\s*dragPointerId[\s\S]*?stage\.hasPointerCapture\(event\.pointerId\)[\s\S]*?clearDrag\(\)/,
+  'Truck Lab must clear an uncaptured pointer that leaves before the drag threshold'
+);
+assert.match(
+  motion,
+  /function\s+clearDrag\(\)\s*\{[\s\S]*?--truck-px",\s*"0"[\s\S]*?--truck-py",\s*"0"/,
+  'Truck Lab drag cleanup must return pointer tilt to neutral after an outside-stage release'
+);
+assert.match(
+  motion,
+  /tab\.addEventListener\("keydown"[\s\S]*?event\.key\s*===\s*"Home"[\s\S]*?event\.key\s*===\s*"End"[\s\S]*?select\(requestedIndex,\s*true\)/,
+  'Truck Lab tabs must support Arrow, Home, and End keyboard selection while moving focus with the active tab'
+);
+assert.match(
+  css,
+  /\.sd2-v2-scrim\s*\{(?=[^}]*z-index:\s*1199)[^}]*\}[\s\S]*?\.sd2-v2-drawer\s*\{(?=[^}]*z-index:\s*1200)[^}]*\}/i,
+  'the open mobile navigation layer must sit above the V3 floating header so its close control remains clickable'
+);
+assert.match(
+  css,
+  /@media\s*\(min-width:\s*381px\)\s+and\s+\(max-width:\s*480px\)\s*\{[\s\S]*?\.sd2-v5-truck-controls\s*\{(?=[^}]*width:\s*calc\(100%\s*-\s*84px\))(?=[^}]*margin-inline:\s*6px\s+auto)[^}]*\}/i,
+  'common phone-width Truck Lab controls must stay left of the fixed reCAPTCHA badge hit area without shrinking narrow-phone targets'
+);
+assert.match(
+  css,
+  /@media\s*\(max-width:\s*380px\)\s*\{[\s\S]*?\.sd2-v5-truck-controls\s*\{(?=[^}]*width:\s*min\(252px,\s*calc\(100%\s*-\s*12px\)\))(?=[^}]*grid-template-columns:\s*44px\s+minmax\(0,1fr\)\s+44px)[^}]*\}/i,
+  'narrow-phone Truck Lab controls must clear reCAPTCHA while retaining 44px arrow and numbered-tab targets through the 361px breakpoint'
+);
+assert.match(
   css,
   /\.sd2-v2-build-story__body\s+\.sd2-btn:is\(:hover,:focus-visible,:active\)\s*\{(?=[^}]*background:\s*#fff)(?=[^}]*color:\s*#07101f!important)[^}]*\}/,
   'Build Blueprint CTA interaction states must keep dark text on the white surface'

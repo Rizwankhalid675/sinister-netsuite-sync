@@ -609,7 +609,25 @@
             var next = lab.querySelector("[data-v5-truck-next]");
             var index = 0;
             var dragStart = null;
+            var dragPointerId = null;
+            var suppressVisualClick = false;
             if (!stage || slides.length < 2) return;
+
+            function clearDrag() {
+                var pointerId = dragPointerId;
+                dragStart = null;
+                dragPointerId = null;
+                lab.style.setProperty("--truck-px", "0");
+                lab.style.setProperty("--truck-py", "0");
+                if (pointerId === null || !stage.releasePointerCapture) return;
+                try {
+                    if (!stage.hasPointerCapture || stage.hasPointerCapture(pointerId)) {
+                        stage.releasePointerCapture(pointerId);
+                    }
+                } catch (error) {
+                    /* Capture can already be released when the pointer leaves the document. */
+                }
+            }
 
             function select(nextIndex, focusTab) {
                 index = (nextIndex + slides.length) % slides.length;
@@ -637,6 +655,16 @@
                     var requestedIndex = slides.findIndex(function (slide) { return slide.getAttribute("data-v5-truck") === requested; });
                     if (requestedIndex >= 0) select(requestedIndex, false);
                 });
+                tab.addEventListener("keydown", function (event) {
+                    var requestedIndex = tabs.indexOf(tab);
+                    if (event.key === "Home") requestedIndex = 0;
+                    else if (event.key === "End") requestedIndex = tabs.length - 1;
+                    else if (event.key === "ArrowRight" || event.key === "ArrowDown") requestedIndex += 1;
+                    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") requestedIndex -= 1;
+                    else return;
+                    event.preventDefault();
+                    select(requestedIndex, true);
+                });
             });
             if (previous) previous.addEventListener("click", function () { select(index - 1, false); });
             if (next) next.addEventListener("click", function () { select(index + 1, false); });
@@ -647,16 +675,51 @@
                 select(index + (event.key === "ArrowRight" ? 1 : -1), false);
             });
             stage.addEventListener("pointerdown", function (event) {
-                if (event.target.closest && event.target.closest("a,button,.sd2-v5-truck__hud")) return;
+                if (event.target.closest && event.target.closest("button,.sd2-v5-truck__hud")) return;
+                suppressVisualClick = false;
                 dragStart = event.clientX;
+                dragPointerId = event.pointerId;
+            });
+            stage.addEventListener("dragstart", function (event) {
+                event.preventDefault();
+            });
+            stage.addEventListener("pointermove", function (event) {
+                if (dragStart === null || event.pointerId !== dragPointerId || Math.abs(event.clientX - dragStart) <= 8) return;
+                if (stage.setPointerCapture && (!stage.hasPointerCapture || !stage.hasPointerCapture(event.pointerId))) {
+                    try { stage.setPointerCapture(event.pointerId); } catch (error) { /* Unsupported pointer source. */ }
+                }
+            });
+            stage.addEventListener("pointerleave", function (event) {
+                if (event.pointerId === dragPointerId && (!stage.hasPointerCapture || !stage.hasPointerCapture(event.pointerId))) {
+                    suppressVisualClick = false;
+                    clearDrag();
+                }
             });
             stage.addEventListener("pointerup", function (event) {
-                if (dragStart === null) return;
+                if (dragStart === null || event.pointerId !== dragPointerId) return;
                 var distance = event.clientX - dragStart;
-                dragStart = null;
-                if (Math.abs(distance) > 55) select(index + (distance < 0 ? 1 : -1), false);
+                clearDrag();
+                if (Math.abs(distance) > 55) {
+                    suppressVisualClick = true;
+                    select(index + (distance < 0 ? 1 : -1), false);
+                    window.setTimeout(function () { suppressVisualClick = false; }, 0);
+                }
             });
-            stage.addEventListener("pointercancel", function () { dragStart = null; });
+            stage.addEventListener("pointercancel", function (event) {
+                if (event.pointerId === dragPointerId) {
+                    suppressVisualClick = false;
+                    clearDrag();
+                }
+            });
+            stage.addEventListener("lostpointercapture", function (event) {
+                if (event.pointerId === dragPointerId) clearDrag();
+            });
+            stage.addEventListener("click", function (event) {
+                if (!suppressVisualClick) return;
+                suppressVisualClick = false;
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
 
             if (!shouldReduce() && window.matchMedia && window.matchMedia("(pointer: fine)").matches) {
                 stage.addEventListener("pointermove", function (event) {

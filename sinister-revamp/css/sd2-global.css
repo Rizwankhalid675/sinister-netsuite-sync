@@ -600,12 +600,12 @@ body.sd2-seo-landing--intercooler-pipes .mm-sequence-container img,body.sd2-seo-
 	.sd2-v2-hdr__garage-text { display: none; }
 
 	.sd2-v2-scrim {
-		display: block; position: fixed; inset: 0; z-index: 899;
+		display: block; position: fixed; inset: 0; z-index: 1199;
 		background: rgba(13,15,26,0.5); opacity: 0; pointer-events: none; transition: opacity var(--sd2-duration) ease;
 	}
 	.sd2-v2-scrim.is-open { opacity: 1; pointer-events: auto; }
 	.sd2-v2-drawer {
-		display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 900;
+		display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 1200;
 		width: min(86vw, 360px); background: var(--sd2-bg-white); box-shadow: var(--sd2-shadow-xl);
 		transform: translateX(-100%); transition: transform var(--sd2-duration-slow) var(--sd2-ease-out); overflow-y: auto;
 	}
@@ -4743,7 +4743,7 @@ button.sd2-v2-badge { cursor: pointer; }
 .sd2-v5-truck-stage { position: relative; min-height: clamp(620px,66vw,830px); outline: 0; transform-style: preserve-3d; touch-action: pan-y; }
 .sd2-v5-truck-stage:focus-visible { outline: 2px solid #79baff; outline-offset: 8px; }
 .sd2-v5-truck { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0,1.42fr) minmax(300px,.58fr); min-height: 100%; border: 1px solid rgba(255,255,255,.2); border-radius: 30px; background: #0a1020; box-shadow: 0 50px 120px rgba(0,0,0,.42); opacity: 0; overflow: hidden; pointer-events: none; transform-style: preserve-3d; transform: translate3d(0,40px,-420px) scale(.72); transition: transform .85s cubic-bezier(.16,1,.3,1),opacity .45s ease,filter .6s ease; }
-.sd2-v5-truck.is-active { z-index: 3; opacity: 1; pointer-events: auto; transform: translate3d(0,0,0) rotateX(calc(var(--truck-py) * -1deg)) rotateY(calc(var(--truck-px) * 1deg)); }
+.sd2-v5-truck.is-active { z-index: 3; opacity: 1; pointer-events: auto; transform: translate3d(0,0,0) rotateX(calc(var(--truck-py) * -1deg)) rotateY(calc(var(--truck-px) * 1deg)); transition: opacity .45s ease,filter .6s ease; }
 .sd2-v5-truck.is-prev { z-index: 1; opacity: .2; filter: saturate(.35); transform: translate3d(-56%,42px,-360px) rotateY(19deg) scale(.7); }
 .sd2-v5-truck.is-next { z-index: 2; opacity: .24; filter: saturate(.45); transform: translate3d(56%,42px,-340px) rotateY(-19deg) scale(.72); }
 .sd2-v5-truck__visual { position: relative; display: block; min-width: 0; overflow: hidden; background: #111; }
@@ -4828,6 +4828,12 @@ button.sd2-v2-badge { cursor: pointer; }
 	.sd2-v5-truck-controls > div { display: flex; overflow: hidden; }
 	.sd2-v5-truck-controls [role="tab"] { flex: 1; font-size: 0; }
 	.sd2-v5-truck-controls [role="tab"] i { margin: 0; font-size: 9px; }
+}
+@media (min-width: 381px) and (max-width: 480px) {
+	.sd2-v5-truck-controls { width: calc(100% - 84px); margin-inline: 6px auto; }
+}
+@media (max-width: 380px) {
+	.sd2-v5-truck-controls { width: min(252px,calc(100% - 12px)); margin-inline: 6px auto; grid-template-columns: 44px minmax(0,1fr) 44px; }
 }
 @media (prefers-reduced-motion: reduce) {
 	.sd2-v5-truck,.sd2-v5-truck__visual img,.sd2-v5-truck-controls button { transition: none; }
