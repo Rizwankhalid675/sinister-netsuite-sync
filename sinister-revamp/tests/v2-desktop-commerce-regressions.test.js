@@ -58,7 +58,14 @@ function element(text = '') {
     textContent: text,
     addEventListener(type, listener) { this.events[type] = listener; },
     getAttribute(name) { return this.attributes && this.attributes[name]; },
+    hasAttribute(name) { return Boolean(this.attributes && Object.prototype.hasOwnProperty.call(this.attributes, name)); },
+    removeAttribute(name) { if (this.attributes) delete this.attributes[name]; },
     setAttribute(name, value) { this.attributes = this.attributes || {}; this.attributes[name] = value; },
+    toggleAttribute(name, force) {
+      this.attributes = this.attributes || {};
+      if (force) this.attributes[name] = '';
+      else delete this.attributes[name];
+    },
     focus() {},
     querySelector() { return null; },
     querySelectorAll() { return []; }
@@ -68,7 +75,28 @@ function element(text = '') {
 function exerciseStaleProviderClear() {
   const empty = element('Start typing to see parts, categories, and guides.');
   const results = element();
-  results.children = [empty];
+  const resultRegion = element();
+  resultRegion.appendChild = child => {
+    child.parentNode = resultRegion;
+    resultRegion.children.push(child);
+    return child;
+  };
+  resultRegion.insertBefore = (child, reference) => {
+    if (child.parentNode && child.parentNode.children) {
+      child.parentNode.children = child.parentNode.children.filter(item => item !== child);
+    }
+    child.parentNode = resultRegion;
+    const index = resultRegion.children.indexOf(reference);
+    resultRegion.children.splice(index < 0 ? resultRegion.children.length : index, 0, child);
+    return child;
+  };
+  resultRegion.appendChild(results);
+  results.appendChild = child => {
+    child.parentNode = results;
+    results.children.push(child);
+    return child;
+  };
+  results.appendChild(empty);
   const input = element();
   const form = element();
   const consoleElement = element();
@@ -110,18 +138,26 @@ function exerciseStaleProviderClear() {
 
   const start = components.indexOf('/* Search Console open/close');
   const end = components.indexOf('/* Live listing layout guard', start);
-  assert.ok(start >= 0 && end > start, 'shared search controller must be extractable for behavioral testing');
-  vm.runInNewContext(components.slice(start, end), { Array, Boolean, JSON, MutationObserver, document, window });
+  const helperStart = components.indexOf('function setDialogInteractive');
+  const helperEnd = components.indexOf('/* Retired campaign aliases', helperStart);
+  assert.ok(start >= 0 && end > start && helperStart >= 0 && helperEnd > helperStart,
+    'shared search controller and dialog helper must be extractable for behavioral testing');
+  vm.runInNewContext(
+    components.slice(helperStart, helperEnd) + components.slice(start, end),
+    { Array, Boolean, JSON, MutationObserver, document, window }
+  );
 
   input.value = 'query A';
   input.events.input();
   results.children.push(element('Provider result A'));
   results.notifyMutation();
   assert.equal(empty.hidden, true, 'provider result A should suppress the fallback');
+  assert.equal(empty.parentNode, resultRegion,
+    'the fallback status must live outside the provider-owned results mount');
 
   input.value = 'query B';
   input.events.input();
-  results.children = [empty];
+  results.children = [];
   results.notifyMutation();
   for (const callback of [...timers.values()]) callback();
 

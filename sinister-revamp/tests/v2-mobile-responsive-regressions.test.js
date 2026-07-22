@@ -249,4 +249,94 @@ function exerciseCartToGarageTransition() {
 
 exerciseCartToGarageTransition();
 
+function exerciseDrawerToGarageTransition() {
+  const drawer = behavioralElement(['is-open'], { 'data-v2-drawer': '', 'aria-hidden': 'false' });
+  const drawerTrigger = behavioralElement([], { 'data-v2-drawer-open': '', 'aria-expanded': 'true' });
+  const drawerGarageAdd = behavioralElement([], { 'data-v2-garage-toggle': '' });
+  drawer.appendChild(drawerGarageAdd);
+  drawer.querySelectorAll = () => [drawerGarageAdd];
+
+  const garageRoot = behavioralElement();
+  const garagePanel = behavioralElement(['sd2-v2-garage-panel'], { 'aria-hidden': 'true' });
+  const garageScrim = behavioralElement(['sd2-v2-garage-scrim']);
+  const garageClose = behavioralElement();
+  garagePanel.appendChild(garageClose);
+  garagePanel.querySelector = () => garageClose;
+  const form = behavioralElement();
+  const make = behavioralElement();
+  const engine = behavioralElement();
+  const year = behavioralElement();
+  const cardEmpty = behavioralElement();
+  const cardName = behavioralElement();
+  const cardSpec = behavioralElement();
+  const savedWrap = behavioralElement();
+  const savedList = behavioralElement();
+  const parts = {
+    '.sd2-v2-garage-panel': garagePanel,
+    '.sd2-v2-garage-scrim': garageScrim,
+    '[data-v2-garage-form]': form,
+    '[data-v2-garage-field="make"]': make,
+    '[data-v2-garage-field="engine"]': engine,
+    '[data-v2-garage-field="year"]': year,
+    '[data-v2-garage-card-empty]': cardEmpty,
+    '[data-v2-garage-card-name]': cardName,
+    '[data-v2-garage-card-spec]': cardSpec,
+    '[data-v2-garage-shop]': null,
+    '[data-v2-garage-shop-label]': null,
+    '[data-v2-garage-saved-wrap]': savedWrap,
+    '[data-v2-garage-saved-list]': savedList
+  };
+  garageRoot.querySelector = selector => parts[selector] || null;
+  garageRoot.querySelectorAll = selector => selector === '[data-v2-garage-close]' ? [garageClose] : [];
+
+  const documentEvents = {};
+  behavioralDocument = {
+    activeElement: null,
+    body: { appendChild() {}, style: {} },
+    addEventListener(type, listener) { documentEvents[type] = listener; },
+    createElement() { return behavioralElement(); },
+    querySelector(selector) {
+      if (selector === '[data-v2-garage]') return garageRoot;
+      if (selector === '[data-v2-drawer-open]' || selector.includes('[data-v2-drawer-open]')) return drawerTrigger;
+      if (selector === '[data-v2-search] form') return null;
+      return null;
+    },
+    querySelectorAll(selector) {
+      if (selector === '[data-v2-drawer], .sd2-v2-cart-drawer, .sd2-v2-search-console') return [drawer];
+      if (selector === '[data-v2-search-open], [data-v2-cart-open], [data-v2-drawer-open]') return [drawerTrigger];
+      if (selector === '.sd2-v2-scrim, .sd2-v2-cart-scrim, .sd2-v2-search-scrim') return [];
+      if (selector === '[data-v2-garage-toggle]') return [drawerGarageAdd];
+      if (selector === '[data-v2-garage-label]') return [];
+      return [];
+    }
+  };
+
+  class MutationObserver { observe() {} }
+  const window = {
+    dispatchEvent() {},
+    localStorage: { getItem() { return '[]'; }, setItem() {} },
+    location: { href: 'https://example.test/', origin: 'https://example.test' }
+  };
+  const helperStart = components.indexOf('function setDialogInteractive');
+  const helperEnd = components.indexOf('/* Retired campaign aliases', helperStart);
+  const garageStart = components.indexOf('/* Garage Experience V2 controller');
+  const garageEnd = components.indexOf('/* Cart Drawer controller', garageStart);
+  vm.runInNewContext(
+    components.slice(helperStart, helperEnd) + components.slice(garageStart, garageEnd),
+    { Array, Boolean, CustomEvent: class CustomEvent {}, JSON, MutationObserver, URL, document: behavioralDocument, window }
+  );
+
+  documentEvents.click({ target: drawerGarageAdd, preventDefault() {} });
+  assert.equal(drawer.classList.contains('is-open'), false, 'Garage opening must close the mobile drawer');
+  assert.equal(drawer.getAttribute('aria-hidden'), 'true', 'the closed mobile drawer must be hidden');
+  assert.equal(drawerTrigger.getAttribute('aria-expanded'), 'false', 'the hamburger state must reset when Garage replaces its drawer');
+  assert.equal(drawerGarageAdd.getAttribute('tabindex'), '-1', 'the closed drawer action must leave the tab order');
+
+  garageClose.events.click();
+  assert.equal(behavioralDocument.activeElement, drawerTrigger,
+    'Garage close must restore focus to the hamburger when opened from the drawer');
+}
+
+exerciseDrawerToGarageTransition();
+
 console.log('V2 mobile responsive regression contracts verified');

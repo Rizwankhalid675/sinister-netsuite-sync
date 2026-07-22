@@ -561,10 +561,16 @@ function setDialogInteractive(dialog, interactive) {
 	var opener = null;
 	var emptyPrompt = empty ? empty.textContent : '';
 
+	/* Miva owns the autocomplete mount and may replace all of its children.
+	   Keep our live status beside that mount so provider redraws cannot detach it. */
+	if (empty && results && empty.parentNode === results && results.parentNode) {
+		results.parentNode.insertBefore(empty, results.nextSibling);
+	}
 	if (empty) {
 		empty.setAttribute('role', 'status');
 		empty.setAttribute('aria-live', 'polite');
 	}
+	setDialogInteractive(console_, false);
 
 	function positionConsole() {
 		var bottom = header ? Math.max(0, Math.round(header.getBoundingClientRect().bottom)) : 0;
@@ -620,6 +626,7 @@ function setDialogInteractive(dialog, interactive) {
 		if (opener) { opener.setAttribute('aria-expanded', 'true'); }
 		positionConsole();
 		syncEmptyState();
+		setDialogInteractive(console_, true);
 		console_.classList.add('is-open'); scrim.classList.add('is-open');
 		console_.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
 		window.setTimeout(function () { input.focus(); }, 200);
@@ -627,7 +634,7 @@ function setDialogInteractive(dialog, interactive) {
 	function close() {
 		if (!console_.classList.contains('is-open')) { return; }
 		console_.classList.remove('is-open'); scrim.classList.remove('is-open');
-		console_.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '';
+		console_.setAttribute('aria-hidden', 'true'); setDialogInteractive(console_, false); document.body.style.overflow = '';
 		if (opener) { opener.setAttribute('aria-expanded', 'false'); opener.focus(); }
 	}
 
@@ -722,6 +729,7 @@ function setDialogInteractive(dialog, interactive) {
 	var cardSpec = root.querySelector('[data-v2-garage-card-spec]');
 	var shopButton = root.querySelector('[data-v2-garage-shop]');
 	var shopLabel = root.querySelector('[data-v2-garage-shop-label]');
+	setDialogInteractive(panel, false);
 
 	var ENGINE_DATA = {
 		Ford: [
@@ -783,14 +791,18 @@ function setDialogInteractive(dialog, interactive) {
 			item.classList.remove('is-open');
 			if (item.hasAttribute('aria-hidden')) { item.setAttribute('aria-hidden', 'true'); }
 			var dialog = item.matches('.sd2-v2-cart-drawer') ? item.querySelector('.sd2-v2-cart-panel') : item;
-			if (dialog && (dialog.matches('[data-v2-drawer]') || dialog.matches('.sd2-v2-cart-panel'))) {
+			if (dialog && (dialog.matches('[data-v2-drawer]') || dialog.matches('.sd2-v2-cart-panel') || dialog.matches('.sd2-v2-search-console'))) {
+				if (opener && dialog.contains(opener)) {
+					if (dialog.matches('[data-v2-drawer]')) { opener = document.querySelector('[data-v2-drawer-open]'); }
+					else if (dialog.matches('.sd2-v2-cart-panel')) { opener = document.querySelector('[data-v2-cart-open]'); }
+					else { opener = document.querySelector('[data-v2-search-open]'); }
+				}
 				dialog.classList.remove('is-open');
 				if (dialog.hasAttribute('aria-hidden')) { dialog.setAttribute('aria-hidden', 'true'); }
-				if (opener && dialog.contains(opener)) { opener = document.querySelector('[data-v2-cart-open]'); }
 				setDialogInteractive(dialog, false);
 			}
 		});
-		document.querySelectorAll('[data-v2-search-open], [data-v2-cart-open]').forEach(function (item) { item.setAttribute('aria-expanded', 'false'); });
+		document.querySelectorAll('[data-v2-search-open], [data-v2-cart-open], [data-v2-drawer-open]').forEach(function (item) { item.setAttribute('aria-expanded', 'false'); });
 		document.querySelectorAll('.sd2-v2-scrim, .sd2-v2-cart-scrim, .sd2-v2-search-scrim').forEach(function (item) {
 			item.classList.remove('is-open');
 		});
@@ -799,6 +811,7 @@ function setDialogInteractive(dialog, interactive) {
 	function open(toggle) {
 		opener = toggle || document.querySelector('[data-v2-garage-toggle]');
 		closeCompetingPanels();
+		setDialogInteractive(panel, true);
 		panel.classList.add('is-open'); scrim.classList.add('is-open');
 		panel.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
 		document.querySelectorAll('[data-v2-garage-toggle]').forEach(function (item) { item.setAttribute('aria-expanded', 'true'); });
@@ -807,7 +820,7 @@ function setDialogInteractive(dialog, interactive) {
 	}
 	function close() {
 		if (!panel.classList.contains('is-open')) { return; }
-		panel.classList.remove('is-open'); scrim.classList.remove('is-open'); panel.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '';
+		panel.classList.remove('is-open'); scrim.classList.remove('is-open'); panel.setAttribute('aria-hidden', 'true'); setDialogInteractive(panel, false); document.body.style.overflow = '';
 		document.querySelectorAll('[data-v2-garage-toggle]').forEach(function (item) { item.setAttribute('aria-expanded', 'false'); });
 		if (opener) { opener.focus(); }
 	}
