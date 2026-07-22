@@ -1696,13 +1696,16 @@ counters.forEach(run);
 		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) { return; }
 		var target = document.querySelector('#description') || document.querySelector('[data-v2-buy-button]');
 		if (!target) { return; }
+		// Show the sticky bar only once the whole Overview (#description)
+		// section has scrolled above the top of the viewport. #description is
+		// a tall section, so watching plain intersection would keep it
+		// "intersecting" until its bottom left the screen far too late. Toggle
+		// on the section's bottom edge instead: visible when bottom < 0.
 		var observer = new IntersectionObserver(function (entries) {
 			entries.forEach(function (entry) {
-				// Show the sticky bar once the Overview section has scrolled
-				// above the top of the viewport (i.e. the user is past Overview).
-				bar.classList.toggle('is-visible', !entry.isIntersecting && entry.boundingClientRect.top < 0);
+				bar.classList.toggle('is-visible', entry.boundingClientRect.bottom < 0);
 			});
-		}, { threshold: 0 });
+		}, { threshold: 0, rootMargin: '0px 0px 999999px 0px' });
 		observer.observe(target);
 	});
 })();
