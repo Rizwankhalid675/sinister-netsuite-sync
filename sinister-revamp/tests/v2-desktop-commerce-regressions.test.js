@@ -38,13 +38,18 @@ const lognGuard = css.lastIndexOf('LOGN DESKTOP HERO FIT GUARD');
 assert.ok(lognGuard >= 0, 'LOGN must have a final scoped desktop heading-fit guard');
 assert.match(
   css.slice(lognGuard),
-  /#js-LOGN\s+\.sd2-v2-auth__panel\s+\.sd2-v2-account-hero\s*\{[^}]*padding-inline:\s*clamp\(28px,2\.25vw,36px\)[^}]*\}/,
-  'LOGN login/create hero cards must reserve enough inline room for their headings'
+  /#js-LOGN\s+\.sd2-v2-auth__grid:has\(\.sd2-v3-auth-story\)\s*\{[^}]*grid-template-columns:\s*minmax\(300px,\.82fr\)\s+repeat\(2,minmax\(0,1fr\)\)[^}]*\}/,
+  'LOGN desktop grid must prioritize usable width in both commerce-entry panels'
 );
 assert.match(
   css.slice(lognGuard),
-  /#js-LOGN\s+\.sd2-v2-auth__panel\s+\.sd2-v2-account-hero\s+h1\s*\{(?=[^}]*max-width:\s*100%)(?=[^}]*font-size:\s*clamp\(44px,3vw,52px\))[^}]*\}/,
-  'LOGN login/create hero headings must use a desktop scale that fits their cards'
+  /#js-LOGN\s+\.sd2-v2-auth__panel\s+\.sd2-v2-account-hero\s*\{(?=[^}]*padding-inline:\s*clamp\(24px,2vw,32px\))(?=[^}]*overflow:\s*hidden)[^}]*\}/,
+  'LOGN login/create hero cards must reserve enough inline room and contain their artwork'
+);
+assert.match(
+  css.slice(lognGuard),
+  /#js-LOGN\s+\.sd2-v2-auth__panel\s+\.sd2-v2-account-hero\s+h1\s*\{(?=[^}]*max-width:\s*100%)(?=[^}]*font-size:\s*clamp\(38px,3vw,48px\)!important)(?=[^}]*line-height:\s*\.94)(?=[^}]*overflow-wrap:\s*normal)[^}]*\}/,
+  'LOGN login/create hero headings must use a bounded scale and preserve whole words'
 );
 
 function element(text = '') {

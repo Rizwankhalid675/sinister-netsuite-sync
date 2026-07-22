@@ -10264,13 +10264,24 @@ body.sd2-install-library-page .sd2-v3-shell > .sd2-v2-hdr-trust .sd2-v2-hdr-trus
 }
 
 /* LOGN DESKTOP HERO FIT GUARD
-   Keep the two commerce-entry headings inside their narrower auth panels. */
+   Give the commerce-entry cards more of the three-column canvas, then keep
+   their display headings inside the actual usable content width. */
+@media (min-width:1121px) {
+	#js-LOGN .sd2-v2-auth__grid:has(.sd2-v3-auth-story) {
+		grid-template-columns:minmax(300px,.82fr) repeat(2,minmax(0,1fr));
+	}
+}
 #js-LOGN .sd2-v2-auth__panel .sd2-v2-account-hero {
-	padding-inline:clamp(28px,2.25vw,36px);
+	padding-inline:clamp(24px,2vw,32px);
+	overflow:hidden;
 }
 #js-LOGN .sd2-v2-auth__panel .sd2-v2-account-hero h1 {
 	max-width:100%;
-	font-size:clamp(44px,3vw,52px);
+	font-size:clamp(38px,3vw,48px)!important;
+	line-height:.94;
+	overflow-wrap:normal;
+	word-break:keep-all;
+	hyphens:none;
 }
 
 /* V45 MOBILE RESPONSIVE INTERACTION GUARDS
