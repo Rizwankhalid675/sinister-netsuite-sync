@@ -35,7 +35,7 @@
 	  PaymentMethod is rendered from paymentmethods before gateway-specific handling.
 	- Basket/review summary confirmed in ocst-basket.mvt: ReadyTheme contentsection
 	  checkout_basket_summary remains backend-owned.
-	TODO: preserve those backend items/field names exactly during staging integration;
+	The copied staging page must preserve those backend items and field names;
 	do not wire V2 checkout fields until the copied staging OCST item assignments are confirmed.
 </mvt:comment>
 </head>
@@ -59,20 +59,11 @@
 		</ol>
 	</nav>
 
-	<form class="sd2-v2-checkout__layout" method="post" action="&mvte:url;">
-		<input type="hidden" name="Action" value="&mvte:action;">
+	<div class="sd2-v2-checkout__layout">
 		<div class="sd2-v2-checkout__main">
 			<section class="sd2-v2-checkout-panel" aria-labelledby="sd2-v2-checkout-info-title">
 				<header><p class="sd2-kicker">Step 1</p><h2 id="sd2-v2-checkout-info-title">Information</h2></header>
-				<mvt:comment>
-					Confirmed information field parity lives in ocst-customer.mvt:
-					Ship*, Bill*, ShipID, BillID, register_password, saved basket fields,
-					customer addresses, countries/states items, and PayPal PAL2 gateway flag.
-					TODO: render those exact legacy controls after staging OCST item setup.
-				</mvt:comment>
-				<div class="sd2-v2-validation" role="status" aria-live="polite">
-					<p>[Placeholder] Miva customer and address fields render here from legacy checkout logic.</p>
-				</div>
+				<mvt:item name="customer" />
 			</section>
 
 			<section class="sd2-v2-checkout-panel" aria-labelledby="sd2-v2-checkout-ship-title">
@@ -82,7 +73,7 @@
 					ShippingMethod is rendered from sorted_methods/shippingmethods and posts to OPAY.
 					Do not wire shipping cards into OCST V2.
 				</mvt:comment>
-				<p>[Placeholder] Shipping method selection occurs on the verified OSEL step.</p>
+				<p>Shipping methods are calculated after the verified customer and delivery address form is submitted.</p>
 			</section>
 
 			<section class="sd2-v2-checkout-panel" aria-labelledby="sd2-v2-checkout-payment-title">
@@ -93,7 +84,7 @@
 					Payment method selection belongs to OSEL paymentmethods. Do not replace
 					MivaPay iframe/hidden fields/postMessage/signature flow with custom cards.
 				</mvt:comment>
-				<p>[Placeholder] Payment selection and gateway UI remain owned by verified OSEL/MivaPay templates.</p>
+				<p>Payment methods and accelerated-payment options are presented by Miva on the verified payment step.</p>
 			</section>
 
 			<section class="sd2-v2-checkout-panel" aria-labelledby="sd2-v2-checkout-review-title">
@@ -102,7 +93,7 @@
 					Confirmed review parity: ocst-basket.mvt renders checkout_basket_summary;
 					totals, shipping, tax, coupon, and final order review remain Miva-owned.
 				</mvt:comment>
-				<p>[Placeholder] Final order review renders from Miva checkout review logic.</p>
+				<p>The final order review is shown only after shipping and payment validation succeeds.</p>
 			</section>
 		</div>
 
@@ -115,16 +106,9 @@
 				the basket:charges iterator (shipping/tax line items) below are the same real
 				fields used on BASKV2's order summary, safe to compose here directly.
 			</mvt:comment>
-			<dl>
-				<div><dt>Subtotal</dt><dd>&mvt:basket:formatted_subtotal;</dd></div>
-				<mvt:foreach iterator="charge" array="basket:charges">
-					<div><dt>&mvt:charge:descrip;</dt><dd>&mvt:charge:formatted_disp_amt;</dd></div>
-				</mvt:foreach>
-				<div class="sd2-v2-order-summary__total"><dt>Total</dt><dd>&mvt:basket:formatted_total;</dd></div>
-			</dl>
-			<button class="sd2-btn sd2-btn--primary sd2-btn--wide" type="submit">Place Order</button>
+			<mvt:item name="basket" />
 		</aside>
-	</form>
+	</div>
 </main>
 
 	<mvt:item name="hdft" param="footer" />

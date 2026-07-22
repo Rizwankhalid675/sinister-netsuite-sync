@@ -33,13 +33,13 @@
 		<a href="https://sinisterdiesel.com/rewards.html">Rewards</a>
 		<a href="https://sinisterdiesel.com/core-returns.html">Returns</a>
 		<a href="&mvte:urls:ACED:auto;">Settings</a>
-		<a class="is-current" href="&mvte:urls:CPRO:auto;">Password</a>
+		<a class="is-current" href="&mvte:urls:CPRO:auto;" aria-current="page">Password</a>
 		<button type="button" data-v2-garage-toggle>Garage</button>
 	</nav>
 
 		<mvt:item name="readytheme" param="contentsection( 'messages' )" />
 
-		<section class="sd2-v2-account-cards-2up">
+		<section class="sd2-v2-account-cards-2up sd2-v2-account-cards-2up--credentials">
 			<section class="sd2-v2-account-card">
 				<h2>Email</h2>
 				<form class="sd2-v2-account-form" method="post" action="&mvte:urls:_self:secure;" autocomplete="off">

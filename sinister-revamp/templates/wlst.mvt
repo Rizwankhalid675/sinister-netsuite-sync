@@ -42,14 +42,14 @@
 			<section class="sd2-v2-account-card" aria-labelledby="sd2-v2-wlst-title">
 				<div class="sd2-v2-account-section-head">
 					<h2 id="sd2-v2-wlst-title">&mvt:page:name;</h2>
-					<mvt:if expr="NOT ISNULL g.WishListSearch">
-						<a class="sd2-btn sd2-btn--outline" href="&mvte:urls:WLST:secure;" title="My Wish Lists">My Wish Lists</a>
-					<mvt:else>
-						<a class="sd2-btn sd2-btn--outline" href="&mvte:urls:WLAD:secure;" title="Add New Wish List">Add New Wish List</a>
-					</mvt:if>
+					<div class="sd2-v2-wishlist-head-actions">
+						<mvt:if expr="NOT ISNULL g.WishListSearch"><a class="sd2-btn sd2-btn--outline" href="&mvte:urls:WLST:secure;">Clear Search</a></mvt:if>
+						<a class="sd2-btn sd2-btn--primary" href="&mvte:urls:WLAD:secure;">Add New Wish List</a>
+					</div>
 				</div>
 
-				<form class="sd2-v2-field-row" method="post" action="&mvte:urls:_self:auto_sep;">
+				<div class="sd2-v2-wishlist-controls">
+				<form class="sd2-v2-wishlist-search" method="post" action="&mvte:urls:_self:auto_sep;">
 					<input type="hidden" name="Sort_By" value="&mvte:global:Sort_By;" />
 					<input type="hidden" name="Per_Page" value="&mvte:global:Per_Page;" />
 					<fieldset>
@@ -60,7 +60,7 @@
 					</fieldset>
 				</form>
 
-				<form method="get" action="&mvte:urls:_self:auto_sep;">
+				<form class="sd2-v2-wishlist-page-size" method="get" action="&mvte:urls:_self:auto_sep;">
 					<fieldset>
 						<legend>Number of Wish Lists to View</legend>
 						<input type="hidden" name="Sort_By" value="&mvte:global:Sort_By;" />
@@ -90,6 +90,7 @@
 						</select>
 					</fieldset>
 				</form>
+				</div>
 
 				<mvt:if expr="(NOT ISNULL g.WishListSearch) OR (g.Basket:cust_id AND g.Customer_Session_Verified)">
 					<div class="sd2-v2-account-table-wrap">

@@ -7,7 +7,7 @@
 	<mvt:comment>
 		Cart Page V2 staging template. Inactive only. Do not assign over BASK.
 		Uses verified basket:groups iterator with group fields from bask-basket.mvt.
-		TODO: wire coupon, shipping-estimate, and final BASK staging behavior before activation.
+		Basket, coupons, shipping estimates, totals, and accelerated payments use the verified BASK item assignments.
 	</mvt:comment>
 </head>
 <body>
@@ -22,7 +22,7 @@
 	</header>
 
 	<div class="sd2-wrap">
-		<mvt:comment>TODO: register Vehicle Banner V2 in Miva Admin as readytheme contentsection('vehicle_banner') before using mvt:item composition.</mvt:comment>
+		<mvt:item name="readytheme" param="contentsection( 'vehicle_banner' )" />
 	</div>
 
 	<section class="sd2-v2-cart-page__layout">
@@ -101,6 +101,10 @@
 					</div>
 				</form>
 			</section>
+			<section class="sd2-v2-shipping-estimator" aria-labelledby="sd2-v2-cart-shipping-title">
+				<h2 id="sd2-v2-cart-shipping-title">Estimate Shipping</h2>
+				<mvt:item name="shipestimate" />
+			</section>
 		</div>
 
 		<aside class="sd2-v2-order-summary" aria-labelledby="sd2-v2-cart-summary-title">
@@ -114,6 +118,11 @@
 				<div class="sd2-v2-order-summary__total"><dt>Total</dt><dd>&mvt:basket:formatted_total;</dd></div>
 			</dl>
 			<a class="sd2-btn sd2-btn--primary sd2-btn--wide" href="&mvte:urls:OCSTV2:auto;">Checkout</a>
+			<div class="sd2-v2-accelerated-payments" aria-label="Accelerated checkout options">
+				<mvt:item name="applepay" />
+				<mvt:item name="amazonpay_button" />
+				<mvt:item name="paypalcp_buttons" />
+			</div>
 			<div class="sd2-v2-trust-icons"><span>Secure Checkout</span><span>Fitment Support</span><span>US-Based Team</span></div>
 		</aside>
 	</section>

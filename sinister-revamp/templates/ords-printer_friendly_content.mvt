@@ -1,4 +1,4 @@
-<section class="o-layout u-printable__content">
+<section class="o-layout u-printable__content sd2-v2-print-order">
 	<div class="o-layout__item u-width-12">
 		<h4 class="u-text-bold">
 			&mvt:global:store:name;
@@ -12,6 +12,7 @@
 			</div>
 		</h4>
 		<h3 class="c-heading-delta u-text-bold u-text-uppercase">Order Confirmation</h3>
+		<p class="sd2-v2-print-order__meta"><strong>Order #&mvte:order:id;</strong> &middot; Placed &mvte:order:date;</p>
 		<mvt:item name="messages" />
 		<hr class="c-keyline">
 	</div>
@@ -87,7 +88,6 @@
 		</div>
 	</div>
 	<div class="o-layout__item u-width-12">
-		<br>
 		<table class="c-table-simple u-font-small">
 			<caption class="u-text-left">
 				<h1 class="c-heading-echo u-text-bold u-text-uppercase">Order Summary</h1>

@@ -1,12 +1,2 @@
-<mvt:comment>Feature Grid V2 partial.</mvt:comment>
-<section class="sd2-v2-pdp-section" aria-labelledby="sd2-v2-feature-title">
-	<div class="sd2-v2-pdp-section__header">
-		<p class="sd2-kicker">Features</p>
-		<h2 id="sd2-v2-feature-title">Key Details</h2>
-	</div>
-	<div class="sd2-v2-pdp-feature-grid">
-		<article><strong>[Placeholder]</strong><span>Feature content from approved product data.</span></article>
-		<article><strong>[Placeholder]</strong><span>Fitment, material, or performance detail.</span></article>
-		<article><strong>[Placeholder]</strong><span>Warranty, install, or included hardware detail.</span></article>
-	</div>
-</section>
+<mvt:comment>Feature Grid V2 partial. Rich specifications include features and kit contents where supplied.</mvt:comment>
+<mvt:if expr="NOT ISNULL l.settings:product:customfield_values:customfields:specifications"><section class="sd2-v2-pdp-section" aria-labelledby="sd2-v2-feature-title"><div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Details</p><h2 id="sd2-v2-feature-title">Features &amp; Included Components</h2></div><div class="sd2-v2-pdp-copy">&mvt:product:customfield_values:customfields:specifications;</div></section></mvt:if>

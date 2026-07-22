@@ -20,18 +20,11 @@
 	<main class="sd2-v2-state-shell">
 	<section class="o-layout sd2-v2-state-content">
 		<div class="o-layout__item">
-			<script>
-				function continueShopping(link) {
-					if (sessionStorage.getItem('continue_url')) {
-						link.href = sessionStorage.getItem('continue_url');
-					}
-				}
-			</script>
 			<div class="x-messages x-messages--info sd2-v2-state-card sd2-v2-state-card--center">
 				<span class="sd2-kicker">Your build</span>
 				<strong>Your shopping cart is currently empty.</strong>
 				<p>Find fitment-ready parts for your saved truck or continue exploring the catalog.</p>
-				<a class="sd2-btn sd2-btn--primary" href="&mvte:urls:SFNT:auto;" onclick="continueShopping(this);">Start Shopping</a>
+				<a class="sd2-btn sd2-btn--primary" href="&mvte:urls:SFNT:auto;">Start Shopping</a>
 			</div>
 		</div>
 	</section>

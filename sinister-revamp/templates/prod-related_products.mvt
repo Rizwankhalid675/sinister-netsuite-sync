@@ -35,7 +35,7 @@
 									<span class="sd2-v2-price__current">&mvt:product:formatted_price;</span>
 								</div>
 							</div>
-							<a class="sd2-v2-product-card__link" data-mm-linktype="product-list-link" href="&mvte:product:link;">View</a>
+							<a class="sd2-v2-product-card__link" data-mm-linktype="product-list-link" href="&mvte:product:link;" aria-label="View &mvte:product:name;">View</a>
 						</div>
 						<mvt:if expr="l.settings:product:inv_active">
 							<p class="sd2-v2-stock"><span class="sd2-v2-stock__dot"></span>&mvt:product:inv_short;</p>

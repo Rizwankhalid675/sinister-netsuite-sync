@@ -12,7 +12,7 @@
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
 	<mvt:item name="head" param="head_tag" />
 </head>
-<body>
+<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass; sd2-v2-sitemap-page">
 	<mvt:item name="hdft" param="global_header" />
 	<mvt:item name="hdft" param="header" />
 

@@ -22,6 +22,8 @@ Folder: `daily-work/`
 | **2026-06-24** | Giveaway pages (animated / dark), clean global header + footer, multiple `sfnt_homepage` iterations |
 | **2026-06-30** | Product pages: 6.7 cold-side charge pipes (v1–v3), fuel-filter conversion kit, July 4 sale |
 | **2026-07-01** | **ReVamp groundwork** — CTGY layout/premium wrapper, PDPL layout/reference, SFNT v2 test content, `REVAMP_IMPLEMENTATION.md` → fed into [[Website Revamp]] |
+| **2026-07-08 → 07-13** | Integrations work — NetSuite ↔ monday.com sync (`netsuite-monday-integration`), monday scripts, open-PO reports → see [[Integrations]] |
+| **2026-07-14 → 07-22** | **Website Revamp** — multi-day iterative work on the Sinister Diesel V2 frontend. Files not duplicated into day folders; each day has a `README.md` pointing to the live project → see [[Website Revamp]] |
 | **2026-07-25** | `sinister-netsuite-sync` snapshot (sync-tool backup) → see [[Integrations]] |
 | **2026-07-29** | `sinister-netsuite-sync` snapshot (sync-tool backup) → see [[Integrations]] |
 
@@ -30,6 +32,9 @@ Folder: `daily-work/`
 ## Notes
 - **2026-07-01** is the pivot point where daily page experiments turned into the formal
   V2 redesign — see [[Website Revamp]].
+- **2026-07-14 → 07-22** day folders hold a `README.md` only, not copies. This was
+  multi-day iterative [[Website Revamp]] work on the same files; the deduplicated source
+  of truth is `website-revamp/sinister-revamp/` — the READMEs point there.
 - **2026-07-25 / 2026-07-29** hold dated copies of the NetSuite sync tool rather than page
   scratch — the live versions live under `integrations/` ([[Integrations]]).
 - Earlier Prime Day / giveaway / sale work is one-off marketing pages, not part of any

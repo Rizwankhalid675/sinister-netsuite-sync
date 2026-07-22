@@ -8,6 +8,15 @@ alongside the untouched live ("Legacy") theme.
 Folder: `website-revamp/sinister-revamp/` — full technical doc in that folder's
 `DOCUMENTATION.md`.
 
+> **History note:** commits here are **task-based, not daily** — work is committed when a
+> chunk is finished, not on a fixed calendar day. The `daily-work/*` day folders are
+> pointers here, not copies. To see what actually changed and when:
+>
+>     cd website-revamp/sinister-revamp
+>     git log --oneline --stat -- .
+>
+> Commit dates show when each finished piece of work landed.
+
 ---
 
 ## The one-paragraph version

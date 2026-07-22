@@ -14,37 +14,29 @@
 </head>
 <body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass; sd2-v2-state-page sd2-v2-gift-page">
 	<mvt:item name="hdft" param="global_header" />
+	<mvt:item name="hdft" param="header" />
 
 	<main class="sd2-v2-state-shell">
-	<section class="o-layout">
-		<div class="o-layout__item">
-			<mvt:item name="hdft" param="header" />
-			<mvt:item name="readytheme" param="contentsection( 'messages' )" />
-		</div>
-	</section>
-
 	<section class="o-layout sd2-v2-state-content">
 		<div class="o-layout__item u-width-12">
 			<section class="t-expanded-block t-account-landing-section u-bg-white">
 				<div class="o-layout__item t-expanded-block__item t-account-landing-section__header">
 					<mvt:item name="breadcrumbs" />
-					<span class="sd2-v2-heading-delta t-account-landing-section__heading">&mvt:page:name;</span>
+					<p class="sd2-kicker">Account credit</p>
+					<h1 class="t-account-landing-section__heading">&mvt:page:name;</h1>
 				</div>
 				<div class="o-layout__item t-expanded-block__item t-account-landing-section__content">
-					<form class="o-layout o-layout--justify-center" data-hook="cpca-form" method="post" action="&mvte:urls:_self:secure;">
-						<fieldset class="o-layout__item u-width-12 u-width-5--l">
+					<mvt:item name="readytheme" param="contentsection( 'messages' )" />
+					<form data-hook="cpca-form" method="post" action="&mvte:urls:_self:secure;" autocomplete="off">
+						<fieldset>
 							<legend>&mvt:page:name;</legend>
 							<input type="hidden" name="Action" value="RDGC" />
-							<p class="sd2-v2-heading-echo">Current Balance: <span class="u-color-green">&mvt:customer:formatted_credit;</span></p>
-							<ul class="sd2-v2-form-list">
-								<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full">
-									<label class="sd2-v2-form-label u-font-tiny u-text-bold u-text-uppercase is-required" for="l-GiftCertificate_Code">Enter Gift Certificate Code</label>
-									<div class="sd2-v2-control-group">
-										<input id="l-GiftCertificate_Code" class="sd2-v2-form-input sd2-v2-form-input--large sd2-v2-control-group__field" type="text" name="GiftCertificate_Code" value="&mvte:global:GiftCertificate_Code;" required>
-										<input class="sd2-btn sd2-btn--huge u-bg-black u-font-tiny u-text-bold u-text-uppercase" type="submit" value="Redeem" title="Click here to redeem your certificate code">
-									</div>
-								</li>
-							</ul>
+							<p class="sd2-v2-validation"><strong>Current Balance:</strong> <span class="u-color-green">&mvt:customer:formatted_credit;</span></p>
+							<label class="sd2-label is-required" for="l-GiftCertificate_Code">Gift Certificate Code</label>
+							<div class="sd2-v2-field-row">
+								<input id="l-GiftCertificate_Code" class="sd2-field" type="text" name="GiftCertificate_Code" value="&mvte:global:GiftCertificate_Code;" required>
+								<input class="sd2-btn sd2-btn--primary" type="submit" value="Redeem" title="Click here to redeem your certificate code">
+							</div>
 						</fieldset>
 					</form>
 				</div>

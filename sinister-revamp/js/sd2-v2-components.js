@@ -3,6 +3,29 @@
    Shared behavior for inactive V2 header, mega menu, search, garage, and cart.
    ========================================================================== */
 
+/* Keep keyboard focus inside every open modal/drawer. This delegated guard
+   also covers overlays moved under <body> after initialization. */
+(function () {
+	'use strict';
+	var selector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+	function activeDialog() {
+		return document.querySelector('.sd2-v2-search-console.is-open, .sd2-v2-garage-panel.is-open, .sd2-v2-cart-panel.is-open, [data-v2-drawer].is-open');
+	}
+	document.addEventListener('keydown', function (event) {
+		if (event.key !== 'Tab') { return; }
+		var dialog = activeDialog();
+		if (!dialog) { return; }
+		var controls = Array.prototype.filter.call(dialog.querySelectorAll(selector), function (node) {
+			return !node.hidden && node.getAttribute('aria-hidden') !== 'true' && (node.offsetWidth || node.offsetHeight || node.getClientRects().length);
+		});
+		if (!controls.length) { event.preventDefault(); dialog.focus(); return; }
+		var first = controls[0];
+		var last = controls[controls.length - 1];
+		if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
+		else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+	});
+}());
+
 /* Retired campaign aliases can remain in email, search, and old footer caches.
    Recover the known Special Offers screen instead of presenting a 404. */
 (function () {
@@ -53,6 +76,17 @@
 	});
 }());
 
+/* The legacy ReadyTheme proof-bar fragment contains a mis-decoded star in its
+   source text. The branded star is drawn by CSS, so keep that presentation and
+   give assistive technology a stable label instead of announcing mojibake. */
+(function () {
+	'use strict';
+	document.querySelectorAll('.sd2-proofbar .rating').forEach(function (rating) {
+		rating.setAttribute('aria-label', '4.8 out of 5 stars');
+		rating.textContent = '';
+	});
+}());
+
 /* Sticky shadow-on-scroll + mobile drawer/accordion. Mega menu, search
    console, garage panel, and cart drawer behaviors each live in their own
    component file and self-register against the trigger attributes above. */
@@ -80,8 +114,9 @@
 	var scrim = document.querySelector('.sd2-v2-scrim');
 	if (drawer && scrim && !drawer.dataset.v2Ready) {
 		drawer.dataset.v2Ready = '1';
-		function openDrawer() { drawer.classList.add('is-open'); scrim.classList.add('is-open'); drawer.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; }
-		function closeDrawer() { drawer.classList.remove('is-open'); scrim.classList.remove('is-open'); drawer.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; }
+		var drawerOpener = null;
+		function openDrawer(event) { drawerOpener = event && event.currentTarget; drawer.classList.add('is-open'); scrim.classList.add('is-open'); drawer.setAttribute('aria-hidden', 'false'); if (drawerOpener) { drawerOpener.setAttribute('aria-expanded', 'true'); } document.body.style.overflow = 'hidden'; var first = drawer.querySelector('button, a[href], input, select'); if (first) { first.focus(); } }
+		function closeDrawer() { if (!drawer.classList.contains('is-open')) { return; } drawer.classList.remove('is-open'); scrim.classList.remove('is-open'); drawer.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; if (drawerOpener) { drawerOpener.setAttribute('aria-expanded', 'false'); drawerOpener.focus(); } }
 		document.querySelectorAll('[data-v2-drawer-open]').forEach(function (b) { b.addEventListener('click', openDrawer); });
 		document.querySelectorAll('[data-v2-drawer-close]').forEach(function (b) { b.addEventListener('click', closeDrawer); });
 		document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeDrawer(); } });
@@ -94,6 +129,27 @@
 			});
 		});
 	}
+})();
+
+/* The native Miva sitemap is emitted outside the page template and repeats IDs
+   also used by the global footer. Scope and repair only that native module. */
+(function () {
+	'use strict';
+
+	var sitemap = document.querySelector('body.sd2-v2-sitemap-page > nav.sitemap');
+	if (!sitemap || sitemap.dataset.v2Ready) { return; }
+
+	sitemap.querySelectorAll('[id]').forEach(function (control) {
+		var oldId = control.id;
+		var newId = 'sitemap-' + oldId;
+		if (document.getElementById(newId)) { return; }
+		control.id = newId;
+		sitemap.querySelectorAll('label[for="' + oldId + '"]').forEach(function (label) {
+			label.htmlFor = newId;
+		});
+	});
+
+	sitemap.dataset.v2Ready = '1';
 })();
 
 /* BEGIN SD2 HELP FORMS */
@@ -128,6 +184,52 @@
 		return payload;
 	}
 
+	var HELP_FORM_META = {
+		'missing-damaged-parts': {
+			subject: 'Missing / Damaged Parts Request', source: 'support',
+			fields: [['orderNumber', 'Order Number'], ['itemSku', 'Item / SKU'], ['installed', 'Installed'], ['evidenceUrl', 'Evidence']]
+		},
+		'returns-exchanges': {
+			subject: 'Returns / Exchanges Request', source: 'support',
+			fields: [['orderNumber', 'Order Number'], ['itemSku', 'Item / SKU'], ['returnType', 'Return Type'], ['reason', 'Reason'], ['installed', 'Installed'], ['evidenceUrl', 'Evidence']]
+		},
+		'order-tracking': {
+			subject: 'Order Tracking Request', source: 'support',
+			fields: [['orderNumber', 'Order Number']]
+		},
+		'tech-support': {
+			subject: 'Parts Tech Support Request', source: 'support',
+			fields: [['orderNumber', 'Order Number'], ['itemSku', 'Item / SKU'], ['installed', 'Installed'], ['evidenceUrl', 'Evidence']]
+		},
+		'warranty-inquiry': {
+			subject: 'Warranty Inquiry', source: 'warranty',
+			fields: [['orderNumber', 'Order Number'], ['itemSku', 'Item / SKU'], ['evidenceUrl', 'Evidence']]
+		},
+		'shipping-claim': {
+			subject: 'Shipping Protection Claim', source: 'support',
+			fields: [['orderNumber', 'Order Number'], ['trackingNumber', 'Tracking Number'], ['ifNumber', 'IF Number'], ['evidenceUrl', 'Evidence']]
+		}
+	};
+
+	function normalizeHelpPayload(fields, slug) {
+		fields = fields || {};
+		var meta = HELP_FORM_META[slug] || { subject: 'Help Center Request', source: 'support', fields: [] };
+		var lines = [clean(fields.details || fields.question)];
+		meta.fields.forEach(function (entry) {
+			var value = clean(fields[entry[0]]);
+			if (value) lines.push(entry[1] + ': ' + value);
+		});
+		return {
+			name: clean(fields.name),
+			email: clean(fields.email).toLowerCase(),
+			phone: clean(fields.phone),
+			subject: meta.subject,
+			message: [lines[0]].concat(lines.length > 1 ? ['',].concat(lines.slice(1)) : []).join('\n'),
+			source: meta.source,
+			company_website: clean(fields.website)
+		};
+	}
+
 	function HelpFormError(message, details) {
 		this.name = 'HelpFormError';
 		this.message = message;
@@ -138,7 +240,7 @@
 	HelpFormError.prototype = Object.create(Error.prototype);
 	HelpFormError.prototype.constructor = HelpFormError;
 
-	async function sendSalesInquiry(endpoint, payload, fetchImpl) {
+	async function sendSalesInquiry(endpoint, payload, fetchImpl, fallbackEndpoint) {
 		fetchImpl = fetchImpl || (typeof fetch === 'function' ? fetch.bind(window) : null);
 		if (!fetchImpl) throw new HelpFormError('We could not send your request right now. Please use the backup form.');
 		try {
@@ -150,6 +252,9 @@
 			});
 			var body = {};
 			try { body = await response.json(); } catch (ignore) {}
+			if (response.status === 404 && fallbackEndpoint && fallbackEndpoint !== endpoint) {
+				return sendSalesInquiry(fallbackEndpoint, payload, fetchImpl, '');
+			}
 			if (!response.ok || !body.ok) {
 				if (!body.message && !Object.keys(body.fields || body.errors || {}).length && response.status !== 400 && response.status !== 422) {
 					throw new HelpFormError('We could not send your request right now. Please use the backup form.');
@@ -164,22 +269,8 @@
 	}
 
 	function formValues(form) {
-		// The Miva template names fields contactName/contactEmail/etc. and carries
-		// Miva-only hidden inputs (Form_Action, Store_Code, BranchKey). The deployed
-		// /api/forms/submit endpoint validates name/email/phone/subject/message/source,
-		// so remap here rather than POSTing the raw Miva key names.
 		var raw = buildHelpPayload(form);
-		var payload = {
-			name: clean(raw.contactName),
-			email: clean(raw.contactEmail).toLowerCase(),
-			phone: clean(raw.contactPhone),
-			subject: clean(raw.contactItemSku),
-			message: clean(raw.contactMessage),
-			source: 'sales-inquiry'
-		};
-		// Preserve the honeypot so the server can reject bots.
-		if (raw.website) payload.website = raw.website;
-		return payload;
+		return normalizeHelpPayload(raw, form.dataset.sd2HelpForm || '');
 	}
 
 	function clearErrors(form) {
@@ -200,6 +291,7 @@
 		if (form.dataset.sd2Ready) return;
 		form.dataset.sd2Ready = '1';
 		var endpoint = form.dataset.endpoint || '/api/forms/submit';
+		var fallbackEndpoint = form.dataset.fallbackEndpoint || '';
 		var submitLabel = form.dataset.submitLabel || 'Send Request';
 		var submit = form.querySelector('[data-help-form-submit]');
 		var status = form.querySelector('[data-help-form-status]');
@@ -220,7 +312,7 @@
 			if (fallback) fallback.hidden = true;
 
 			try {
-				var result = await sendSalesInquiry(endpoint, formValues(form));
+				var result = await sendSalesInquiry(endpoint, formValues(form), null, fallbackEndpoint);
 				form.reset();
 				if (fields) fields.hidden = true;
 				if (success) success.hidden = false;
@@ -252,7 +344,7 @@
 		else init();
 	}
 
-	return { buildHelpPayload: buildHelpPayload, buildSalesPayload: buildSalesPayload, sendHelpRequest: sendSalesInquiry, sendSalesInquiry: sendSalesInquiry, HelpFormError: HelpFormError, init: init };
+	return { buildHelpPayload: buildHelpPayload, buildSalesPayload: buildSalesPayload, normalizeHelpPayload: normalizeHelpPayload, sendHelpRequest: sendSalesInquiry, sendSalesInquiry: sendSalesInquiry, HelpFormError: HelpFormError, init: init };
 }));
 /* END SD2 HELP FORMS */
 
@@ -287,6 +379,28 @@
 	pagination.setAttribute('aria-label', 'Category pagination');
 	grid.parentNode.insertBefore(pagination, grid);
 	function number(card, key) { return parseFloat(card.dataset[key] || '0') || 0; }
+	function paginationTargets(pages) {
+		var targets = [1];
+		if (currentPage > 2) { targets.push('ellipsis-before'); }
+		if (currentPage > 1 && currentPage < pages) { targets.push(currentPage); }
+		if (currentPage < pages - 1) { targets.push('ellipsis-after'); }
+		if (pages > 1) { targets.push(pages); }
+		return targets;
+	}
+	function appendPageButton(target, label, text) {
+		var button = document.createElement('button');
+		button.type = 'button';
+		button.className = target === currentPage ? 'page-links-active' : 'page-links-inactive';
+		button.textContent = text || target;
+		button.setAttribute('aria-label', label || ('Go to page ' + target));
+		if (target === currentPage) { button.setAttribute('aria-current', 'page'); }
+		button.addEventListener('click', function () {
+			currentPage = target;
+			apply();
+			controls.scrollIntoView({behavior:'smooth',block:'start'});
+		});
+		pagination.appendChild(button);
+	}
 	function apply() {
 		var range = price.value ? price.value.split('-').map(Number) : null;
 		var visible = cards.filter(function (card) {
@@ -309,9 +423,16 @@
 		pagination.innerHTML = '';
 		if (pages > 1) {
 			var title = document.createElement('span'); title.className = 'page-links-title'; title.textContent = 'Page(s):'; pagination.appendChild(title);
-			for (var page = 1; page <= pages; page += 1) {
-				(function (target) { var button = document.createElement('button'); button.type = 'button'; button.className = target === currentPage ? 'page-links-active' : 'page-links-inactive'; button.textContent = target; button.addEventListener('click', function () { currentPage = target; apply(); controls.scrollIntoView({behavior:'smooth',block:'start'}); }); pagination.appendChild(button); })(page);
-			}
+			if (currentPage > 1) { appendPageButton(currentPage - 1, 'Previous page', '\u2039'); }
+			paginationTargets(pages).forEach(function (target) {
+				if (typeof target === 'number') { appendPageButton(target); return; }
+				var ellipsis = document.createElement('span');
+				ellipsis.className = 'page-links-ellipsis';
+				ellipsis.textContent = '\u2026';
+				ellipsis.setAttribute('aria-hidden', 'true');
+				pagination.appendChild(ellipsis);
+			});
+			if (currentPage < pages) { appendPageButton(currentPage + 1, 'Next page', '\u203a'); }
 		}
 	}
 	[brand, price, sort, size].forEach(function (field) { field.addEventListener('change', function () { currentPage = 1; apply(); }); });
@@ -337,6 +458,13 @@
 	var closeTimer = 0;
 	var openTimer = 0;
 	var current = null;
+	panels.forEach(function (panel, index) {
+		if (!panel.id) { panel.id = 'sd2-v2-mega-panel-' + (panel.getAttribute('data-v2-panel') || (index + 1)); }
+	});
+	triggers.forEach(function (trigger) {
+		var panel = mega.querySelector('[data-v2-panel="' + trigger.getAttribute('data-v2-menu-trigger') + '"]');
+		if (panel) { trigger.setAttribute('aria-controls', panel.id); }
+	});
 
 	function activate(id) {
 		window.clearTimeout(openTimer);
@@ -395,6 +523,7 @@
 	var form = root.querySelector('form');
 	var header = document.querySelector('.sd2-v2-hdr');
 	var empty = root.querySelector('[data-v2-search-empty]');
+	var opener = null;
 
 	function positionConsole() {
 		var bottom = header ? Math.max(0, Math.round(header.getBoundingClientRect().bottom)) : 0;
@@ -404,7 +533,9 @@
 		if (empty && input) { empty.hidden = Boolean((input.value || '').trim()); }
 	}
 
-	function open() {
+	function open(event) {
+		opener = event && event.currentTarget ? event.currentTarget : document.querySelector('[data-v2-search-open]');
+		if (opener) { opener.setAttribute('aria-expanded', 'true'); }
 		positionConsole();
 		syncEmptyState();
 		console_.classList.add('is-open'); scrim.classList.add('is-open');
@@ -412,8 +543,10 @@
 		window.setTimeout(function () { input.focus(); }, 200);
 	}
 	function close() {
+		if (!console_.classList.contains('is-open')) { return; }
 		console_.classList.remove('is-open'); scrim.classList.remove('is-open');
 		console_.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '';
+		if (opener) { opener.setAttribute('aria-expanded', 'false'); opener.focus(); }
 	}
 
 	document.querySelectorAll('[data-v2-search-open]').forEach(function (b) { b.addEventListener('click', open); });
@@ -568,22 +701,33 @@
 			item.classList.remove('is-open');
 			if (item.hasAttribute('aria-hidden')) { item.setAttribute('aria-hidden', 'true'); }
 		});
+		document.querySelectorAll('[data-v2-search-open], [data-v2-cart-open]').forEach(function (item) { item.setAttribute('aria-expanded', 'false'); });
 		document.querySelectorAll('.sd2-v2-scrim, .sd2-v2-cart-scrim, .sd2-v2-search-scrim').forEach(function (item) {
 			item.classList.remove('is-open');
 		});
 	}
-	function open() {
+	var opener = null;
+	function open(toggle) {
+		opener = toggle || document.querySelector('[data-v2-garage-toggle]');
 		closeCompetingPanels();
 		panel.classList.add('is-open'); scrim.classList.add('is-open');
 		panel.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
+		document.querySelectorAll('[data-v2-garage-toggle]').forEach(function (item) { item.setAttribute('aria-expanded', 'true'); });
+		var firstControl = panel.querySelector('[data-v2-garage-close], select, button, a');
+		if (firstControl) { firstControl.focus(); }
 	}
-	function close() { panel.classList.remove('is-open'); scrim.classList.remove('is-open'); panel.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; }
+	function close() {
+		if (!panel.classList.contains('is-open')) { return; }
+		panel.classList.remove('is-open'); scrim.classList.remove('is-open'); panel.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '';
+		document.querySelectorAll('[data-v2-garage-toggle]').forEach(function (item) { item.setAttribute('aria-expanded', 'false'); });
+		if (opener) { opener.focus(); }
+	}
 
 	document.addEventListener('click', function (event) {
 		var toggle = event.target.closest('[data-v2-garage-toggle]');
 		if (!toggle) { return; }
 		event.preventDefault();
-		panel.classList.contains('is-open') ? close() : open();
+		panel.classList.contains('is-open') ? close() : open(toggle);
 	});
 	root.querySelectorAll('[data-v2-garage-close]').forEach(function (b) { b.addEventListener('click', close); });
 	document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { close(); } });
@@ -621,7 +765,7 @@
 	}
 
 	function loadVehicles() { try { return JSON.parse(window.localStorage.getItem('sd2v2_garage') || '[]'); } catch (e) { return []; } }
-	function saveVehicles(list) { try { window.localStorage.setItem('sd2v2_garage', JSON.stringify(list)); } catch (e) { /* storage unavailable */ } }
+	function saveVehicles(list) { try { window.localStorage.setItem('sd2v2_garage', JSON.stringify(list)); } catch (e) { /* storage unavailable */ } window.dispatchEvent(new CustomEvent('sd2v2:garage-change')); }
 
 	function renderSaved() {
 		var list = loadVehicles();
@@ -700,12 +844,16 @@
 			var name = line.querySelector('.x-mini-basket__item-name');
 			var price = line.querySelector('.x-mini-basket__item-price');
 			var qty = line.querySelector('.x-mini-basket__item-quantity .u-text-medium');
+			var quantity = Math.max(1, parseInt(qty ? qty.textContent.trim() : '1', 10) || 1);
+			var basketGroup = line.getAttribute('data-basket-group') || '';
 			var remove = line.querySelector('.x-mini-basket__item-total a[href*="Action=RPRD"], .x-mini-basket__item-total a[href*="Action=RGRP"]');
 			var options = Array.prototype.slice.call(line.querySelectorAll('.x-mini-basket__item-attributes')).map(function (option) {
 				return '<p class="sd2-v2-cart-item__option">' + cartEscape((option.textContent || '').trim()) + '</p>';
 			}).join('');
 			var href = name ? name.getAttribute('href') : '#';
-			return '<article class="sd2-v2-cart-item"><a class="sd2-v2-cart-item__media" href="' + cartEscape(href) + '"><img src="' + cartEscape(image ? image.getAttribute('src') : '') + '" alt="' + cartEscape(image ? image.getAttribute('alt') : '') + '" loading="lazy"></a><div class="sd2-v2-cart-item__body"><h3><a href="' + cartEscape(href) + '">' + cartEscape(name ? name.textContent.trim() : '') + '</a></h3><p class="sd2-v2-cart-item__meta">Qty ' + cartEscape(qty ? qty.textContent.trim() : '1') + '</p>' + options + (remove ? '<a class="sd2-v2-link-button" href="' + cartEscape(remove.getAttribute('href')) + '">Remove</a>' : '') + '</div><strong class="sd2-v2-cart-item__price">' + cartEscape(price ? price.textContent.trim() : '') + '</strong></article>';
+			var itemName = name ? name.textContent.trim() : 'cart item';
+			var quantityControl = basketGroup ? '<form class="sd2-v2-cart-qty" data-v2-cart-qty data-basket-group="' + cartEscape(basketGroup) + '"><button type="button" data-v2-cart-qty-minus aria-label="Decrease quantity for ' + cartEscape(itemName) + '">−</button><input type="number" min="0" inputmode="numeric" value="' + quantity + '" aria-label="Quantity for ' + cartEscape(itemName) + '" data-v2-cart-qty-input><button type="button" data-v2-cart-qty-plus aria-label="Increase quantity for ' + cartEscape(itemName) + '">+</button></form>' : '<p class="sd2-v2-cart-item__meta">Qty ' + quantity + '</p>';
+			return '<article class="sd2-v2-cart-item"><a class="sd2-v2-cart-item__media" href="' + cartEscape(href) + '"><img src="' + cartEscape(image ? image.getAttribute('src') : '') + '" alt="' + cartEscape(image ? image.getAttribute('alt') : '') + '" loading="lazy"></a><div class="sd2-v2-cart-item__body"><h3><a href="' + cartEscape(href) + '">' + cartEscape(itemName) + '</a></h3>' + quantityControl + options + (remove ? '<a class="sd2-v2-link-button" href="' + cartEscape(remove.getAttribute('href')) + '">Remove</a>' : '') + '</div><strong class="sd2-v2-cart-item__price">' + cartEscape(price ? price.textContent.trim() : '') + '</strong></article>';
 		}).join('');
 
 		if (lines) {
@@ -753,7 +901,9 @@
 		if (!force && Date.now() - cartLoadedAt < 15000) { return Promise.resolve(); }
 		if (cartRequest) { return cartRequest; }
 		root.classList.add('is-loading');
-		cartRequest = fetch(basketUrl, { credentials: 'same-origin' })
+		var requestUrl = new URL(basketUrl, window.location.origin);
+		requestUrl.searchParams.set('ajax', '1');
+		cartRequest = fetch(requestUrl.toString(), { credentials: 'same-origin' })
 			.then(function (response) { if (!response.ok) { throw new Error('Basket request failed'); } return response.text(); })
 			.then(function (html) {
 				var doc = new DOMParser().parseFromString(html, 'text/html');
@@ -764,6 +914,46 @@
 			.finally(function () { cartRequest = null; root.classList.remove('is-loading'); });
 		return cartRequest;
 	}
+
+	function updateDrawerQuantity(control, delta) {
+		var input = control.querySelector('[data-v2-cart-qty-input]');
+		var basketGroup = control.getAttribute('data-basket-group');
+		if (!input || !basketGroup || root.classList.contains('is-loading')) { return; }
+		var minimum = parseInt(input.getAttribute('min') || '0', 10);
+		var current = parseInt(input.value || '1', 10) || 1;
+		var next = Math.max(minimum, current + delta);
+		if (next === current) { return; }
+		input.value = String(next);
+		root.classList.add('is-loading');
+		var payload = new URLSearchParams();
+		payload.set('Action', 'QTYG');
+		payload.set('Basket_Group', basketGroup);
+		payload.set('Quantity', String(next));
+		payload.set('Screen', 'BASK');
+		payload.set('ajax', '1');
+		fetch(basketUrl, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+			body: payload.toString()
+		})
+			.then(function (response) { if (!response.ok) { throw new Error('Quantity update failed'); } return response.text(); })
+			.then(function (html) {
+				var doc = new DOMParser().parseFromString(html, 'text/html');
+				if (!renderLiveCartDocument(doc)) { throw new Error('Quantity response was incomplete'); }
+				cartLoadedAt = Date.now();
+			})
+			.catch(function () { input.value = String(current); window.location.href = basketUrl; })
+			.finally(function () { root.classList.remove('is-loading'); });
+	}
+
+	root.addEventListener('click', function (event) {
+		var button = event.target.closest('[data-v2-cart-qty-minus], [data-v2-cart-qty-plus]');
+		if (!button || !root.contains(button)) { return; }
+		event.preventDefault();
+		var control = button.closest('[data-v2-cart-qty]');
+		if (control) { updateDrawerQuantity(control, button.hasAttribute('data-v2-cart-qty-plus') ? 1 : -1); }
+	});
 
 	function syncCartContents() {
 		var items = body ? body.querySelectorAll('.sd2-v2-cart-item') : [];
@@ -794,14 +984,23 @@
 		return url.toString();
 	}
 
-	function open() {
+	var opener = null;
+	function open(toggle) {
+		opener = toggle || document.querySelector('[data-v2-cart-open]');
 		syncCartContents();
 		loadLiveCart(true);
 		panel.classList.add('is-open'); scrim.classList.add('is-open');
 		panel.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
+		if (opener) { opener.setAttribute('aria-expanded', 'true'); }
+		var closeButton = panel.querySelector('[data-v2-cart-close]');
+		if (closeButton) { closeButton.focus(); }
 		refreshVehicle();
 	}
-	function close() { panel.classList.remove('is-open'); scrim.classList.remove('is-open'); panel.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; }
+	function close() {
+		if (!panel.classList.contains('is-open')) { return; }
+		panel.classList.remove('is-open'); scrim.classList.remove('is-open'); panel.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '';
+		if (opener) { opener.setAttribute('aria-expanded', 'false'); opener.focus(); }
+	}
 
 	function refreshVehicle() {
 		try {
@@ -823,7 +1022,7 @@
 		} catch (e) { /* storage unavailable; reminder stays in empty state */ }
 	}
 
-document.querySelectorAll('[data-v2-cart-open]').forEach(function (b) { b.addEventListener('click', function (e) { e.preventDefault(); open(); }); });
+	document.querySelectorAll('[data-v2-cart-open]').forEach(function (b) { b.addEventListener('click', function (e) { e.preventDefault(); open(b); }); });
 	root.querySelectorAll('[data-v2-cart-close]').forEach(function (b) { b.addEventListener('click', close); });
 	document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { close(); } });
 	syncCartContents();
@@ -1107,11 +1306,52 @@ document.querySelectorAll('[data-v2-cart-open]').forEach(function (b) { b.addEve
 		if (!vehicle) { return ''; }
 		return [vehicle.year, vehicle.make, vehicle.model, vehicle.engine].filter(Boolean).join(' ');
 	}
+	function normalized(value) {
+		return String(value || '').toLowerCase().replace(/chevrolet/g, 'gm').replace(/chevy/g, 'gm').replace(/dodge\s*\/\s*ram/g, 'ram').replace(/dodge/g, 'ram').replace(/[^a-z0-9.]+/g, ' ').trim();
+	}
+	function yearMatches(text, year) {
+		var wanted = parseInt(year, 10);
+		if (!wanted) { return true; }
+		var years = String(text).match(/(?:19|20)\d{2}/g) || [];
+		if (!years.length) { return true; }
+		if (years.map(Number).indexOf(wanted) !== -1) { return true; }
+		if (years.length > 1) {
+			var low = Math.min.apply(Math, years.map(Number));
+			var high = Math.max.apply(Math, years.map(Number));
+			return wanted >= low && wanted <= high;
+		}
+		return false;
+	}
+	function applicationMatches(text, vehicle) {
+		var app = normalized(text);
+		var make = normalized(vehicle.make);
+		var model = normalized(vehicle.model);
+		var engine = normalized(vehicle.engine);
+		var displacement = (engine.match(/\d+(?:\.\d+)?/) || [''])[0];
+		var makeMatches = !make || app.indexOf(make) !== -1 || (make === 'ford' && app.indexOf('powerstroke') !== -1) || (make === 'gm' && app.indexOf('duramax') !== -1) || (make.indexOf('ram') !== -1 && app.indexOf('cummins') !== -1);
+		var modelMatches = !model || app.indexOf(model) !== -1;
+		var engineMatches = !engine || app.indexOf(engine) !== -1 || (displacement && app.indexOf(displacement) !== -1);
+		return yearMatches(text, vehicle.year) && makeMatches && modelMatches && engineMatches;
+	}
 	function refreshFitmentCopy() {
 		var vehicle = readGarageVehicle();
 		var label = formatVehicle(vehicle);
+		var source = document.querySelector('[data-v2-product-fitments]');
+		var applications = source ? Array.prototype.map.call(source.querySelectorAll('span'), function (node) { return node.textContent.trim(); }).filter(Boolean) : [];
+		var status = !vehicle ? 'empty' : (!applications.length ? 'unknown' : (applications.some(function (application) { return applicationMatches(application, vehicle); }) ? 'fits' : 'does-not-fit'));
+		document.querySelectorAll('.sd2-v2-fitment-confirm').forEach(function (panel) {
+			panel.classList.remove('is-fit', 'is-no-fit', 'is-unknown');
+			if (status === 'fits') { panel.classList.add('is-fit'); }
+			if (status === 'does-not-fit') { panel.classList.add('is-no-fit'); }
+			if (status === 'unknown') { panel.classList.add('is-unknown'); }
+		});
 		document.querySelectorAll('[data-v2-fitment-copy]').forEach(function (node) {
-			node.textContent = label ? 'Garage fitment context: checking against your ' + label + '.' : 'No vehicle selected. Open Garage to verify fitment before ordering.';
+			if (status === 'fits') { node.textContent = 'Fits your ' + label + '.'; }
+			else if (status === 'does-not-fit') { node.textContent = 'Does not fit your ' + label + '. Choose another vehicle or contact fitment support.'; }
+			else if (status === 'unknown') { node.textContent = 'Fitment is not confirmed for your ' + label + '. Contact fitment support before ordering.'; }
+			else { node.textContent = 'No vehicle selected. Open Garage to verify fitment before ordering.'; }
+			node.setAttribute('role', 'status');
+			node.setAttribute('aria-live', 'polite');
 		});
 	}
 	document.querySelectorAll('[data-v2-pdp-tabs]').forEach(function (root) {
@@ -1143,6 +1383,7 @@ document.querySelectorAll('[data-v2-cart-open]').forEach(function (b) { b.addEve
 	window.addEventListener('storage', function (event) {
 		if (event.key === 'sd2v2_garage') { refreshFitmentCopy(); }
 	});
+	window.addEventListener('sd2v2:garage-change', refreshFitmentCopy);
 })();
 
 /* Homepage Performance Strip count-up. Progressive enhancement only; initial
@@ -1302,6 +1543,73 @@ counters.forEach(run);
 	});
 })();
 
+/* PDP dossier jump navigation. Product-scoped hrefs remain the reliable
+   no-JavaScript fallback; this layer keeps same-page movement polished and
+   synchronizes the active section as the customer reads. */
+(function () {
+	'use strict';
+	function initDossierJumpnav() {
+		if (!document.documentElement.dataset.v2PdpJumpnavClickReady) {
+			document.documentElement.dataset.v2PdpJumpnavClickReady = '1';
+			document.addEventListener('click', function (event) {
+				var link = event.target.closest && event.target.closest('[data-v2-pdp-jumpnav] a[href*="#"]');
+				if (!link) { return; }
+				var root = link.closest('[data-v2-pdp-jumpnav]');
+				var pair = { link: link, section: link.hash ? document.querySelector(link.hash) : null };
+				if (!root || !pair.section) { return; }
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				root.querySelectorAll('a[href*="#"]').forEach(function (candidate) {
+					if (candidate === pair.link) { candidate.setAttribute('aria-current', 'location'); }
+					else { candidate.removeAttribute('aria-current'); }
+				});
+				history.pushState(null, '', window.location.pathname + window.location.search + pair.link.hash);
+				var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+				pair.section.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+			}, true);
+		}
+
+		document.querySelectorAll('[data-v2-pdp-jumpnav]').forEach(function (root) {
+			if (root.dataset.v2Ready) { return; }
+			root.dataset.v2Ready = '1';
+			var links = Array.prototype.slice.call(root.querySelectorAll('a[href*="#"]'));
+			var currentProductUrl = window.location.href.split('#')[0];
+			links.forEach(function (link) { link.href = currentProductUrl + link.hash; });
+			var pairs = links.map(function (link) {
+				return { link: link, section: link.hash ? document.querySelector(link.hash) : null };
+			}).filter(function (pair) { return pair.section; });
+			if (!pairs.length) { return; }
+
+			function setCurrent(link) {
+				pairs.forEach(function (pair) {
+					if (pair.link === link) { pair.link.setAttribute('aria-current', 'location'); }
+					else { pair.link.removeAttribute('aria-current'); }
+				});
+			}
+
+			var initial = pairs.find(function (pair) { return pair.link.hash === window.location.hash; });
+			setCurrent(initial ? initial.link : pairs[0].link);
+
+			if ('IntersectionObserver' in window) {
+				var observer = new IntersectionObserver(function (entries) {
+					var visible = entries.filter(function (entry) { return entry.isIntersecting; })
+						.sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; });
+					if (!visible.length) { return; }
+					var match = pairs.find(function (pair) { return pair.section === visible[0].target; });
+					if (match) { setCurrent(match.link); }
+				}, { rootMargin: '-20% 0px -62% 0px', threshold: [0, 0.2, 0.5] });
+				pairs.forEach(function (pair) { observer.observe(pair.section); });
+			}
+		});
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initDossierJumpnav, { once: true });
+	} else {
+		initDossierJumpnav();
+	}
+})();
+
 /* Commerce Foundation V2. Shared progressive behavior for inactive commerce
    partials: quantity, accordion, media gallery/zoom, and sticky buy bar. */
 (function () {
@@ -1319,7 +1627,11 @@ counters.forEach(run);
 			input.value = String(Math.max(min, value + delta));
 			input.dispatchEvent(new Event('change', { bubbles: true }));
 			var form = root.closest('form');
-			if (form) { form.submit(); }
+			if (form) {
+				var submitter = form.querySelector('[data-v2-qty-submit], button[type="submit"], input[type="submit"]');
+				if (typeof form.requestSubmit === 'function') { form.requestSubmit(submitter); }
+				else if (submitter) { submitter.click(); }
+			}
 		}
 		if (minus) { minus.addEventListener('click', function () { step(-1); }); }
 		if (plus) { plus.addEventListener('click', function () { step(1); }); }

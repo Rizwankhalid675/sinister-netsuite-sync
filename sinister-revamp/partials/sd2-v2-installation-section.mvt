@@ -1,12 +1,2 @@
-<mvt:comment>Installation Section V2 partial.</mvt:comment>
-<section class="sd2-v2-pdp-section" id="installation" aria-labelledby="sd2-v2-install-title">
-	<div class="sd2-v2-pdp-section__header">
-		<p class="sd2-kicker">Installation</p>
-		<h2 id="sd2-v2-install-title">Install Notes</h2>
-	</div>
-	<div class="sd2-v2-feature-list">
-		<div><strong>Instructions</strong><span>[Placeholder] Installation PDF or instruction content.</span></div>
-		<div><strong>Tools</strong><span>[Placeholder] Tool requirements from product content.</span></div>
-		<div><strong>Support</strong><span>Contact Sinister Diesel support for product-specific install guidance.</span></div>
-	</div>
-</section>
+<mvt:comment>Installation Section V2 partial. Uses the configured installation custom field.</mvt:comment>
+<mvt:if expr="NOT ISNULL l.settings:product:customfield_values:customfields:installation"><section class="sd2-v2-pdp-section" id="installation" aria-labelledby="sd2-v2-install-title"><div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Installation</p><h2 id="sd2-v2-install-title">Installation Documents</h2></div><a class="sd2-btn sd2-btn--secondary" href="&mvte:product:customfield_values:customfields:installation;" target="_blank" rel="noopener">Download Install Instructions</a><p>Contact Sinister Diesel support for product-specific installation guidance.</p></section></mvt:if>

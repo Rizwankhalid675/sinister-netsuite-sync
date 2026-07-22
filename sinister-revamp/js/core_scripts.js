@@ -408,8 +408,17 @@ var elementsUI = {
 				'use strict';
 
 				var currentModal = document.querySelector('[data-hook="' + element + '"]');
+				if (!currentModal) {
+					return;
+				}
 				var formElement = currentModal.querySelector('[data-hook="shipping-estimate-form"]');
+				if (!formElement) {
+					return;
+				}
 				var formButton = formElement.querySelector('[data-hook="calculate-shipping-estimate"]');
+				if (!formButton) {
+					return;
+				}
 
 				function createCalculation () {
 					var processor = document.createElement('iframe');
@@ -695,7 +704,7 @@ var elementsUI = {
 		/**
 		 * Call in additional functions as developed for theme.
 		 */
-		$.loadScript(theme_path + 'ui/js/theme.js?v=1.08', function () {
+		$.loadScript(theme_path + 'ui/js/theme.js?v=1.09', function () {
 			window.addEventListener('load',
 				(typeof $.debounced === 'function' ? $.debounced : function (fn) { return fn; })(function () {
 					themeFunctionality.init();

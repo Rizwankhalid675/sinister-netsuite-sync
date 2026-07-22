@@ -1,0 +1,10 @@
+<mvt:comment>
+	Vehicle Banner V2 partial. Canonical inactive reusable component.
+	Uses existing Garage localStorage contract through data-v2-fitment-copy and
+	data-v2-garage-toggle. Do not duplicate this banner in page templates.
+</mvt:comment>
+
+<section class="sd2-v2-search-page__vehicle is-empty" aria-label="Vehicle fitment context">
+	<p data-v2-fitment-copy>No vehicle selected. Open Garage to confirm fitment context.</p>
+	<button class="sd2-btn sd2-btn--secondary" type="button" data-v2-garage-toggle>Open Garage</button>
+</section>

@@ -1,50 +1,35 @@
 {
-    "category_listing": {
-        "b_height": 234,
-        "b_width": 234,
-        "button_add": 1,
-        "button_buy": 1,
-        "button_wish": 0,
-        "col_num": 2,
-        "constrain": "B",
-        "default_sort": "disp_order",
-        "displaydiscounts": 0,
-        "field_code": 1,
-        "field_desc": 0,
-        "field_name": 1,
-        "field_price": 1,
-        "field_sku": 0,
-        "format": "X",
-        "image": "T",
-        "imagemachine_enabled": 0,
-        "invmsg": "L",
-        "items_per_page_filter": 1,
-        "linkexcludecat": 1,
-        "mode": "ctgy",
-        "page_disp_count": 3,
-        "per_page": 10,
-        "predictdiscounts": 0,
-        "price": "base",
-        "reverse_default_disp_order": 0,
-        "sort_by": {
-            "best": 1,
-            "code": 0,
-            "name": 0,
-            "new": 1,
-            "old": 1,
-            "price": 1,
-            "relevance": 0,
-            "switch": 1,
-            "updated": 0
-        },
-        "template_filename": "acctv2-category_listing.mvc"
+    "customer": {
+        "editable": 0,
+        "mode": "tokens_only_nodisplay",
+        "prevent_template_auto_update": 0,
+        "template_filename": "acln-customer.mvc"
     },
     "hdft": {
-        "footer": {
-            "template_filename": "acctv2-footer.mvc"
+        "footer": { "template_filename": "acctv2-footer.mvc" },
+        "header": { "template_filename": "acctv2-header.mvc" }
+    },
+    "orderhistory_list": {
+        "advanced": 1,
+        "default_sort": "OrdDtDesc",
+        "invoice": 1,
+        "items_per_page_filter": 1,
+        "order_date": 1,
+        "order_total": 1,
+        "page_disp_count": 3,
+        "paginate": 1,
+        "per_page": 5,
+        "products_bought": 1,
+        "quantity_bought": 1,
+        "sort_by": {
+            "invoice": 1,
+            "order_date": 1,
+            "order_total": 1,
+            "status": 1,
+            "switch": 1
         },
-        "header": {
-            "template_filename": "acctv2-header.mvc"
-        }
+        "status": 1,
+        "template_filename": "acln-orderhistory_list.mvc",
+        "tracking": 1
     }
 }

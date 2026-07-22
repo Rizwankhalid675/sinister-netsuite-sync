@@ -2,13 +2,18 @@
 <html>
 <mvt:item name="html_profile" />
 <head>
+	<mvt:if expr="NOT ISNULL l.settings:category:page_title"><title>&mvte:category:page_title;</title><mvt:else><title>&mvte:category:name; | &mvte:store:name;</title></mvt:if>
+	<mvt:assign name="l.settings:category:stripped_descrip" value="miva_html_strip( l.settings:category:descrip, '' )" />
+	<mvt:if expr="ISNULL l.settings:category:stripped_descrip"><mvt:assign name="l.settings:category:stripped_descrip" value="'Shop ' $ l.settings:category:name $ ' diesel performance parts with fitment-focused product information from Sinister Diesel.'" /></mvt:if>
+	<meta name="description" content="&mvte:category:stripped_descrip;">
+	<mvt:assign name="g.sd2_seo_description" value="l.settings:category:stripped_descrip" />
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
 	<mvt:item name="head" param="head_tag" />
 	<mvt:comment>
 		Product Listing V2 staging template. Inactive only.
 		Do not assign over live CTGY listing templates.
-		Uses verified category_listing:products iterator from legacy category listing.
-		TODO: wire facets, sorting, pagination, and product count during staging integration.
+		The registered category_listing item owns native product data, sorting,
+		per-page controls, pagination, add-to-basket fields, and empty states.
 	</mvt:comment>
 </head>
 <body>
@@ -35,194 +40,36 @@
 				<div><span>Catalog</span><strong>Live</strong></div>
 				<div><span>Fitment</span><strong data-v2-fitment-copy>Select your truck</strong></div>
 			</div>
-			<mvt:comment>TODO: register Vehicle Banner V2 in Miva Admin as readytheme contentsection('vehicle_banner') before using mvt:item composition.</mvt:comment>
+			<mvt:item name="readytheme" param="contentsection( 'vehicle_banner' )" />
 		</header>
 
 		<section class="sd2-v3-commerce-stage" data-sd2-story aria-label="Browse &mvte:category:name;">
-		<div class="sd2-v2-result-tools sd2-reveal" data-reveal="fade-up">
-			<div class="sd2-v2-chips" data-v2-filter-chips><span class="sd2-v2-chip">&mvte:category:name;</span></div>
-			<button class="sd2-v2-filter-trigger" type="button" data-v2-filter-open aria-controls="sd2-v2-listing-filter-sheet" aria-expanded="false">Filters</button>
-			<form class="sd2-v2-sort" method="get" action="&mvte:urls:_self:auto_noparams;">
-				<mvt:if expr="tolower( l.settings:category_listing:mode ) EQ 'ctgy' AND toupper( g.Screen ) NE 'CTGY'">
-					<input type="hidden" name="Category_Code" value="&mvte:global:Category_Code;" />
-				<mvt:elseif expr="tolower( l.settings:category_listing:mode ) EQ 'relp' AND toupper( g.Screen ) NE 'PROD'">
-					<input type="hidden" name="Product_Code" value="&mvte:global:Product_Code;" />
-				</mvt:if>
-				<mvt:item name="urls" param="hidden_params:_self:auto" />
-				<input type="hidden" name="Search" value="&mvte:global:Search;" />
-				<input type="hidden" name="Per_Page" value="&mvte:global:Per_Page;" />
-				<mvt:foreach iterator="facet" array="facets:applied_facets">
-					<mvt:foreach iterator="facet_value" array="facet:input_values">
-						<input type="hidden" name="&mvte:facet:code;" value="&mvte:facet_value;" />
-					</mvt:foreach>
-				</mvt:foreach>
-				<label class="sd2-label" for="sd2-v2-listing-sort">Sort</label>
-				<select class="sd2-field" id="sd2-v2-listing-sort" name="Sort_By" onchange="this.form.submit();">
-					<mvt:if expr="ISNULL g.Sort_By">
-						<option value="disp_order" selected="selected">Recommended</option>
-					<mvt:else>
-						<option value="disp_order">Recommended</option>
-					</mvt:if>
-					<mvt:if expr="g.Sort_By EQ 'bestsellers'">
-						<option value="bestsellers" selected="selected">Best Selling</option>
-					<mvt:else>
-						<option value="bestsellers">Best Selling</option>
-					</mvt:if>
-					<mvt:if expr="g.Sort_By EQ 'price_asc'">
-						<option value="price_asc" selected="selected">Price: Low to High</option>
-					<mvt:else>
-						<option value="price_asc">Price: Low to High</option>
-					</mvt:if>
-					<mvt:if expr="g.Sort_By EQ 'price_desc'">
-						<option value="price_desc" selected="selected">Price: High to Low</option>
-					<mvt:else>
-						<option value="price_desc">Price: High to Low</option>
-					</mvt:if>
-					<mvt:if expr="g.Sort_By EQ 'newest'">
-						<option value="newest" selected="selected">Newest Items</option>
-					<mvt:else>
-						<option value="newest">Newest Items</option>
-					</mvt:if>
-				</select>
-			</form>
-		</div>
-
-		<section class="sd2-v2-search-page__layout" aria-label="Category products">
-			<aside class="sd2-v2-filter-rail" aria-label="Filters">
-				<mvt:comment>TODO: wire native Miva facets into the existing Filter Rail component.</mvt:comment>
-				<section class="sd2-v2-filter-group is-open">
-					<button class="sd2-v2-filter-group__head" type="button" aria-expanded="true">Category <span aria-hidden="true">+</span></button>
-					<div class="sd2-v2-filter-group__body">
-						<label class="sd2-v2-filter-opt"><input type="checkbox" disabled> [Placeholder] Miva facet</label>
-					</div>
-				</section>
-			</aside>
-
-			<div class="sd2-v2-pgrid-wrap">
-				<div class="sd2-v2-pgrid sd2-stagger" data-v2-product-grid>
-					<mvt:comment>
-						Verified legacy pattern: category listings render inline product cards
-						inside category_listing:products (see ctgy-category_listing.mvt). No file
-						include is available. Add-to-cart form fields, hidden Offset/facet params,
-						and the AddToBasketE button item are reused verbatim from that legacy file
-						to preserve basket/facet/offset business logic exactly.
-					</mvt:comment>
-					<mvt:foreach iterator="product" array="category_listing:products">
-						<article class="sd2-card sd2-v2-product-card sd2-tilt">
-							<a class="sd2-v2-product-card__media" href="&mvte:urls:PRODV2:auto;?Product_Code=&mvta:product:code;" data-mm-linktype="product-list-link">
-								<mvt:if expr="NOT ISNULL l.settings:product:thumbnail">
-									<img src="&mvte:product:thumbnail;" alt="&mvte:product:name;" loading="lazy">
-								<mvt:else>
-									<img src="graphics/00000001/placeholder.png" alt="" loading="lazy">
-								</mvt:if>
-								<mvt:if expr="l.settings:product:inv_level EQ 'out'">
-									<span class="sd2-v2-product-card__flag">Out of Stock</span>
-								</mvt:if>
-							</a>
-							<div class="sd2-v2-product-card__body">
-								<p class="sd2-v2-product-card__platform">SKU &mvte:product:code;</p>
-								<h3 class="sd2-v2-product-card__title"><a href="&mvte:urls:PRODV2:auto;?Product_Code=&mvta:product:code;" data-mm-linktype="product-list-link">&mvte:product:name;</a></h3>
-								<p class="sd2-v2-product-card__note" data-v2-fitment-copy>No vehicle selected. Confirm fitment in Garage.</p>
-								<mvt:if expr="l.settings:product:inv_active">
-									<p class="sd2-v2-product-card__inv">&mvt:product:inv_long;</p>
-								</mvt:if>
-								<div class="sd2-v2-product-card__foot">
-									<span class="sd2-v2-product-card__price">
-										<mvt:if expr="l.settings:product:base_price GT l.settings:product:price">
-											<s>&mvt:product:formatted_base_price;</s>
-										</mvt:if>
-										&mvt:product:formatted_price;
-									</span>
-									<a class="sd2-v2-product-card__link" href="&mvte:urls:PRODV2:auto;?Product_Code=&mvta:product:code;" data-mm-linktype="product-list-link">View</a>
-								</div>
-								<mvt:if expr="l.settings:product:inv_level NE 'out'">
-									<form class="sd2-v2-product-card__cart-form" method="post" action="&mvte:urls:BASK:rr;">
-										<input type="hidden" name="Old_Screen" value="&mvte:global:Screen;" />
-										<input type="hidden" name="Old_Search" value="&mvte:global:Search;" />
-										<input type="hidden" name="Action" value="ADPR" />
-										<input type="hidden" name="Quantity" value="1" />
-										<input type="hidden" name="Attributes" value="Yes" />
-										<input type="hidden" name="Product_Code" value="&mvte:product:code;" />
-										<input type="hidden" name="Current_Product_Code" value="&mvte:global:Product_Code;" />
-										<input type="hidden" name="Category_Code" value="&mvte:global:Category_Code;" />
-										<input type="hidden" name="Offset" value="&mvte:global:CatListingOffset;" />
-										<input type="hidden" name="AllOffset" value="&mvte:global:AllOffset;" />
-										<input type="hidden" name="CatListingOffset" value="&mvte:global:CatListingOffset;" />
-										<input type="hidden" name="RelatedOffset" value="&mvte:global:RelatedOffset;" />
-										<input type="hidden" name="SearchOffset" value="&mvte:global:SearchOffset;" />
-										<mvt:foreach iterator="facet" array="facets:applied_facets">
-											<mvt:foreach iterator="facet_value" array="facet:input_values">
-												<input type="hidden" name="&mvte:facet:code;" value="&mvte:facet_value;" />
-											</mvt:foreach>
-										</mvt:foreach>
-										<mvt:item name="buttons" param="AddToBasketE" />
-									</form>
-								</mvt:if>
-							</div>
-						</article>
-					</mvt:foreach>
-					<mvt:if expr="miva_array_elements(l.settings:category_listing:products) EQ 0">
-						<section class="sd2-v2-empty-state sd2-reveal" data-reveal="fade-up" aria-label="No products in this category">
-							<h2>No products currently available</h2>
-							<p>This category has no products matching the current filters.</p>
-						</section>
-					</mvt:if>
-				</div>
-				<mvt:if expr="l.settings:category_listing:page_links:last_page GT 1">
-					<nav class="sd2-v2-pagination" aria-label="Pagination">
-						<mvt:if expr="l.settings:category_listing:page_links:current_page NE 1">
-							<a class="sd2-v2-pagination__prev" href="&mvte:urls:_self:auto_sep;&mvte:category_listing:page_links:prev_link_params;">Previous</a>
-						<mvt:else>
-							<span class="sd2-v2-pagination__prev is-disabled">Previous</span>
-						</mvt:if>
-						<span class="sd2-v2-pagination__pages">
-							<mvt:if expr="NOT l.settings:category_listing:page_links:contains_first">
-								<a class="sd2-v2-pagination__link" href="&mvte:urls:_self:auto_sep;&mvte:category_listing:page_links:first_link_params;">1</a>
-								<span aria-hidden="true">&hellip;</span>
-							</mvt:if>
-							<mvt:foreach iterator="pages" array="category_listing:page_links:pages">
-								<mvt:if expr="l.settings:category_listing:page_links:current_page EQ l.settings:pages:page_num">
-									<span class="sd2-v2-pagination__link is-current">&mvte:pages:page_num;</span>
-								<mvt:else>
-									<a class="sd2-v2-pagination__link" href="&mvte:urls:_self:auto_sep;&mvte:pages:link_params;">&mvte:pages:page_num;</a>
-								</mvt:if>
-							</mvt:foreach>
-							<mvt:if expr="NOT l.settings:category_listing:page_links:contains_last">
-								<span aria-hidden="true">&hellip;</span>
-								<a class="sd2-v2-pagination__link" href="&mvte:urls:_self:auto_sep;&mvte:category_listing:page_links:last_link_params;">&mvte:category_listing:page_links:last_page;</a>
-							</mvt:if>
-						</span>
-						<mvt:if expr="l.settings:category_listing:page_links:current_page NE l.settings:category_listing:page_links:last_page">
-							<a class="sd2-v2-pagination__next" href="&mvte:urls:_self:auto_sep;&mvte:category_listing:page_links:next_link_params;">Next</a>
-						<mvt:else>
-							<span class="sd2-v2-pagination__next is-disabled">Next</span>
-						</mvt:if>
-					</nav>
+			<div class="sd2-v2-result-tools sd2-reveal" data-reveal="fade-up">
+				<div class="sd2-v2-chips" data-v2-filter-chips><span class="sd2-v2-chip">&mvte:category:name;</span></div>
+				<mvt:if expr="l.settings:facets:facet_count GT 0">
+					<button class="sd2-v2-filter-trigger" type="button" data-v2-filter-open aria-controls="sd2-v2-listing-filter-sheet" aria-expanded="false"><span>Filter Parts</span><strong>&mvte:facets:facet_count;</strong></button>
 				</mvt:if>
 			</div>
-		</section>
+
+			<mvt:if expr="l.settings:facets:facet_count GT 0">
+				<mvt:assign name="l.settings:sd2_ctgy_layout_class" value="'sd2-v2-search-page__layout sd2-v2-search-page__layout--has-filters'" />
+			<mvt:else>
+				<mvt:assign name="l.settings:sd2_ctgy_layout_class" value="'sd2-v2-search-page__layout sd2-v2-search-page__layout--no-filters'" />
+			</mvt:if>
+			<section class="&mvte:sd2_ctgy_layout_class;" aria-label="Category products">
+				<mvt:if expr="l.settings:facets:facet_count GT 0">
+					<div class="sd2-v2-filter-sheet-scrim" data-v2-filter-close hidden></div>
+					<aside class="sd2-v2-filter-rail sd2-v2-filter-sheet" id="sd2-v2-listing-filter-sheet" data-v2-filter-sheet aria-hidden="true" aria-label="Category filters">
+						<div class="sd2-v2-filter-sheet__head"><div><span>Catalog Control</span><strong>Filter Parts</strong></div><button type="button" data-v2-filter-close aria-label="Close filters">&times;</button></div>
+						<div class="sd2-v2-filter-sheet__body"><mvt:item name="facets" /></div>
+						<div class="sd2-v2-filter-sheet__foot"><button class="sd2-btn sd2-btn--primary sd2-btn--full" type="button" data-v2-filter-close>View Products</button></div>
+					</aside>
+				</mvt:if>
+
+				<mvt:item name="category_listing" />
+			</section>
 		</section>
 	</div>
-
-	<div class="sd2-v2-filter-sheet-scrim" data-v2-filter-close hidden></div>
-	<aside class="sd2-v2-filter-sheet sd2-motion-panel" id="sd2-v2-listing-filter-sheet" aria-label="Mobile filters" aria-hidden="true" data-v2-filter-sheet>
-		<header class="sd2-v2-filter-sheet__head">
-			<h2>Filters</h2>
-			<button class="sd2-icon-btn" type="button" data-v2-filter-close aria-label="Close filters">x</button>
-		</header>
-		<div class="sd2-v2-filter-sheet__body">
-			<mvt:comment>TODO: mirror confirmed Miva facets from the filter rail.</mvt:comment>
-			<section class="sd2-v2-filter-group is-open">
-				<button class="sd2-v2-filter-group__head" type="button" aria-expanded="true">Category <span aria-hidden="true">+</span></button>
-				<div class="sd2-v2-filter-group__body">
-					<label class="sd2-v2-filter-opt"><input type="checkbox" disabled> [Placeholder] Miva facet</label>
-				</div>
-			</section>
-		</div>
-		<footer class="sd2-v2-filter-sheet__foot">
-			<button class="sd2-btn sd2-btn--primary sd2-btn--wide" type="button" data-v2-filter-close>View Results</button>
-		</footer>
-	</aside>
 </main>
 
 	<mvt:item name="hdft" param="footer" />

@@ -31,7 +31,7 @@
 
 			<section class="sd2-help-form-shell" aria-labelledby="returns-form-title">
 				<aside class="sd2-help-form-shell__rail"><p class="sd2-eyebrow">Return routing</p><h2 id="returns-form-title">Start the right return path.</h2><p>Give our team the order and part details needed to review your request.</p><ol class="sd2-help-form-shell__steps"><li><span>01</span><strong>Identify the purchase</strong></li><li><span>02</span><strong>Choose return or exchange</strong></li><li><span>03</span><strong>Receive next steps</strong></li></ol><div class="sd2-help-form-shell__signal" aria-hidden="true"><span></span><span></span><span></span></div></aside>
-				<form class="sd2-help-form" data-sd2-help-form="returns-exchanges" data-endpoint="/api/help-forms/returns-exchanges" data-submit-label="Send Return Request"><div data-help-form-fields>
+				<form class="sd2-help-form" data-sd2-help-form="returns-exchanges" data-endpoint="https://forms-api.sinisterdiesel.com/api/forms/submit" data-fallback-endpoint="https://conditioning-gorgeous-ddr-vids.trycloudflare.com/api/forms/submit" data-submit-label="Send Return Request"><div data-help-form-fields>
 					<div class="sd2-help-form__topline"><div><p class="sd2-help-form__kicker">Return request</p><h2>Tell us what needs to change.</h2></div><span class="sd2-help-form__route"><i aria-hidden="true"></i> RMA team</span></div>
 					<div class="sd2-help-form__grid">
 						<div class="sd2-help-field"><label for="return-name">Name *</label><input id="return-name" name="name" type="text" autocomplete="name" maxlength="255" required><span class="sd2-help-field__error" data-field-error="name"></span></div>

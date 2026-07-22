@@ -20,7 +20,6 @@
 	<mvt:item name="readytheme" param="contentsection( 'messages' )" />
 
 	<main class="sd2-v2-account" data-v2-account>
-		<div class="sd2-wrap">
 			<header class="sd2-v2-account-hero">
 				<mvt:item name="breadcrumbs" />
 				<p class="sd2-kicker">Account</p>
@@ -100,7 +99,6 @@
 					<mvt:item name="orderhistory_list" />
 				</div>
 			</section>
-		</div>
 	</main>
 
 	<mvt:item name="hdft" param="footer" />

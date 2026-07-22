@@ -107,7 +107,7 @@ padding: 0!important;
 
   <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 </head>
-<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass;">
+<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass; sd2-v2-live-bask">
 	<mvt:item name="hdft" param="global_header" />
 
 	<mvt:item name="hdft" param="header" />
@@ -153,38 +153,39 @@ padding: 0!important;
     <mvt:do name="l.return" file="g.Module_Library_DB" value="Runtime_Product_Load_Code( g.Product_Code, l.settings:added_product )" />
     <mvt:do file="g.Module_Feature_URI_UT" name="l.settings:added_product:uri" value="Store_Product_URL(l.settings:added_product, NULL)" />
     <mvt:do name="l.result" file="g.Module_Library_DB" value="CategoryList_Load_Offset_Product_Assigned(l.settings:added_product:id,0,'','',0,l.null, g.assigned_categories )" />
-    <mvt:assign name="l.settings:assigned_categories" value="'[\"'" />
+    <mvt:assign name="l.settings:assigned_categories" value="'['" />
     <mvt:foreach iterator="category" array="global:assigned_categories">
         <mvt:if expr="POS1 GT 1">
             <mvt:assign name="l.settings:assigned_categories" value="l.settings:assigned_categories $ ','" />  
         </mvt:if>
-        <mvt:assign name="l.settings:assigned_categories" value="l.settings:assigned_categories $ '\"' $ l.settings:category:name $ '\"'" />   
+        <mvt:assign name="l.settings:assigned_categories" value="l.settings:assigned_categories $ '\"' $ encodejavascriptstring(l.settings:category:name) $ '\"'" />   
     </mvt:foreach>
     <mvt:assign name="l.settings:assigned_categories" value="l.settings:assigned_categories $ ']'"/>
 	<mvt:do name="l.success" file="g.Module_Library_DB" value="ProductImage_Load_Type(l.settings:added_product:id, 1, l.settings:imagetype)" />
 	<mvt:do name="l.success" file="g.Module_Library_DB" value="Image_Load_ID(l.settings:imagetype:image_id, l.settings:imagedata)" />
 	<mvt:assign name="g.socialImage" value="g.baseurl $ l.settings:imagedata:image" />
 <script type="text/javascript">
-   _learnq.push(["track", "Added to Cart", {
+   window._learnq = window._learnq || [];
+   window._learnq.push(["track", "Added to Cart", {
      "$value": &mvt:added_product:price;,
-     "AddedItemProductName": "&mvt:added_product:name;",
-     "AddedItemProductID": "&mvt:added_product:code;",
-     "AddedItemSKU": "&mvt:added_product:sku;",
+     "AddedItemProductName": "&mvtj:added_product:name;",
+     "AddedItemProductID": "&mvtj:added_product:code;",
+     "AddedItemSKU": "&mvtj:added_product:sku;",
      "AddedItemCategories": &mvt:assigned_categories;,
-     "AddedItemImageURL": "&mvt:global:socialImage",
-     "AddedItemURL": "&mvt:added_product:uri;",
+     "AddedItemImageURL": "&mvtj:global:socialImage",
+     "AddedItemURL": "&mvtj:added_product:uri;",
      "AddedItemPrice": &mvt:added_product:price;,
      "AddedItemQuantity": &mvt:global:quantity;,
      "CheckoutURL": "&mvte:urls:OINF:secure;",
      "Items": [
+    <mvt:assign name="l.settings:itemNames" value="'['" />
     <mvt:if expr="NOT l.settings:global_minibasket:empty">
          <mvt:foreach iterator="item" array="global_minibasket:groups">
-            <mvt:if expr="l.settings:itemNames">,
-                <mvt:assign name="l.settings:itemNames" value="','" />
-            <mvt:else>
-                <mvt:assign name="l.settings:itemNames" value="'['" />
+            <mvt:if expr="POS1 GT 1">
+                ,
+                <mvt:assign name="l.settings:itemNames" value="l.settings:itemNames $ ','" />
             </mvt:if>
-            <mvt:assign name="l.settings:itemNames" value="l.settings:itemNames $ '\"' $ l.settings:item:name $ '\"'"/>
+            <mvt:assign name="l.settings:itemNames" value="l.settings:itemNames $ '\"' $ encodejavascriptstring(l.settings:item:name) $ '\"'"/>
            
             <mvt:do file="g.Module_Library_DB" name="l.success" value="Product_Load_Code(l.settings:item:code, l.settings:item_p )" />
             <mvt:do file="g.Module_Feature_URI_UT" name="l.settings:item:uri" value="Store_Product_URL(l.settings:item_p, NULL)" />     
@@ -192,10 +193,10 @@ padding: 0!important;
             <mvt:do name="l.result" file="g.Module_Library_DB" value="CategoryList_Load_Offset_Product_Assigned(l.settings:item:id,0,'','',0,l.null, g.assigned_categories )" />
             <mvt:assign name="l.settings:assigned_categories" value="'['" />
             <mvt:foreach iterator="category" array="global:assigned_categories">
-                <mvt:if expr="POS1 GT 1">
+                <mvt:if expr="POS2 GT 1">
                     <mvt:assign name="l.settings:assigned_categories" value="l.settings:assigned_categories $ ','" />  
                 </mvt:if>            
-                <mvt:assign name="l.settings:assigned_categories" value="l.settings:assigned_categories $ '\"' $ l.settings:category:name $ '\"'" />   
+                <mvt:assign name="l.settings:assigned_categories" value="l.settings:assigned_categories $ '\"' $ encodejavascriptstring(l.settings:category:name) $ '\"'" />   
             </mvt:foreach>
             <mvt:assign name="l.settings:assigned_categories" value="l.settings:assigned_categories $ ']'"/>     
             <mvt:do name="l.success" file="g.Module_Library_DB" value="ProductImage_Load_Type(l.settings:item:id, 1, l.settings:imagetype)" />
@@ -204,16 +205,16 @@ padding: 0!important;
                  
      
             {
-             "ProductID": "&mvt:item:code;",
-             "SKU": "&mvt:item:sku;",
-             "ProductName": "&mvt:item:name;",
+             "ProductID": "&mvtj:item:code;",
+             "SKU": "&mvtj:item:sku;",
+             "ProductName": "&mvtj:item:name;",
              "Quantity": &mvt:item:quantity;,
              "ItemPrice": &mvt:item:price;,
              "RowTotal": <mvt:eval expr="l.settings:item:price * l.settings:item:quantity" />,
-             "ProductURL": "&mvt:item:uri;",
-             "ImageURL": "&mvt:global:socialImage",
+             "ProductURL": "&mvtj:item:uri;",
+             "ImageURL": "&mvtj:global:socialImage",
              "ProductCategories": &mvt:assigned_categories;
-           },
+           }
        </mvt:foreach>
     </mvt:if>
     <mvt:assign name="l.settings:itemNames" value="l.settings:itemNames $ ']'"/>

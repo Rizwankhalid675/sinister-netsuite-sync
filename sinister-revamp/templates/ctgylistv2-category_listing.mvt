@@ -1,6 +1,10 @@
-<div class="expanded"><div id="filter-items-container">
+<section class="sd2-v2-pgrid-wrap">
 	<mvt:if expr="l.settings:category_listing:total_prod_count GT 1">
-		<div class="sorting">
+	<div class="sd2-v2-toolbar">
+		<p class="sd2-v2-toolbar__count">&mvt:category_listing:total_prod_count; products</p>
+		<mvt:if expr="NOT l.settings:sd2_descendant_rollup">
+		<div class="sd2-v2-toolbar__group">
+		<div class="sorting sd2-v2-toolbar__control">
 			<form method="get" action="&mvte:urls:_self:auto_noparams;">	
 				<mvt:if expr="tolower( l.settings:category_listing:mode ) EQ 'ctgy' AND toupper( g.Screen ) NE 'CTGY'">
 					<input type="hidden" name="Category_Code" value="&mvte:global:Category_Code;" />
@@ -17,8 +21,8 @@
 					</mvt:foreach>
 				</mvt:foreach>
 
-				<label for="Sort_By">Sort By:</label>
-				<select id="Sort_By" name="Sort_By" onchange="MMProdList_UpdateQuery( this ); return true;">
+				<label class="sd2-v2-toolbar__label" for="Sort_By">Sort By:</label>
+				<select class="sd2-v2-toolbar__select" id="Sort_By" name="Sort_By" onchange="MMProdList_UpdateQuery( this ); return true;">
 
 					<mvt:if expr="ISNULL g.Sort_By">
 						<option value="disp_order" selected="selected">Default</option>
@@ -52,9 +56,9 @@
 					</mvt:if>
 				</select>
 			</form>
-		</div></mvt:if>
-		<mvt:if expr="l.settings:category_listing:total_prod_count GT 1">
-			<div class="per-page">
+		</div>
+			<mvt:if expr="l.settings:category_listing:total_prod_count GT 1">
+			<div class="per-page sd2-v2-toolbar__control">
 				<form method="get" action="&mvte:urls:_self:auto_noparams;">	
 					<mvt:if expr="tolower( l.settings:category_listing:mode ) EQ 'ctgy' AND toupper( g.Screen ) NE 'CTGY'">
 						<input type="hidden" name="Category_Code" value="&mvte:global:Category_Code;" />
@@ -71,8 +75,8 @@
 						</mvt:foreach>
 					</mvt:foreach>
 
-					<label for="Per_Page">View:</label>
-					<select id="Per_Page" name="Per_Page" onchange="MMProdList_UpdateQuery( this ); return true;">
+					<label class="sd2-v2-toolbar__label" for="Per_Page">View:</label>
+					<select class="sd2-v2-toolbar__select" id="Per_Page" name="Per_Page" onchange="MMProdList_UpdateQuery( this ); return true;">
 
 						<mvt:if expr="g.Per_Page EQ 10">
 							<option value="10" selected="selected">10</option>
@@ -97,9 +101,21 @@
 					</select>
 				</form>
 			</div>
+			</mvt:if>
+		</div>
+		<mvt:else>
+		<div class="sd2-v2-toolbar__rollup-controls" data-sd2-rollup-catalog>
+			<label><span>Brand</span><select data-sd2-rollup-brand aria-label="Filter by brand"><option value="">All Brands</option></select></label>
+			<label><span>Price</span><select data-sd2-rollup-price aria-label="Filter by price"><option value="">All Prices</option><option value="0-100">Under $100</option><option value="100-250">$100–$249</option><option value="250-500">$250–$499</option><option value="500-1000">$500–$999</option><option value="1000-999999">$1,000 and up</option></select></label>
+			<button type="button" class="sd2-v2-toolbar__fitment" data-v2-garage-toggle><span>Vehicle Fitment</span><strong>Choose Your Truck</strong></button>
+			<label><span>Sort By</span><select data-sd2-rollup-sort aria-label="Sort products"><option value="default">Sort: Featured</option><option value="price-asc">Price: Low to High</option><option value="price-desc">Price: High to Low</option><option value="name">Name: A–Z</option></select></label>
+			<label><span>View</span><select data-sd2-rollup-page-size aria-label="Products per page"><option value="10">View: 10</option><option value="20">View: 20</option><option value="40">View: 40</option><option value="-1">View: All</option></select></label>
+		</div>
 		</mvt:if>
+	</div>
+	</mvt:if>
 	<mvt:if expr="l.settings:category_listing:page_links:last_page GT 1">
-		<div class="page-links">
+		<nav class="page-links sd2-v2-pagination" aria-label="Category pagination">
 			<span class="page-links-title">Page(s):</span>
 			<span class="page-links-container">
 				<mvt:if expr="l.settings:category_listing:page_links:current_page NE 1">
@@ -128,81 +144,125 @@
 					</mvt:if>
 				</span>
 			</span>
-		</div>
+		</nav>
 		
 	</mvt:if>
-	</div><div class="clear"></div>
+	<mvt:if expr="miva_array_elements(l.settings:category_listing:products) GT 0">
+	<div class="sd2-v2-pgrid sd2-v2-pgrid--native">
 	<mvt:foreach iterator="product" array="category_listing:products">
-	<div class="product-item" style="width:50%">
-		<div class="padding">
-			<div class="product-details">
-				<div class="product-thumbnail">
-					<mvt:if expr="NOT ISNULL l.settings:product:thumbnail"><a data-mm-linktype="product-list-link" href="&mvte:product:link;"><img src="&mvte:product:thumbnail;" alt="&mvte:product:name;" /><mvt:else><a data-mm-linktype="product-list-link" class="thumbnail-not-available" href="&mvte:product:link;" title="&mvte:product:name;"></mvt:if></a>
+	<mvt:do name="l.sd2_success" file="g.Module_Library_DB" value="ImageType_Load_Code('main', l.settings:sd2_ctgy_imagetype)" />
+	<mvt:do name="l.sd2_success" file="g.Module_Library_DB" value="ProductImage_Load_Type(l.settings:product:id, 1, l.settings:sd2_ctgy_imagetype)" />
+	<mvt:do name="l.sd2_success" file="g.Module_Library_DB" value="Image_Load_ID(l.settings:sd2_ctgy_imagetype:image_id, l.settings:sd2_ctgy_imagedata)" />
+	<mvt:if expr="l.settings:sd2_descendant_rollup">
+		<mvt:item name="customfields" param="Read_Product_Code(l.settings:product:code, 'brand', l.settings:sd2_rollup_brand)" />
+	</mvt:if>
+	<article class="sd2-card sd2-v2-product-card"<mvt:if expr="l.settings:sd2_descendant_rollup"> data-sd2-rollup-product data-sd2-name="&mvte:product:name;" data-sd2-brand="&mvte:sd2_rollup_brand;" data-sd2-price="&mvte:product:price;"</mvt:if>>
+		<a class="sd2-v2-product-card__media" data-mm-linktype="product-list-link" href="&mvte:product:link;">
+			<mvt:if expr="NOT ISNULL l.settings:product:thumbnail">
+				<img src="&mvte:product:thumbnail;" alt="&mvte:product:name;" loading="lazy" />
+			<mvt:elseif expr="NOT ISNULL l.settings:product:imagetypes:main">
+				<img src="&mvte:product:imagetypes:main;" alt="&mvte:product:name;" loading="lazy" />
+			<mvt:elseif expr="NOT ISNULL l.settings:sd2_ctgy_imagedata:image">
+				<img src="&mvte:sd2_ctgy_imagedata:image;" alt="&mvte:product:name;" loading="lazy" />
+			<mvt:else>
+				<span class="thumbnail-not-available" title="&mvte:product:name;"></span>
+			</mvt:if>
+			<mvt:if expr="l.settings:product:inv_level EQ 'out'">
+				<span class="sd2-v2-product-card__flag">Out of Stock</span>
+			</mvt:if>
+		</a>
+		<div class="sd2-v2-product-card__body">
+			<p class="sd2-v2-product-card__platform">SKU &mvte:product:code;</p>
+			<h2 class="sd2-v2-product-card__title">
+				<a data-mm-linktype="product-list-link" href="&mvte:product:link;">&mvt:product:name;</a>
+			</h2>
+			<div class="sd2-v2-product-card__foot">
+				<div class="sd2-v2-price">
+					<span class="sd2-v2-price__label">Price</span>
+					<div class="sd2-v2-price__row">
+						<mvt:if expr="l.settings:product:price GT 0">
+						<mvt:if expr="l.settings:product:base_price GT l.settings:product:price">
+							<span class="sd2-v2-price__was"><s>&mvt:product:formatted_base_price;</s></span>
+						</mvt:if>
+						<span class="sd2-v2-price__current">&mvt:product:formatted_price;</span>
+						<mvt:else>
+						<span class="sd2-v2-price__current sd2-v2-price__current--configure">Choose options</span>
+						</mvt:if>
+					</div>
 				</div>
-				<div class="product-name"><a data-mm-linktype="product-list-link" href="&mvte:product:link;">&mvt:product:name;</a></div>
-				<div class="product-code">Code: <span class="bold">&mvt:product:code;</span></div>
-				<div class="product-price">
-					Price: <span class="bold">&mvt:product:formatted_base_price;</span>
-				</div>
-				<mvt:if expr="l.settings:product:inv_active">&mvt:product:inv_long;<br></mvt:if>
-				<div class="product-quantity">Quantity in Basket:
-					<mvt:if expr="l.settings:product:quantity EQ 0">
-					<span class="italic">none</span>
+				<a class="sd2-v2-product-card__link" data-mm-linktype="product-list-link" href="&mvte:product:link;" aria-label="View &mvte:product:name;">View</a>
+			</div>
+			<mvt:if expr="l.settings:product:inv_active">
+				<p class="sd2-v2-stock"><span class="sd2-v2-stock__dot"></span>&mvt:product:inv_short;</p>
+			</mvt:if>
+			<mvt:if expr="l.settings:product:inv_level NE 'out'">
+				<div class="purchase-buttons">
+					<mvt:if expr="l.settings:product:price GT 0">
+					<form method="post" action="&mvte:urls:BASK:rr;">
+					<input type="hidden" name="Old_Screen" value="&mvte:global:Screen;" />
+					<input type="hidden" name="Old_Search" value="&mvte:global:Search;" />
+					<input type="hidden" name="Action" value="ADPR" />
+					<input type="hidden" name="Quantity" value="1" />
+					<input type="hidden" name="Attributes" value="Yes" />
+					<input type="hidden" name="Product_Code" value="&mvte:product:code;" />
+					<input type="hidden" name="Current_Product_Code" value="&mvte:global:Product_Code;" />
+					<input type="hidden" name="Category_Code" value="&mvte:global:Category_Code;" />
+					<input type="hidden" name="Offset" value="&mvte:global:CatListingOffset;" />
+					<input type="hidden" name="AllOffset" value="&mvte:global:AllOffset;" />
+					<input type="hidden" name="CatListingOffset" value="&mvte:global:CatListingOffset;" />
+					<input type="hidden" name="RelatedOffset" value="&mvte:global:RelatedOffset;" />
+					<input type="hidden" name="SearchOffset" value="&mvte:global:SearchOffset;" />
+					<mvt:foreach iterator="facet" array="facets:applied_facets">
+						<mvt:foreach iterator="facet_value" array="facet:input_values">
+							<input type="hidden" name="&mvte:facet:code;" value="&mvte:facet_value;" />
+						</mvt:foreach>
+					</mvt:foreach>
+					<mvt:item name="buttons" param="AddToBasketE" />
+					</form>
 					<mvt:else>
-					<span class="italic">&mvt:product:quantity;</span>
+					<a class="sd2-btn sd2-btn--primary sd2-btn--full" data-mm-linktype="product-list-link" href="&mvte:product:link;">Choose Options</a>
 					</mvt:if>
 				</div>
-			</div>
-			<mvt:if expr="l.settings:product:inv_level NE 'out'">
-			<div class="purchase-buttons">
-				<form method="post" action="&mvte:urls:BASK:rr;">
-				<input type="hidden" name="Old_Screen" value="&mvte:global:Screen;" />
-				<input type="hidden" name="Old_Search" value="&mvte:global:Search;" />
-				<input type="hidden" name="Action" value="ADPR" />
-				<input type="hidden" name="Quantity" value="1" />
-				<input type="hidden" name="Attributes" value="Yes" />
-				<input type="hidden" name="Product_Code" value="&mvte:product:code;" />
-				<input type="hidden" name="Current_Product_Code" value="&mvte:global:Product_Code;" />
-				<input type="hidden" name="Category_Code" value="&mvte:global:Category_Code;" />
-				<input type="hidden" name="Offset" value="&mvte:global:CatListingOffset;" />
-				<input type="hidden" name="AllOffset" value="&mvte:global:AllOffset;" />
-				<input type="hidden" name="CatListingOffset" value="&mvte:global:CatListingOffset;" />
-				<input type="hidden" name="RelatedOffset" value="&mvte:global:RelatedOffset;" />
-				<input type="hidden" name="SearchOffset" value="&mvte:global:SearchOffset;" />
-				<mvt:foreach iterator="facet" array="facets:applied_facets">
-					<mvt:foreach iterator="facet_value" array="facet:input_values">
-						<input type="hidden" name="&mvte:facet:code;" value="&mvte:facet_value;" />
-					</mvt:foreach>
-				</mvt:foreach>
-				<mvt:item name="buttons" param="AddToBasketE" />
-				</form>
-				<form method="post" action="&mvte:urls:OINF:secure;">
-				<input type="hidden" name="Old_Screen" value="&mvte:global:Screen;" />
-				<input type="hidden" name="Old_Search" value="&mvte:global:Search;" />
-				<input type="hidden" name="Action" value="ADPR" />
-				<input type="hidden" name="Quantity" value="1" />
-				<input type="hidden" name="Attributes" value="Yes" />
-				<input type="hidden" name="Product_Code" value="&mvte:product:code;" />
-				<input type="hidden" name="Current_Product_Code" value="&mvte:global:Product_Code;" />
-				<input type="hidden" name="Category_Code" value="&mvte:global:Category_Code;" />
-				<input type="hidden" name="Offset" value="&mvte:global:CatListingOffset;" />
-				<input type="hidden" name="AllOffset" value="&mvte:global:AllOffset;" />
-				<input type="hidden" name="CatListingOffset" value="&mvte:global:CatListingOffset;" />
-				<input type="hidden" name="RelatedOffset" value="&mvte:global:RelatedOffset;" />
-				<input type="hidden" name="SearchOffset" value="&mvte:global:SearchOffset;" />
-				<mvt:foreach iterator="facet" array="facets:applied_facets">
-					<mvt:foreach iterator="facet_value" array="facet:input_values">
-						<input type="hidden" name="&mvte:facet:code;" value="&mvte:facet_value;" />
-					</mvt:foreach>
-				</mvt:foreach>
-				<mvt:item name="buttons" param="BuyNowE" />
-				</form>
-			</div>
 			</mvt:if>
 		</div>
-	</div>
+	</article>
 	</mvt:foreach>
-	<div class="clear"></div>
+	</div>
+	<mvt:elseif expr="miva_array_elements(l.settings:sd2_subcategories) EQ 0">
+		<mvt:if expr="miva_array_elements(l.settings:facets:applied_facets) GT 0">
+		<section class="sd2-v2-search-empty sd2-v2-search-empty--filtered" aria-labelledby="sd2-v2-ctgy-empty-title">
+			<div class="sd2-v2-search-empty__signal" aria-hidden="true">0</div>
+			<div class="sd2-v2-search-empty__content">
+				<p class="sd2-eyebrow">Fitment Search / No Match</p>
+				<h2 class="sd2-heading-lg" id="sd2-v2-ctgy-empty-title">No parts match every selected filter.</h2>
+				<p class="sd2-body">The category still has parts. Widen the price or fitment selection, clear the active filters, or choose a different truck.</p>
+				<div class="sd2-v2-search-empty__actions">
+					<a class="sd2-btn sd2-btn--primary" href="&mvte:category:link;">Clear Filters</a>
+					<button class="sd2-btn sd2-btn--outline" type="button" data-v2-garage-toggle>Change Truck</button>
+					<a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:SRCH:auto;">Search All Parts</a>
+				</div>
+			</div>
+			<div class="sd2-v2-search-empty__recovery" aria-label="Ways to continue shopping">
+				<div><span>01</span><strong>Clear filters</strong><small>Return to the complete category.</small></div>
+				<div><span>02</span><strong>Update fitment</strong><small>Match another year or platform.</small></div>
+				<div><span>03</span><strong>Search catalog</strong><small>Find a part by name or SKU.</small></div>
+			</div>
+		</section>
+		<mvt:else>
+		<section class="sd2-v2-search-empty sd2-v2-search-empty--category" aria-labelledby="sd2-v2-ctgy-empty-title">
+			<div class="sd2-v2-search-empty__signal" aria-hidden="true">?</div>
+			<div class="sd2-v2-search-empty__content">
+				<p class="sd2-eyebrow">Catalog Path</p>
+				<h2 class="sd2-heading-lg" id="sd2-v2-ctgy-empty-title">This category is being built out.</h2>
+				<p class="sd2-body">Search the live catalog or start with your truck to find compatible parts now.</p>
+				<div class="sd2-v2-search-empty__actions">
+					<a class="sd2-btn sd2-btn--primary" href="&mvte:urls:SRCH:auto;">Search Products</a>
+					<button class="sd2-btn sd2-btn--outline" type="button" data-v2-garage-toggle>Choose Your Truck</button>
+				</div>
+			</div>
+		</section>
+		</mvt:if>
+	</mvt:if>
 	<mvt:if expr="NOT l.settings:category_listing:page_disp_count GT 0">
 		<mvt:if expr="g.CatListingOffset OR g.CatListingNextOffset">
 		<div class="next-previous">
@@ -264,4 +324,4 @@
 		</div>
 		</mvt:if>
 	</mvt:if>
-</div>
+</section>

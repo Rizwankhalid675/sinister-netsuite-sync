@@ -5,17 +5,17 @@
 			<mvt:assign name="g.basket_quantity" value="0" />
 			<mvt:foreach iterator="group" array="order:groups">
 				<mvt:assign name="l.settings:group:restore:link" value="l.settings:urls:BASK:auto_sep $ 'Action=ADPR&Product_Code=' $ l.settings:group:product:code $ '&Quantity=' $ l.settings:group:quantity" />
-				<tr class="c-table-responsive__row u-border-none u-color-gray-50 o-layout--wrap t-ords-status">
+				<tr class="c-table-responsive__row u-border-none u-color-gray-50 o-layout--wrap t-ords-status sd2-v2-order-status-row">
 					<mvt:if expr="'shipped' CIN l.settings:group:order_status">
 						<td class="c-table-responsive__cell c-table-responsive__cell--flush">
-							<span class="u-font-tiny u-text-bold u-text-uppercase">Shipped &mvt:group:shipment:formatted_ship_date; via &mvt:group:shipment:tracktype; [ <a class="" href="&mvt:group:shipment:tracklink;" target="_blank">&mvt:group:shipment:tracknum;</a> ]</span>
+							<span class="sd2-v2-order-meta">Shipped &mvt:group:shipment:formatted_ship_date; via &mvt:group:shipment:tracktype; [ <a href="&mvt:group:shipment:tracklink;" target="_blank" rel="noopener" aria-label="Track shipment &mvte:group:shipment:tracknum; (opens in a new tab)">&mvt:group:shipment:tracknum;</a> ]</span>
 						</td>
 						<td class="c-table-responsive__cell c-table-responsive__cell--flush">
-							<a class="c-button c-button--hollow c-button--small u-bg-white u-color-black u-font-tiny u-text-bold u-text-uppercase" href="&mvt:group:shipment:tracklink;" target="_blank">Track This Package</a>
+							<a class="sd2-btn sd2-btn--outline sd2-v2-order-action" href="&mvt:group:shipment:tracklink;" target="_blank" rel="noopener">Track Package<span class="u-hide-visually"> (opens in a new tab)</span></a>
 						</td>
 					<mvt:else>
 						<td class="c-table-responsive__cell c-table-responsive__cell--flush">
-							<span class="u-font-tiny u-text-bold u-text-uppercase">Status: &mvt:group:order_status;</span>
+							<span class="sd2-v2-order-meta">Status: &mvt:group:order_status;</span>
 						</td>
 						<td class="c-table-responsive__cell c-table-responsive__cell--flush">&nbsp;</td>
 					</mvt:if>
@@ -87,7 +87,7 @@
 						</div>
 					</td>
 					<td class="c-table-responsive__cell c-table-responsive__cell--flex c-table-responsive__cell--flush">
-						<a class="c-button c-button--clear c-button--flush u-bg-transparent u-color-black u-text-medium u-font-tiny u-text-uppercase" href="&mvte:group:restore:link;">Order Again</a>
+						<a class="sd2-btn sd2-btn--outline sd2-v2-order-action" href="&mvte:group:restore:link;">Order Again</a>
 					</td>
 				</tr>
 			</mvt:foreach>

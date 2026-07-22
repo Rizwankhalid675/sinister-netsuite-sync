@@ -14,76 +14,64 @@
 </head>
 <body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass;">
 	<mvt:item name="hdft" param="global_header" />
+	<mvt:item name="hdft" param="header" />
 
-	<section class="o-layout">
-		<div class="o-layout__item">
-			<mvt:item name="hdft" param="header" />
-			<mvt:item name="readytheme" param="contentsection( 'messages' )" />
-		</div>
-	</section>
+	<main class="sd2-v2-account" data-v2-account>
+		<header class="sd2-v2-account-hero">
+			<mvt:item name="breadcrumbs" />
+			<p class="sd2-kicker">Account security</p>
+			<h1>&mvt:page:name;</h1>
+			<p>Update the email address used to sign in to your account.</p>
+		</header>
 
-	<section class="o-layout">
-		<div class="o-layout__item u-width-12">
-			<section class="t-expanded-block t-account-landing-section u-bg-white">
-				<div class="o-layout__item t-expanded-block__item t-account-landing-section__header">
-					<mvt:item name="breadcrumbs" />
-					<span class="sd2-v2-heading-delta t-account-landing-section__heading">&mvt:page:name;</span>
-				</div>
-				<div class="o-layout__item t-expanded-block__item t-account-landing-section__content">
-					<form class="o-layout o-layout--justify-center" method="post" action="&mvte:urls:CEML:secure;" autocomplete="off">
-						<fieldset class="o-layout__item u-width-12 u-width-5--l">
-							<legend>&mvt:page:name;</legend>
-							<input type="hidden" name="Action" value="CEML" />
-							<input type="hidden" name="CSRF_Token" value="&mvte:global:Basket:csrf_token;">
-							<ul class="sd2-v2-form-list">
-								<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full">
-									<p class="x-messages x-messages--borderless x-messages--info x-messages--with-icon">
-										<span class="x-messages__icon u-icon-info u-color-gray-30">&nbsp;</span>
-										<span>For security purposes, please enter your current password.</span>
-									</p>
-									<mvt:if expr="g.Customer_CurrentPassword_Invalid">
-										<label class="sd2-v2-form-label u-font-tiny u-text-bold u-text-uppercase is-required u-color-red" for="l-Customer_CurrentPassword">Current Password</label>
-									<mvt:else>
-										<label class="sd2-v2-form-label u-font-tiny u-text-bold u-text-uppercase is-required" for="l-Customer_CurrentPassword">Current Password</label>
-									</mvt:if>
-									<input id="l-Customer_CurrentPassword" class="sd2-v2-form-input sd2-v2-form-input--large" type="password" name="Customer_CurrentPassword" required>
-								</li>
-								<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full">
-									<hr class="sd2-v2-divider">
-								</li>
-								<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full">
-									<p>
-										<strong>Please enter your new email address.</strong><br>
-										<span class="u-font-small">Old Email Address: &mvte:global:Customer:pw_email;</span>
-									</p>
-									<mvt:if expr="g.Customer_LoginEmail_Invalid">
-										<label class="sd2-v2-form-label u-font-tiny u-text-bold u-text-uppercase is-required u-color-red" for="l-Customer_LoginEmail">New Email Address</label>
-									<mvt:else>
-										<label class="sd2-v2-form-label u-font-tiny u-text-bold u-text-uppercase is-required" for="l-Customer_LoginEmail">New Email Address</label>
-									</mvt:if>
-									<input id="l-Customer_LoginEmail" class="sd2-v2-form-input sd2-v2-form-input--large" type="email" name="Customer_LoginEmail" required>
-								</li>
-								<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full">
-									<mvt:if expr="g.Customer_VerifyLoginEmail_Invalid">
-										<label class="sd2-v2-form-label u-font-tiny u-text-bold u-text-uppercase is-required u-color-red" for="l-Customer_VerifyLoginEmail">Confirm Email Address</label>
-									<mvt:else>
-										<label class="sd2-v2-form-label u-font-tiny u-text-bold u-text-uppercase is-required" for="l-Customer_VerifyLoginEmail">Confirm Email Address</label>
-									</mvt:if>
-									<input id="l-Customer_VerifyLoginEmail" class="sd2-v2-form-input sd2-v2-form-input--large" type="email" name="Customer_VerifyLoginEmail" required>
-								</li>
-								<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full u-text-right">
-									<mvt:item name="buttons" param="Save" />
-								</li>
-							</ul>
-						</fieldset>
-					</form>
-				</div>
-			</section>
-		</div>
-	</section>
-	
+		<mvt:item name="readytheme" param="contentsection( 'messages' )" />
+
+		<section class="sd2-v2-account-card" aria-labelledby="sd2-v2-ceml-title">
+			<h2 id="sd2-v2-ceml-title">Change Email Address</h2>
+			<form method="post" action="&mvte:urls:CEML:secure;" autocomplete="off">
+				<fieldset>
+					<legend>&mvt:page:name;</legend>
+					<input type="hidden" name="Action" value="CEML" />
+					<input type="hidden" name="CSRF_Token" value="&mvte:global:Basket:csrf_token;">
+					<p class="sd2-v2-validation">For security purposes, please enter your current password.</p>
+					<ul class="sd2-v2-account-fields sd2-v2-account-fields--wide">
+						<li class="sd2-v2-account-field sd2-v2-account-field--full">
+							<mvt:if expr="g.Customer_CurrentPassword_Invalid">
+								<label class="u-color-red" for="l-Customer_CurrentPassword">Current Password</label>
+							<mvt:else>
+								<label for="l-Customer_CurrentPassword">Current Password</label>
+							</mvt:if>
+							<input id="l-Customer_CurrentPassword" type="password" name="Customer_CurrentPassword" autocomplete="current-password" required>
+						</li>
+						<li class="sd2-v2-account-field sd2-v2-account-field--full">
+							<p><strong>Current email address</strong><br>&mvte:global:Customer:pw_email;</p>
+						</li>
+						<li class="sd2-v2-account-field">
+							<mvt:if expr="g.Customer_LoginEmail_Invalid">
+								<label class="u-color-red" for="l-Customer_LoginEmail">New Email Address</label>
+							<mvt:else>
+								<label for="l-Customer_LoginEmail">New Email Address</label>
+							</mvt:if>
+							<input id="l-Customer_LoginEmail" type="email" name="Customer_LoginEmail" autocomplete="email" required>
+						</li>
+						<li class="sd2-v2-account-field">
+							<mvt:if expr="g.Customer_VerifyLoginEmail_Invalid">
+								<label class="u-color-red" for="l-Customer_VerifyLoginEmail">Confirm Email Address</label>
+							<mvt:else>
+								<label for="l-Customer_VerifyLoginEmail">Confirm Email Address</label>
+							</mvt:if>
+							<input id="l-Customer_VerifyLoginEmail" type="email" name="Customer_VerifyLoginEmail" autocomplete="email" required>
+						</li>
+					</ul>
+					<div class="sd2-v2-account-actions">
+						<mvt:item name="buttons" param="Save" />
+					</div>
+				</fieldset>
+			</form>
+		</section>
+	</main>
+
 	<mvt:item name="hdft" param="footer" />
-
 	<mvt:item name="hdft" param="global_footer" />
 </body>
 </html>

@@ -4,52 +4,19 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<base href="&mvt:global:basehref;">
-	<mvt:if expr="NOT ISNULL l.settings:page:title">
-		<title>&mvt:page:title;</title>
-	<mvt:else>
-		<title>&mvt:store:name;: &mvt:page:name;</title>
-	</mvt:if>
+	<mvt:if expr="NOT ISNULL l.settings:page:title"><title>&mvt:page:title;</title><mvt:else><title>&mvt:store:name;: &mvt:page:name;</title></mvt:if>
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
 	<mvt:item name="head" param="head_tag" />
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
 </head>
-<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass;">
+<body class="single-column sd2-v2-policy-page">
 	<mvt:item name="hdft" param="global_header" />
-
-	<section class="o-layout">
-		<div class="o-layout__item u-width-12">
-			<section class="t-expanded-block u-bg-white">
-				<div class="o-layout__item t-expanded-block__item">
-					<br>
-					<div class="o-layout o-layout--column-reverse o-layout--row-reverse--l">
-						<div class="o-layout__item u-width-12 u-width-9--l u-width-10--w">
-							<section class="o-layout">
-								<div class="o-layout__item">
-									<h1 class="sd2-v2-heading-delta u-color-primary">&mvte:page:name;</h1>
-									<hr class="sd2-v2-keyline">
-								</div>
-							</section>
-					
-							<mvt:item name="hdft" param="header" />
-
-							<section class="o-layout">
-								<mvt:item name="readytheme" param="contentsection( 'sale-policies' )" />
-							</section>
-
-							<mvt:item name="hdft" param="footer" />
-						</div>
-						<aside class="o-layout__item u-width-12 u-width-3--l u-width-2--w">
-							<mvt:item name="readytheme" param="navigationset( 'static_navigation' )" />
-						</aside>
-					</div>
-					<br>
-				</div>
-			</section>
+	<mvt:item name="hdft" param="header" />
+	<main class="sd2-v2-search-page" data-v2-static-page data-v2-editorial-page data-editorial-variant="policy">
+		<div class="sd2-wrap"><header class="sd2-v2-search-page__head"><nav class="sd2-v2-breadcrumbs" aria-label="Breadcrumb"><a href="&mvte:urls:SFNT:auto;">Home</a><span aria-hidden="true">/</span><span>&mvte:page:name;</span></nav><p class="sd2-eyebrow">Policies / Promotions</p><h1 class="sd2-heading-lg">&mvte:page:name;</h1></header>
+			<div class="sd2-v2-static-page sd2-v2-policy-document"><div class="sd2-v2-static-page__layout"><div class="sd2-v2-static-page__main"><div class="sd2-v2-static-page__body sd2-v2-policy-content"><mvt:item name="readytheme" param="contentsection( 'sale-policies' )" /></div></div><aside class="sd2-v2-static-page__aside" aria-label="Policies and terms"><mvt:item name="readytheme" param="navigationset( 'static_navigation' )" /></aside></div></div>
 		</div>
-	</section>
-	<br>
-
+	</main>
+	<mvt:item name="hdft" param="footer" />
 	<mvt:item name="hdft" param="global_footer" />
 </body>
 </html>

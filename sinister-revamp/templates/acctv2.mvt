@@ -2,6 +2,10 @@
 <html>
 <mvt:item name="html_profile" />
 <head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<base href="&mvte:global:basehref;">
+	<title>Account Dashboard | &mvte:global:store:name;</title>
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
 	<mvt:item name="head" param="head_tag" />
 	<mvt:comment>
@@ -11,7 +15,7 @@
 			Addresses, Returns, and Settings to existing legacy account pages.
 			Saved Vehicles preview uses existing sd2v2_garage localStorage reader
 			in js/sd2-v2-components.js; do not create a second saved-vehicle system.
-			TODO: wire real account/order/address arrays when confirmed.
+			Customer tokens and recent orders use the verified ACLN item settings.
 	</mvt:comment>
 </head>
 <body>
@@ -28,8 +32,11 @@
 	<nav class="sd2-v2-account-nav" aria-label="Account sections">
 		<a class="is-current" href="&mvte:urls:ACCTV2:auto;">Dashboard</a>
 		<a href="&mvte:urls:ORDH:auto;">Orders</a>
-		<a href="&mvte:urls:ACAD:auto;">Addresses</a>
-		<a href="&mvte:urls:ACRT:auto;">Returns</a>
+		<a href="&mvte:urls:CABK:auto;">Addresses</a>
+		<a href="&mvte:urls:CPCD:auto;">Payment</a>
+		<a href="&mvte:urls:CSUB:auto;">Subscriptions</a>
+		<a href="/rewards.html">Rewards</a>
+		<a href="https://sinisterdiesel.com/core-returns.html">Returns</a>
 		<a href="&mvte:urls:ACED:auto;">Settings</a>
 		<button type="button" data-v2-garage-toggle>Garage</button>
 	</nav>
@@ -47,8 +54,8 @@
 			</section>
 		</div>
 		<aside class="sd2-v2-account-side">
-			<section class="sd2-v2-account-card"><h2>Quick Actions</h2><div class="sd2-v2-account-actions"><a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:ORDH:auto;">View Orders</a><a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:ACAD:auto;">Manage Addresses</a><a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:ACRT:auto;">Start Return</a><a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:ACED:auto;">Account Settings</a><button class="sd2-btn sd2-btn--secondary" type="button" data-v2-garage-toggle>Manage Garage</button></div></section>
-			<section class="sd2-v2-account-card"><h2>Saved Vehicles</h2><div class="sd2-v2-account-vehicles" data-v2-account-garage-list><p>[Placeholder] Saved vehicles render from Garage storage or account data.</p></div></section>
+			<section class="sd2-v2-account-card"><h2>Quick Actions</h2><div class="sd2-v2-account-actions"><a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:ORDH:auto;">View Orders</a><a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:CABK:auto;">Manage Addresses</a><a class="sd2-btn sd2-btn--secondary" href="https://sinisterdiesel.com/core-returns.html">Start Return</a><a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:ACED:auto;">Account Settings</a><button class="sd2-btn sd2-btn--secondary" type="button" data-v2-garage-toggle>Manage Garage</button></div></section>
+			<section class="sd2-v2-account-card"><h2>Saved Vehicles</h2><div class="sd2-v2-account-vehicles" data-v2-account-garage-list><p>Add a vehicle to keep its engine and model available while you shop.</p></div></section>
 		</aside>
 	</section>
 </main>

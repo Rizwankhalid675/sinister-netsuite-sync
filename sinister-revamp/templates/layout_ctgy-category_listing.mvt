@@ -160,17 +160,21 @@
 		</a>
 		<div class="sd2-v2-product-card__body">
 			<p class="sd2-v2-product-card__platform">SKU &mvte:product:code;</p>
-			<h3 class="sd2-v2-product-card__title">
+			<h2 class="sd2-v2-product-card__title">
 				<a data-mm-linktype="product-list-link" href="&mvte:product:link;">&mvt:product:name;</a>
-			</h3>
+			</h2>
 			<div class="sd2-v2-product-card__foot">
 				<div class="sd2-v2-price">
 					<span class="sd2-v2-price__label">Price</span>
 					<div class="sd2-v2-price__row">
+						<mvt:if expr="l.settings:product:price GT 0">
 						<mvt:if expr="l.settings:product:base_price GT l.settings:product:price">
 							<span class="sd2-v2-price__was"><s>&mvt:product:formatted_base_price;</s></span>
 						</mvt:if>
 						<span class="sd2-v2-price__current">&mvt:product:formatted_price;</span>
+						<mvt:else>
+							<span class="sd2-v2-price__current sd2-v2-price__current--configure">Choose options</span>
+						</mvt:if>
 					</div>
 				</div>
 				<a class="sd2-v2-product-card__link" data-mm-linktype="product-list-link" href="&mvte:product:link;">View</a>
@@ -180,6 +184,7 @@
 			</mvt:if>
 			<mvt:if expr="l.settings:product:inv_level NE 'out'">
 				<div class="purchase-buttons">
+					<mvt:if expr="l.settings:product:price GT 0">
 					<form method="post" action="&mvte:urls:BASK:rr;">
 					<input type="hidden" name="Old_Screen" value="&mvte:global:Screen;" />
 					<input type="hidden" name="Old_Search" value="&mvte:global:Search;" />
@@ -201,6 +206,9 @@
 					</mvt:foreach>
 					<mvt:item name="buttons" param="AddToBasketE" />
 					</form>
+					<mvt:else>
+						<a class="sd2-btn sd2-btn--primary sd2-btn--full" data-mm-linktype="product-list-link" href="&mvte:product:link;">Choose Options</a>
+					</mvt:if>
 				</div>
 			</mvt:if>
 		</div>

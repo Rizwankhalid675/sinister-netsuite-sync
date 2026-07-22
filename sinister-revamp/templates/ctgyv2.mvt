@@ -2,6 +2,11 @@
 <html>
 <mvt:item name="html_profile" />
 <head>
+	<mvt:if expr="NOT ISNULL l.settings:category:page_title"><title>&mvte:category:page_title;</title><mvt:else><title>&mvte:category:name; | &mvte:store:name;</title></mvt:if>
+	<mvt:assign name="l.settings:category:stripped_descrip" value="miva_html_strip( l.settings:category:descrip, '' )" />
+	<mvt:if expr="ISNULL l.settings:category:stripped_descrip"><mvt:assign name="l.settings:category:stripped_descrip" value="'Shop ' $ l.settings:category:name $ ' diesel performance parts with fitment-focused product information from Sinister Diesel.'" /></mvt:if>
+	<meta name="description" content="&mvte:category:stripped_descrip;">
+	<mvt:assign name="g.sd2_seo_description" value="l.settings:category:stripped_descrip" />
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
 	<mvt:item name="head" param="head_tag" />
 	<mvt:comment>
@@ -35,26 +40,35 @@
 			</div>
 			<mvt:if expr="l.settings:category:descrip">
 				<div class="sd2-body">&mvt:category:descrip;</div>
-			<mvt:else>
-				<p class="sd2-body">[Placeholder] Category introduction renders from Miva category description when available.</p>
 			</mvt:if>
 		</header>
 	</div>
 
 	<div class="sd2-wrap">
-		<mvt:comment>TODO: register Vehicle Banner V2 in Miva Admin as readytheme contentsection('vehicle_banner') before using mvt:item composition.</mvt:comment>
+		<mvt:item name="readytheme" param="contentsection( 'vehicle_banner' )" />
 	</div>
 
 	<div class="sd2-wrap">
+		<mvt:if expr="l.settings:facets:facet_count GT 0">
+			<div class="sd2-v2-result-tools">
+				<div class="sd2-v2-chips" data-v2-filter-chips><span class="sd2-v2-chip">&mvte:category:name;</span></div>
+				<button class="sd2-v2-filter-trigger" type="button" data-v2-filter-open aria-controls="sd2-v2-category-filter-sheet" aria-expanded="false"><span>Filter Parts</span><strong>&mvte:facets:facet_count;</strong></button>
+			</div>
+		</mvt:if>
 		<mvt:if expr="l.settings:facets:facet_count GT 0">
 			<mvt:assign name="l.settings:sd2_ctgy_layout_class" value="'sd2-v2-search-page__layout sd2-v2-search-page__layout--has-filters'" />
 		<mvt:else>
 			<mvt:assign name="l.settings:sd2_ctgy_layout_class" value="'sd2-v2-search-page__layout sd2-v2-search-page__layout--no-filters'" />
 		</mvt:if>
 		<section class="&mvte:sd2_ctgy_layout_class;" aria-label="Category products">
-			<aside class="sd2-v2-filter-rail" aria-label="Filters">
-				<mvt:item name="facets" />
-			</aside>
+			<mvt:if expr="l.settings:facets:facet_count GT 0">
+				<div class="sd2-v2-filter-sheet-scrim" data-v2-filter-close hidden></div>
+				<aside class="sd2-v2-filter-rail sd2-v2-filter-sheet" id="sd2-v2-category-filter-sheet" data-v2-filter-sheet aria-hidden="true" aria-label="Category filters">
+					<div class="sd2-v2-filter-sheet__head"><div><span>Catalog Control</span><strong>Filter Parts</strong></div><button type="button" data-v2-filter-close aria-label="Close filters">&times;</button></div>
+					<div class="sd2-v2-filter-sheet__body"><mvt:item name="facets" /></div>
+					<div class="sd2-v2-filter-sheet__foot"><button class="sd2-btn sd2-btn--primary sd2-btn--full" type="button" data-v2-filter-close>View Products</button></div>
+				</aside>
+			</mvt:if>
 
 			<mvt:item name="category_listing" />
 		</section>

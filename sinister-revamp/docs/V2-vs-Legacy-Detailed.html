@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sinister Diesel — V2 Revamp vs. Legacy (Detailed)</title>
+<style>
+  :root{
+    --navy:#0f1b2d; --navy2:#16273f; --blue:#2e6df0; --blue-light:#4d8bff;
+    --ink:#1c2430; --muted:#5c6675; --line:#e3e8ef; --bg:#f6f8fb;
+    --good:#1f9d63; --warn:#c47a12; --bad:#c0392b; --chip:#eef3fb;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);
+    font-size:12.5px;line-height:1.55;background:#fff;}
+  .page{max-width:840px;margin:0 auto;padding:0 46px;}
+  h1,h2,h3{letter-spacing:-.3px;}
+
+  /* Cover */
+  .hero{background:linear-gradient(135deg,#0f1b2d 0%,#16273f 55%,#1b3358 100%);
+    color:#fff;padding:64px 46px 48px;border-bottom:5px solid var(--blue);}
+  .hero .eyebrow{letter-spacing:.24em;text-transform:uppercase;font-size:11px;
+    color:var(--blue-light);font-weight:700;margin-bottom:16px;}
+  .hero h1{font-size:38px;line-height:1.1;margin:0 0 14px;font-weight:800;}
+  .hero p{margin:0;color:#c3cede;font-size:14.5px;max-width:640px;}
+  .hero .meta{margin-top:30px;display:flex;gap:34px;font-size:12px;color:#9fb0c7;flex-wrap:wrap;}
+  .hero .meta b{color:#fff;display:block;font-size:14px;font-weight:700;}
+
+  /* TOC */
+  .toc{background:var(--bg);border:1px solid var(--line);border-radius:10px;
+    padding:18px 24px;margin:30px 0 8px;}
+  .toc h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
+  .toc ol{margin:0;padding-left:22px;columns:2;column-gap:34px;font-size:12px;}
+  .toc li{margin:4px 0;color:var(--navy);}
+
+  .statusbar{background:#fff8e6;border:1px solid #f3dfa6;border-left:4px solid var(--warn);
+    border-radius:8px;padding:13px 17px;margin:22px 0;font-size:12.5px;color:#6b5416;}
+  .statusbar b{color:#8a6408;}
+
+  h2{font-size:19px;margin:36px 0 10px;color:var(--navy);font-weight:800;
+    padding-bottom:8px;border-bottom:2px solid var(--line);}
+  h2 .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+    background:var(--blue);color:#fff;border-radius:6px;font-size:13px;margin-right:11px;vertical-align:2px;}
+  h3{font-size:14.5px;color:var(--navy2);margin:20px 0 6px;font-weight:700;}
+  p{margin:9px 0;}
+  .lead{font-size:13.5px;color:#33404f;}
+  code{background:var(--chip);color:#1d3a6b;padding:1px 6px;border-radius:4px;
+    font-family:"Cascadia Code",Consolas,monospace;font-size:11px;}
+
+  ul.clean{list-style:none;padding:0;margin:10px 0;}
+  ul.clean li{position:relative;padding:6px 0 6px 26px;border-bottom:1px solid #f0f3f7;}
+  ul.clean li:last-child{border-bottom:none;}
+  ul.clean li::before{content:"";position:absolute;left:4px;top:12px;width:8px;height:8px;
+    background:var(--blue);border-radius:50%;}
+  ul.clean li b{color:var(--navy);}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:11.5px;}
+  thead th{background:var(--navy);color:#fff;text-align:left;padding:10px 12px;font-weight:700;font-size:11px;}
+  thead th:first-child{border-top-left-radius:8px;}
+  thead th:last-child{border-top-right-radius:8px;}
+  tbody td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tbody tr:nth-child(even){background:var(--bg);}
+  td.legacy{color:var(--muted);}
+  td.v2{color:var(--ink);font-weight:600;}
+  td.area,td.k{font-weight:700;color:var(--navy);white-space:nowrap;}
+
+  ol.why{counter-reset:w;list-style:none;padding:0;margin:12px 0;}
+  ol.why li{position:relative;padding:13px 15px 13px 54px;margin:9px 0;
+    background:var(--bg);border:1px solid var(--line);border-radius:9px;}
+  ol.why li::before{counter-increment:w;content:counter(w);position:absolute;left:13px;top:13px;
+    width:28px;height:28px;background:linear-gradient(135deg,var(--blue),var(--blue-light));
+    color:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
+  ol.why li b{color:var(--navy);}
+
+  .callout{border-radius:8px;padding:8px 16px;margin:12px 0;border:1px solid var(--line);}
+  .callout.good{background:#f0faf4;border-left:4px solid var(--good);}
+  .callout.warn{background:#fbfcfe;border-left:4px solid var(--warn);}
+  .callout.bad{background:#fdf3f2;border-left:4px solid var(--bad);}
+  .callout .tag{font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.08em;}
+  .callout.good .tag{color:var(--good);} .callout.warn .tag{color:var(--warn);} .callout.bad .tag{color:var(--bad);}
+
+  .grid2{display:flex;gap:16px;margin:14px 0;}
+  .card{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+  .card h4{margin:0 0 8px;font-size:13px;}
+  .card.legacyc h4{color:var(--muted);} .card.v2c h4{color:var(--blue);}
+  .card ul{margin:0;padding-left:18px;font-size:11.5px;}
+  .card ul li{margin:5px 0;}
+
+  .flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0;font-size:11px;}
+  .flow .step{background:var(--navy);color:#fff;padding:6px 12px;border-radius:6px;font-weight:600;}
+  .flow .step.alt{background:var(--blue);}
+  .flow .arr{color:var(--muted);font-weight:800;}
+
+  .foot{margin:44px 0 30px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:10.5px;}
+  .brk{page-break-before:always;}
+  @page{margin:14mm 0;}
+  @media print{h2,h3{break-after:avoid;} table,ol.why,ul.clean,.grid2,.callout{break-inside:avoid;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="eyebrow">Sinister Diesel · Storefront Modernization · Technical Brief</div>
+  <h1>V2 Revamp vs. Legacy Website</h1>
+  <p>A detailed walkthrough of the Sinister Diesel V2 frontend rebuild — its architecture, how it works, exactly how it differs from the current Legacy storefront, why it is a stronger foundation, and what still remains before activation.</p>
+  <div class="meta">
+    <div><b>V2 Revamp</b>From-scratch frontend</div>
+    <div><b>Legacy</b>Currently live</div>
+    <div><b>Engine</b>Miva Merchant (unchanged)</div>
+    <div><b>Governance</b>V2_CONSTITUTION.md</div>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li>Executive summary</li>
+      <li>What "V2" actually is</li>
+      <li>How the platform works (Miva + frontend)</li>
+      <li>Architecture: Legacy vs. V2</li>
+      <li>The V2 design system in depth</li>
+      <li>Component library &amp; reusability</li>
+      <li>JavaScript &amp; interaction layer</li>
+      <li>Real data vs. hardcoded values</li>
+      <li>Defects found &amp; fixed</li>
+      <li>Third-party / dependency risk</li>
+      <li>Feature-by-feature comparison</li>
+      <li>Why V2 is better — reasoned</li>
+      <li>Migration approach &amp; safety</li>
+      <li>Outstanding work &amp; known risks</li>
+    </ol>
+  </div>
+
+  <div class="statusbar">
+    <b>Status:</b> V2 is a governed, milestone-based rebuild. Every V2 template and partial is created
+    <b>inactive</b> — building or editing one does not put it live. All Legacy templates remain live and untouched.
+    Authoritative specs: <code>V2_CONSTITUTION.md</code> and <code>V2_STRUCTURE.md</code>.
+  </div>
+
+  <h2><span class="num">1</span>Executive summary</h2>
+  <p class="lead">The Legacy storefront was built page-by-page. Each template carried its own copy-pasted
+  markup and inline styling, and several values (support phone, "latest blog" cards) were hardcoded into the
+  markup at build time. It works, but it is inconsistent, hard to change, and easy to break.</p>
+  <p>V2 rebuilds the same store on a <b>single shared design system</b> (<code>css/sd2-global.css</code>),
+  a library of <b>reusable canonical components</b>, and <b>real store data</b> pulled from Miva tokens
+  instead of duplicated code and baked-in values. The commerce engine — Miva Merchant — is <b>unchanged</b>;
+  only the visible frontend is redesigned. The result is a storefront that is more consistent, far easier to
+  maintain, more trustworthy in the content it shows, lower-risk on third-party dependencies, and enriched
+  with a premium motion/interaction layer the Legacy site does not have.</p>
+
+  <h2><span class="num">2</span>What "V2" actually is</h2>
+  <p>Sinister Diesel's storefront runs on <b>Miva Merchant</b>. Miva stays the commerce engine — products,
+  categories, basket, checkout, accounts, orders, URLs, SEO, search, MVT templating, forms, APIs, analytics,
+  and integrations all keep working. <b>Only the visible frontend is being redesigned.</b></p>
+  <ul class="clean">
+    <li><b>V2</b> = the new frontend. <b>Legacy</b> = the existing live frontend.</li>
+    <li>Legacy is <b>never deleted and never modified</b> by V2 work.</li>
+    <li>V2 templates/partials are created <b>inactive</b> — a file goes live only when a human manually assigns it to a copied test page in Miva Admin and reviews it.</li>
+    <li>Creative direction is a premium performance garage / motorsport engineering / American manufacturing / automotive-tech brand — deliberately <b>not</b> a generic Shopify/WooCommerce/Bootstrap/ReadyTheme catalog.</li>
+  </ul>
+  <div class="callout good"><span class="tag">Naming convention</span><br>
+    Legacy: plain names (<code>sfnt.mvt</code>, <code>srch.mvt</code>, <code>bask.mvt</code>). ·
+    V2 staging: <code>-v2</code> suffix (<code>sfnt-v2.mvt</code>, <code>ctgy-v2.mvt</code>). ·
+    V2 components: <code>sd2-v2-*</code> prefix. · CSS classes <code>.sd2-v2-*</code>, tokens <code>--sd2-*</code>, JS hooks <code>data-v2-*</code>.
+  </div>
+
+  <h2><span class="num">3</span>How the platform works</h2>
+  <p>Both Legacy and V2 render through the same Miva pipeline — the difference is entirely in the template/CSS/JS layer:</p>
+  <div class="flow">
+    <span class="step">Miva engine (products, cart, checkout, accounts, search)</span>
+    <span class="arr">→</span>
+    <span class="step">MVT templates + tokens</span>
+    <span class="arr">→</span>
+    <span class="step alt">CSS + progressive-enhancement JS</span>
+    <span class="arr">→</span>
+    <span class="step alt">Rendered storefront</span>
+  </div>
+  <p>V2 changes only the last two stages. Data still comes from Miva integration points:</p>
+  <table>
+    <thead><tr><th>Data</th><th>Miva source</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Basket / cart totals</td><td><code>&amp;mvt:basket:*</code> and BASK actions</td></tr>
+      <tr><td class="k">Checkout / shipping / payment</td><td>OCST / OSEL / OPAY actions and gateway fields</td></tr>
+      <tr><td class="k">Order history / detail</td><td>ORDH / ORDL / ORDS order arrays and links</td></tr>
+      <tr><td class="k">Customer account data</td><td>ACLN / ACAD / ACED customer fields</td></tr>
+      <tr><td class="k">Product data</td><td>PROD product fields, custom fields, related products</td></tr>
+      <tr><td class="k">Search / Category data</td><td>SRCH result arrays · CTGY product/category arrays &amp; facets</td></tr>
+      <tr><td class="k">Garage fitment</td><td>future backend fitment data mapped to <code>sd2v2_garage</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="brk"><span class="num">4</span>Architecture: Legacy vs. V2</h2>
+  <div class="grid2">
+    <div class="card legacyc">
+      <h4>Legacy pattern</h4>
+      <ul>
+        <li>Built page-by-page over time</li>
+        <li>Per-template inline / duplicated CSS</li>
+        <li>Copy-pasted markup blocks per page</li>
+        <li>Some values hardcoded at build time</li>
+        <li>Styling drifts between pages</li>
+        <li>One change = edit many files</li>
+        <li>No shared motion/interaction system</li>
+      </ul>
+    </div>
+    <div class="card v2c">
+      <h4>V2 pattern</h4>
+      <ul>
+        <li>One global design system (<code>sd2-global.css</code>)</li>
+        <li>All styling from <code>--sd2-*</code> tokens</li>
+        <li>Reusable canonical partials</li>
+        <li>Real store/blog data with fallbacks</li>
+        <li>Consistent by construction</li>
+        <li>One change propagates everywhere</li>
+        <li>Shared progressive-enhancement JS + motion</li>
+      </ul>
+    </div>
+  </div>
+  <p>The repository is exported/synced Miva theme content (no build system or package manager). Key locations:
+  <code>templates/</code> (~1280 .mvt), <code>partials/</code> (V2 components), <code>css/sd2-global.css</code>
+  (the single design system), <code>js/sd2-v2-components.js</code> (shared JS), and the governing
+  <code>V2_CONSTITUTION.md</code> / <code>V2_STRUCTURE.md</code>.</p>
+
+  <h2><span class="num">5</span>The V2 design system in depth</h2>
+  <p>There is <b>one</b> design system, in a single file: <code>css/sd2-global.css</code>.</p>
+  <ul class="clean">
+    <li><b>Token-driven.</b> All colors, spacing, radius, shadow, typography, and motion are defined as <code>--sd2-*</code> tokens. No duplicated tokens or component CSS may exist in templates, partials, or inline.</li>
+    <li><b>Layered structure.</b> Organized tokens → layout → components → commerce → listing → search → PDP.</li>
+    <li><b>Token discipline.</b> CSS references <code>--sd2-*</code> tokens rather than hardcoded values, so a single edit restyles the whole site.</li>
+  </ul>
+  <p>This is the core structural difference from Legacy: change a spacing or color token once, and every V2
+  component updates — versus hunting through duplicated inline CSS across many Legacy templates.</p>
+
+  <h2><span class="num">6</span>Component library &amp; reusability</h2>
+  <p>V2 ships a library of canonical components that pages <b>assemble</b> rather than re-declare. Each has one
+  canonical location and one CSS namespace, and must not be duplicated inline:</p>
+  <table>
+    <thead><tr><th>Component</th><th>Canonical location</th><th>CSS namespace</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Product Card</td><td><code>sd2-v2-product-card.mvt</code></td><td><code>.sd2-v2-pcard*</code></td></tr>
+      <tr><td class="k">Listing filters</td><td>(in design system)</td><td><code>.sd2-v2-filter-rail / -sheet / -chips / -pgrid</code></td></tr>
+      <tr><td class="k">Price block</td><td><code>sd2-v2-price-block.mvt</code></td><td><code>.sd2-v2-price</code></td></tr>
+      <tr><td class="k">Quantity stepper</td><td><code>sd2-v2-quantity-stepper.mvt</code></td><td><code>.sd2-v2-qty</code></td></tr>
+      <tr><td class="k">Badges</td><td><code>sd2-v2-product-badges.mvt</code></td><td><code>.sd2-v2-badge</code></td></tr>
+      <tr><td class="k">Stock indicator</td><td><code>sd2-v2-stock-indicator.mvt</code></td><td><code>.sd2-v2-stock</code></td></tr>
+      <tr><td class="k">Media / gallery</td><td><code>sd2-v2-product-media.mvt</code></td><td><code>.sd2-v2-media</code></td></tr>
+      <tr><td class="k">Accordion</td><td><code>sd2-v2-accordion.mvt</code></td><td><code>.sd2-v2-accordion</code></td></tr>
+      <tr><td class="k">Sticky buy bar</td><td><code>sd2-v2-sticky-buy-bar.mvt</code></td><td><code>.sd2-v2-sticky-buy</code></td></tr>
+      <tr><td class="k">Garage selector</td><td><code>sd2-v2-garage-selector.mvt</code></td><td>(delegated triggers)</td></tr>
+    </tbody>
+  </table>
+  <p>Additional families exist across header/navigation, mega menu, footer, cart drawer, search
+  (results header, suggestions, empty state), category/listing engine, and account/basket. High-level
+  inventory: ~24 commerce-foundation primitives, ~15 PDP sections, ~20 cart/checkout sections, ~18
+  dashboard sections (full list in <code>V2_STRUCTURE.md</code>). The Product Listing V2 <b>reuses</b> the
+  canonical Product Card rather than embedding a duplicate.</p>
+
+  <h2 class="brk"><span class="num">7</span>JavaScript &amp; interaction layer</h2>
+  <p>Shared progressive-enhancement JS lives in <code>js/sd2-v2-components.js</code> with <b>no external
+  dependencies</b>. Its rules make the frontend resilient and consistent:</p>
+  <ul class="clean">
+    <li>Modules initialize <b>only when their root hook</b> (<code>data-v2-*</code>) exists — they fail closed when a component is absent.</li>
+    <li>All <code>localStorage</code> access is wrapped in <code>try/catch</code> to tolerate unavailable storage. Fixed keys never renamed: <code>sd2v2_garage</code>, <code>sd2v2_recent_searches</code>, <code>sd2_v2_recent_searches</code>.</li>
+    <li>Component partials contain <b>no inline scripts or styles</b>.</li>
+    <li>Garage toggles are delegated so account/cart/PDP controls all open the same canonical Garage component.</li>
+    <li>Gallery switching, counters, thumbnail keyboard nav, and zoom are centralized in one gallery module.</li>
+    <li><b>Reduced-motion branches are required</b> everywhere motion is added: count-up, hover/motion, skeleton shimmer, filters, media, sticky buy, PDP tabs, cart progress, and drawer/sheet transitions.</li>
+  </ul>
+  <p>On top of this, V2 adds a premium 3D / motion interaction layer (tilt/parallax, considered
+  transitions) that gives a more modern feel than Legacy's static pages.</p>
+
+  <h2><span class="num">8</span>Real data vs. hardcoded values</h2>
+  <p>A concrete Legacy weakness was baked-in content. V2 replaced these with live tokens:</p>
+  <ul class="clean">
+    <li><b>Support phone number</b> — was hardcoded into footer markup; now reads the dynamic store-config token, matching the header's source.</li>
+    <li><b>"Latest From The Blog" cards</b> — were rendering placeholder/dummy content (a generic "NEWS" token); now source real blog-post fields with a graceful fallback if unreachable.</li>
+    <li><b>Link targets</b> — every nav / footer / help-center link verified against real template files and real Miva <code>&amp;mvte:urls:…auto;</code> tokens; no guessed or broken URLs.</li>
+  </ul>
+
+  <h2><span class="num">9</span>Defects found &amp; fixed</h2>
+  <p>During the footer and navigation audit this session, four defects were confirmed and addressed:</p>
+  <table>
+    <thead><tr><th>#</th><th>Issue</th><th>Where</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td class="k">1</td><td>Hardcoded support phone baked into footer markup instead of a store-config token</td><td><code>cssui-global-footer-v2.mvt</code></td><td>Replaced with dynamic token matching header</td></tr>
+      <tr><td class="k">2</td><td>"Latest From The Blog" cards rendered placeholder/dummy content, not real posts</td><td><code>cssui-global-footer-v2.mvt</code></td><td>Wired to real blog data with fallback</td></tr>
+      <tr><td class="k">3</td><td>Stale/incorrect environment comment left from an earlier pass</td><td><code>cssui-global-footer-v2.mvt</code></td><td>Removed</td></tr>
+      <tr><td class="k">4</td><td>SearchSpring still wired into every page <code>&lt;head&gt;</code> despite being cancelled</td><td><code>cssui-global-head.mvt</code></td><td>Confirmed inactive — flagged only, no removal without sign-off</td></tr>
+    </tbody>
+  </table>
+  <p>Across the Help Center (hub + 6 sub-pages) and mega-menu audits: <b>0 broken links, 0 missing templates,
+  0 dead nav targets</b>.</p>
+
+  <h2><span class="num">10</span>Third-party / dependency risk</h2>
+  <div class="callout good"><span class="tag">SearchSpring — confirmed INACTIVE</span><br>
+    The SearchSpring third-party search/merchandising integration was still referenced in the global
+    <code>&lt;head&gt;</code> but is fully inert. Confirming this de-risks the pending subscription
+    cancellation — but per governance it was flagged, not removed, without sign-off.</div>
+  <div class="callout bad"><span class="tag">Pre-existing risk — spons.mvt</span><br>
+    <code>templates/spons.mvt</code> contains a hardcoded monday.com API token in client-side JS. This is a
+    <b>pre-existing</b> live-credential exposure (not introduced by V2) and was left untouched per the
+    "restyle only, don't touch API/token logic" rule. It needs manual rotation in monday.com settings.</div>
+
+  <h2 class="brk"><span class="num">11</span>Feature-by-feature comparison</h2>
+  <table>
+    <thead><tr><th>Area</th><th>Legacy site</th><th>V2 revamp</th></tr></thead>
+    <tbody>
+      <tr><td class="area">Styling source</td><td class="legacy">Per-template inline / duplicated CSS</td><td class="v2">One shared token system (<code>css/sd2-global.css</code>)</td></tr>
+      <tr><td class="area">Components</td><td class="legacy">Copy-pasted markup per page</td><td class="v2">Reusable canonical partials</td></tr>
+      <tr><td class="area">Data</td><td class="legacy">Some hardcoded values (phone, blog cards)</td><td class="v2">Real store/blog tokens with fallback</td></tr>
+      <tr><td class="area">Consistency</td><td class="legacy">Drifts page to page</td><td class="v2">Consistent by construction</td></tr>
+      <tr><td class="area">Maintainability</td><td class="legacy">Change many files to update one thing</td><td class="v2">Change one token/partial, updates everywhere</td></tr>
+      <tr><td class="area">JavaScript</td><td class="legacy">Ad-hoc / mixed</td><td class="v2">Shared, dependency-free, fail-closed modules</td></tr>
+      <tr><td class="area">Accessibility / motion</td><td class="legacy">Not systematized</td><td class="v2">Reduced-motion branch required everywhere</td></tr>
+      <tr><td class="area">Link integrity</td><td class="legacy">Mixed / unaudited</td><td class="v2">Audited against real templates &amp; tokens</td></tr>
+      <tr><td class="area">Third-party risk</td><td class="legacy">SearchSpring wired into every page</td><td class="v2">Confirmed inert, de-risking cancellation</td></tr>
+      <tr><td class="area">Motion / feel</td><td class="legacy">Static</td><td class="v2">3D / premium interaction layer</td></tr>
+      <tr><td class="area">Brand direction</td><td class="legacy">Generic catalog feel</td><td class="v2">Engineered performance-garage identity</td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="num">12</span>Why V2 is better — reasoned</h2>
+  <ol class="why">
+    <li><b>Consistent by construction</b> — shared tokens mean the whole site looks and behaves the same way. Inconsistency can't creep in per page because there is no per-page styling to drift.</li>
+    <li><b>Dramatically easier to maintain</b> — one change to a token or partial propagates everywhere, instead of editing many duplicated Legacy templates and risking missed spots.</li>
+    <li><b>More trustworthy content</b> — real store/blog data replaces hardcoded and dummy values, so the site stays accurate as the business changes, with graceful fallbacks when a source is unreachable.</li>
+    <li><b>Lower risk</b> — link targets verified against real templates/tokens, and the cancelled SearchSpring dependency confirmed inert before any removal.</li>
+    <li><b>More resilient frontend</b> — dependency-free JS that fails closed, guards <code>localStorage</code>, and centralizes gallery/garage logic reduces breakage surface.</li>
+    <li><b>More accessible &amp; modern</b> — required reduced-motion branches plus a premium 3D/motion layer deliver a more inclusive and more premium experience than static Legacy pages.</li>
+  </ol>
+
+  <h2><span class="num">13</span>Migration approach &amp; safety</h2>
+  <p>V2 follows a strict, milestone-based process (M0–M9): Creative exploration → Foundation → Global
+  Components → Homepage → Category/Listing → Search → PDP → Cart/Checkout → Dashboard → Final Polish.
+  Work proceeds one milestone at a time — no skipping, no rebuilding completed milestones.</p>
+  <div class="callout warn"><span class="tag">Hard activation rules</span>
+    <ul class="clean" style="margin-top:4px;">
+      <li>V2 is built <b>inactive</b>; creating/editing a file never puts it live.</li>
+      <li><b>Never overwrite or activate</b> <code>sfnt.mvt</code>, <code>srch.mvt</code>, <code>prod-product_display.mvt</code>, or live header/footer/checkout/basket/account templates with V2 files.</li>
+      <li>Legacy templates are never deleted. One design system only. No inline scripts/styles in partials.</li>
+    </ul>
+  </div>
+  <p>Two batches of <b>live</b> templates were restyled in place to the V2 shell (account/order templates and
+  static content / help pages) — an intentional exception documented in <code>V2_STRUCTURE.md</code>.</p>
+
+  <h2><span class="num">14</span>Outstanding work &amp; known risks</h2>
+  <p>V2 is a real improvement in <b>foundation</b>, but it is not finished:</p>
+  <div class="callout warn"><span class="tag">Still outstanding</span>
+    <ul class="clean" style="margin-top:4px;">
+      <li>V2 templates are <b>not activated</b> yet — Milestones M3–M9 (Homepage, Category/Listing, Search, PDP, Cart/Checkout, Dashboard, Final Polish) not started.</li>
+      <li>Many partials contain <code>[Placeholder]</code> content not yet wired to live Miva arrays: homepage media, search suggestions/guides/no-results, financing/warranty/delivery/rating/gallery, PDP gallery/video/specs/reviews/related/bundles, cart recommendations/shipping/coupon/tax/review, dashboard order rows/tracking/invoices/timeline/addresses/returns/settings, and CTGY product-array wiring.</li>
+      <li>Blog footer card <b>images</b> are still placeholder graphics (content/photo gap, not a code bug).</li>
+      <li><code>prod-product_display-v2-test.mvt</code> has real Miva wiring only for name/price/image/description/add-to-cart; breadcrumbs, extra media, video, spec fields, reviews, related products, and bundles remain placeholders.</li>
+      <li>No human browser/visual QA yet — fixes are template/code-level verified only. Manual review of the staging URL is required before sign-off.</li>
+    </ul>
+  </div>
+
+  <div class="foot">
+    Sources: <code>V2_REVAMP_REPORT.md</code> and <code>DOCUMENTATION.md</code> (which summarize
+    <code>V2_CONSTITUTION.md</code> and <code>V2_STRUCTURE.md</code> — the authoritative specs).
+    This brief consolidates those; where any detail conflicts, the governing spec files win.
+    &nbsp;·&nbsp; Sinister Diesel V2 Revamp · Engine: Miva Merchant (unchanged)
+  </div>
+
+</div>
+</body>
+</html>

@@ -43,7 +43,7 @@
 				</mvt:if>
 			</a>
 
-			<button class="sd2-v2-hdr__garage" type="button" data-v2-garage-toggle aria-haspopup="true" aria-expanded="false">
+			<button class="sd2-v2-hdr__garage" type="button" data-v2-garage-toggle aria-label="Open vehicle garage" aria-haspopup="true" aria-expanded="false">
 				<svg class="sd2-icon sd2-v2-hdr__garage-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l1.5-5A2 2 0 0 1 6.4 5.5h11.2A2 2 0 0 1 19.5 7L21 12"/><path d="M3 12h18v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5Z"/><circle cx="7" cy="16" r="1"/><circle cx="17" cy="16" r="1"/></svg>
 				<span class="sd2-v2-hdr__garage-text">
 					<span class="sd2-v2-hdr__garage-label">My Truck</span>
@@ -437,7 +437,7 @@
 
 
 	<div class="sd2-v2-scrim" data-v2-drawer-close></div>
-	<aside class="sd2-v2-drawer" data-v2-drawer aria-hidden="true">
+	<aside class="sd2-v2-drawer" id="sd2-v2-mobile-drawer" data-v2-drawer aria-hidden="true" role="dialog" aria-modal="true" aria-label="Mobile navigation">
 		<div class="sd2-v2-drawer__head">
 			<strong>Menu</strong>
 			<button class="sd2-v2-drawer__close" type="button" data-v2-drawer-close aria-label="Close menu">
@@ -448,38 +448,38 @@
 			<button class="sd2-btn sd2-btn--outline sd2-btn--full sd2-v2-drawer__garage-btn" type="button" data-v2-garage-toggle>My Truck</button>
 			<nav aria-label="Mobile">
 				<div class="sd2-v2-drawer__group">
-					<button class="sd2-v2-drawer__parent" type="button" data-v2-acc aria-expanded="false">Powerstroke
+					<button class="sd2-v2-drawer__parent" type="button" data-v2-acc aria-expanded="false" aria-controls="sd2-v2-mobile-powerstroke">Powerstroke
 						<svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-					<div class="sd2-v2-drawer__sub">
+					<div class="sd2-v2-drawer__sub" id="sd2-v2-mobile-powerstroke">
 						<a href="&mvte:sd2_mega_powerstroke:url;">Shop All Powerstroke</a>
 						<a href="/air-intakes-parts-for-powerstroke.html">Air Intakes &amp; Parts</a>
 						<a href="/turbos-for-powerstrokes.html">Turbos</a>
 					</div>
 				</div>
 				<div class="sd2-v2-drawer__group">
-					<button class="sd2-v2-drawer__parent" type="button" data-v2-acc aria-expanded="false">Duramax
+					<button class="sd2-v2-drawer__parent" type="button" data-v2-acc aria-expanded="false" aria-controls="sd2-v2-mobile-duramax">Duramax
 						<svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-					<div class="sd2-v2-drawer__sub">
+					<div class="sd2-v2-drawer__sub" id="sd2-v2-mobile-duramax">
 						<a href="&mvte:sd2_mega_duramax:url;">Shop All Duramax</a>
 						<a href="/air-intakes-parts-for-duramax.html">Air Intakes &amp; Parts</a>
 						<a href="/injectorsfor-duramax.html">Injectors</a>
 					</div>
 				</div>
 				<div class="sd2-v2-drawer__group">
-					<button class="sd2-v2-drawer__parent" type="button" data-v2-acc aria-expanded="false">Cummins
+					<button class="sd2-v2-drawer__parent" type="button" data-v2-acc aria-expanded="false" aria-controls="sd2-v2-mobile-cummins">Cummins
 						<svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-					<div class="sd2-v2-drawer__sub">
+					<div class="sd2-v2-drawer__sub" id="sd2-v2-mobile-cummins">
 						<a href="&mvte:sd2_mega_cummins:url;">Shop All Cummins</a>
 						<a href="/air-intakes-parts-for-cummins.html">Air Intakes &amp; Parts</a>
 						<a href="/cummins-turbos.html">Turbos</a>
 					</div>
 				</div>
 				<div class="sd2-v2-drawer__group">
-					<button class="sd2-v2-drawer__parent" type="button" data-v2-acc aria-expanded="false">Apparel
+					<button class="sd2-v2-drawer__parent" type="button" data-v2-acc aria-expanded="false" aria-controls="sd2-v2-mobile-apparel">Apparel
 						<svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-					<div class="sd2-v2-drawer__sub">
+					<div class="sd2-v2-drawer__sub" id="sd2-v2-mobile-apparel">
 						<a href="&mvte:sd2_mega_apparel:url;">Shop All Apparel</a>
-						<a href="/mens_shirts.html">Shirts</a>
+						<a href="/mens-shirts.html">Shirts</a>
 						<a href="/hoodies.html">Hoodies</a>
 					</div>
 				</div>
@@ -510,7 +510,7 @@
 							</fieldset>
 						</form>
 					</div>
-					<button class="sd2-v2-search-console__close" type="button" data-v2-search-close aria-label="Close search">
+					<button class="sd2-v2-search-console__close" type="button" data-v2-search-close data-hook="close-search" aria-label="Close search">
 						<svg class="sd2-icon sd2-icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
 					</button>
 				</div>

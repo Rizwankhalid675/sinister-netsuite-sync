@@ -21,7 +21,7 @@
 	<main class="sd2-v6-upsell">
 		<header class="sd2-v6-upsell__hero">
 			<div><p class="sd2-kicker">Build upgrade / optional</p><h1>One more part.<br><em>Better system.</em></h1></div>
-			<div class="sd2-v6-upsell__saving"><span>Order-only saving</span><strong>&mvt:upsale:formatted_upsell_savings;</strong><small>Available right now</small></div>
+			<div class="sd2-v6-upsell__saving" aria-live="polite"><span>Order-only saving</span><strong>&mvt:upsale:formatted_upsell_savings;</strong><small>Available right now</small></div>
 		</header>
 		<mvt:do name="l.success" file="g.Module_Library_DB" value="ProductImage_Load_Type(l.settings:upsale:id, 1, l.settings:imagetype)" />
 		<mvt:do name="l.success" file="g.Module_Library_DB" value="Image_Load_ID(l.settings:imagetype:image_id, l.settings:imagedata)" />

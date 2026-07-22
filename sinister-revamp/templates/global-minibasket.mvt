@@ -13,7 +13,7 @@
 				<mvt:foreach iterator="item" array="global_minibasket:groups">
 					<mvt:do file="g.Module_Library_DB" name="l.success" value="Product_Load_Code(l.settings:item:code, l.settings:item_p )" />
 					<mvt:do file="g.Module_Feature_URI_UT" name="l.settings:item:uri" value="Store_Product_URL(l.settings:item_p, NULL)" />
-					<li class="x-mini-basket__line">
+					<li class="x-mini-basket__line" data-basket-group="&mvte:item:group_id;" data-basket-line="&mvte:item:line_id;">
 						<figure class="x-mini-basket__image">
 							<img alt="&mvte:item:name;" decoding="async" height="&mvte:global_minibasket:b_height;" loading="lazy" src="&mvte:item:imagetypes:main;" style="max-width: 100%;" width="&mvte:global_minibasket:b_width;">
 						</figure>

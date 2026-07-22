@@ -14,7 +14,7 @@
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 </head>
-<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass;">
+<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass; sd2-v2-policy-page sd2-v2-mobile-terms">
 	<mvt:item name="hdft" param="global_header" />
 
 	<section class="o-layout">

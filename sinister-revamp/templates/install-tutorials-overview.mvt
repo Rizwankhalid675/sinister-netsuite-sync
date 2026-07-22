@@ -5,7 +5,7 @@
 	<title>Diesel Installation Tutorials | Sinister Diesel</title>
 	<meta name="description" content="Browse Sinister Diesel installation tutorials by truck platform and system. Find Powerstroke, Duramax and Cummins video guides, fitment notes and product overviews.">
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if><mvt:item name="head" param="head_tag" />
-	<link rel="stylesheet" href="/mm5/css/00000001/b37/sd2-global.css?T=20260715v45">
+	<link rel="stylesheet" href="/mm5/css/00000001/b37/sd2-global.css?T=20260722v46">
 </head>
 <body class="single-column sd2-install-library-page">
 <mvt:comment>
@@ -61,7 +61,7 @@
 			<span class="sd2-v2-hdr-trust__plate">MADE &amp; TESTED IN THE USA &middot; SINCE 2009</span>
 			<span class="sd2-v2-hdr-trust__links">
 				<a href="/help-center.html">Help Center</a>
-				<a href="&mvte:urls:ORDH:auto;">Track Order</a>
+				<a href="/order-history-list.html">Track Order</a>
 			</span>
 		</div>
 	</div>
@@ -75,7 +75,7 @@
 				<svg class="sd2-icon sd2-icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
 			</button>
 
-			<a class="sd2-v2-hdr__logo" href="&mvte:urls:SFNT:auto;" title="&mvt:global:store:name;" rel="nofollow">
+			<a class="sd2-v2-hdr__logo" href="/" title="&mvt:global:store:name;" rel="nofollow">
 				<mvt:if expr="l.settings:readytheme:logo_type EQ 'text'">
 					<span class="sd2-v2-hdr__logo-text">&mvt:readytheme:logo_name;<small class="sd2-v2-hdr__logo-tag">&mvt:readytheme:logo_tagline;</small></span>
 				<mvt:elseif expr="l.settings:readytheme:logo_type EQ 'image' AND NOT ISNULL l.settings:readytheme:logo_image">
@@ -102,7 +102,7 @@
 
 
 			<div class="sd2-v2-hdr__util">
-				<a class="sd2-v2-hdr__util-item sd2-v2-hdr__account-link" href="&mvte:urls:ACLN:auto;" aria-label="Account">
+				<a class="sd2-v2-hdr__util-item sd2-v2-hdr__account-link" href="/customer-account.html" aria-label="Account">
 					<svg class="sd2-icon sd2-icon--lg" viewBox="0 0 24 24" aria-hidden="true">
 						<circle cx="12" cy="8" r="4"/>
 						<path d="M4 20a8 8 0 0 1 16 0"/>
@@ -639,14 +639,14 @@
 		<div class="sd2-v2-mega__side">
 			<div class="sd2-v2-mega__side-block">
 				<h3 class="sd2-v2-mega__col-title">Buying Guides</h3>
-				<a class="sd2-v2-mega__guide" href="&mvte:urls:NEWS:auto;">
+				<a class="sd2-v2-mega__guide" href="/help-center.html">
 					<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%201.png" alt="">
 					<span><span class="sd2-v2-mega__guide-title">6.7 Powerstroke Intercooler Guide</span><span class="sd2-v2-mega__guide-meta">8 min read</span></span>
 				</a>
 			</div>
 			<div class="sd2-v2-mega__side-block">
 				<h3 class="sd2-v2-mega__col-title">Popular Builds</h3>
-				<a class="sd2-v2-mega__build" href="&mvte:urls:NEWS:auto;"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2017 F-250 Build Spotlight</a>
+				<a class="sd2-v2-mega__build" href="/help-center.html"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2017 F-250 Build Spotlight</a>
 			</div>
 		</div>
 	</div>
@@ -699,7 +699,7 @@
 		<div class="sd2-v2-mega__side">
 			<div class="sd2-v2-mega__side-block">
 				<h3 class="sd2-v2-mega__col-title">Buying Guides</h3>
-				<a class="sd2-v2-mega__guide" href="&mvte:urls:NEWS:auto;">
+				<a class="sd2-v2-mega__guide" href="/help-center.html">
 					<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%203.png" alt="">
 					<span><span class="sd2-v2-mega__guide-title">Duramax EGR Delete: What to Know</span><span class="sd2-v2-mega__guide-meta">6 min read</span></span>
 				</a>
@@ -707,7 +707,7 @@
 			<div class="sd2-v2-mega__side-block">
 
 				<h3 class="sd2-v2-mega__col-title">Popular Builds</h3>
-				<a class="sd2-v2-mega__build" href="&mvte:urls:NEWS:auto;"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2015 Duramax Tow Rig</a>
+				<a class="sd2-v2-mega__build" href="/help-center.html"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2015 Duramax Tow Rig</a>
 			</div>
 		</div>
 	</div>
@@ -761,14 +761,14 @@
 		<div class="sd2-v2-mega__side">
 			<div class="sd2-v2-mega__side-block">
 				<h3 class="sd2-v2-mega__col-title">Buying Guides</h3>
-				<a class="sd2-v2-mega__guide" href="&mvte:urls:NEWS:auto;">
+				<a class="sd2-v2-mega__guide" href="/help-center.html">
 					<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%202.png" alt="">
 					<span><span class="sd2-v2-mega__guide-title">Cummins Turbo Upgrade Basics</span><span class="sd2-v2-mega__guide-meta">7 min read</span></span>
 				</a>
 			</div>
 			<div class="sd2-v2-mega__side-block">
 				<h3 class="sd2-v2-mega__col-title">Popular Builds</h3>
-				<a class="sd2-v2-mega__build" href="&mvte:urls:NEWS:auto;"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2019 Ram Cummins Pull Truck</a>
+				<a class="sd2-v2-mega__build" href="/help-center.html"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2019 Ram Cummins Pull Truck</a>
 			</div>
 		</div>
 	</div>
@@ -865,7 +865,7 @@
 						<svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
 					<div class="sd2-v2-drawer__sub">
 						<a href="&mvte:sd2_mega_apparel:url;">Shop All Apparel</a>
-						<a href="/mens_shirts.html">Shirts</a>
+						<a href="/mens-shirts.html">Shirts</a>
 						<a href="/hoodies.html">Hoodies</a>
 					</div>
 				</div>
@@ -879,11 +879,11 @@
 			<div class="sd2-v2-search-console__bar">
 				<div class="sd2-v2-search-console__bar-inner">
 					<div class="sd2-v2-search-console__form" itemscope itemtype="http://schema.org/WebSite">
-						<form method="get" action="&mvte:urls:SRCH:auto;" itemprop="potentialAction" itemscope itemtype="http://schema.org/SearchAction">
+						<form method="get" action="/search.html" itemprop="potentialAction" itemscope itemtype="http://schema.org/SearchAction">
 							<fieldset>
 								<legend>Product Search</legend>
 								<div class="sd2-v2-search-console__group">
-									<meta itemprop="target" content="&mvte:urls:SRCH:auto;?Search={Search}"/>
+									<meta itemprop="target" content="/search.html?Search={Search}"/>
 									<span class="sd2-v2-search-console__icon" aria-hidden="true">
 										<svg class="sd2-icon sd2-icon--lg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
 									</span>
@@ -978,7 +978,7 @@
 					</div>
 					<div class="sd2-v2-garage-form__actions">
 						<button class="sd2-btn sd2-btn--primary sd2-btn--full" type="submit">Save Vehicle</button>
-						<a class="sd2-v2-garage-shop" href="&mvte:urls:SRCH:auto;" data-v2-garage-shop hidden>
+						<a class="sd2-v2-garage-shop" href="/search.html" data-v2-garage-shop hidden>
 							<span>View Parts for My Truck</span>
 							<small data-v2-garage-shop-label></small>
 						</a>
@@ -1006,7 +1006,7 @@
 			<div class="sd2-v2-cart-vehicle is-empty" data-v2-cart-vehicle>
 				<svg class="sd2-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l1.5-5A2 2 0 0 1 6.4 5.5h11.2A2 2 0 0 1 19.5 7L21 12"/><path d="M3 12h18v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5Z"/></svg>
 				<span data-v2-cart-vehicle-text>Add your truck to confirm fitment</span>
-				<a href="&mvte:urls:SFNT:auto;" data-v2-garage-toggle>Add</a>
+				<a href="/" data-v2-garage-toggle>Add</a>
 			</div>
 
 
@@ -1035,7 +1035,7 @@
 						<span class="sd2-v2-cart-empty__mark" aria-hidden="true">0</span>
 						<p class="sd2-v2-cart-empty__title">Your Build Starts Here.</p>
 						<p class="sd2-v2-cart-empty__copy">Choose your truck, then add fitment-confirmed parts with confidence.</p>
-						<a class="sd2-btn sd2-btn--primary sd2-btn--full" href="&mvte:urls:SFNT:auto;">Explore Parts</a>
+						<a class="sd2-btn sd2-btn--primary sd2-btn--full" href="/">Explore Parts</a>
 					</div>
 				</mvt:if>
 			</div>
@@ -1045,7 +1045,7 @@
 					<span>Subtotal</span>
 					<span data-v2-cart-subtotal><mvt:if expr="l.settings:global_minibasket:basket_count GT 0">&mvt:global_minibasket:formatted_total;<mvt:else>&mdash;</mvt:if></span>
 				</div>
-				<a class="sd2-btn sd2-btn--primary sd2-btn--full" href="&mvte:urls:BASK:auto;">View Cart &amp; Checkout</a>
+				<a class="sd2-btn sd2-btn--primary sd2-btn--full" href="/basket-contents.html">View Cart &amp; Checkout</a>
 			</div>
 		</aside>
 	</div>
@@ -1054,25 +1054,25 @@
 	<main class="sd2-cp sd2-guide sd2-guide--overview">
 		<section class="sd2-cp__hero" aria-labelledby="sd2-guide-title">
 			<div class="sd2-cp__hero-media" aria-hidden="true"><img src="https://sinisterdiesel.com/mm5/graphics/00000001/7/_DSC3789_720x480.jpg" alt="" fetchpriority="high"></div>
-			<div class="sd2-cp__shell sd2-cp__hero-grid"><div><p class="sd2-cp__eyebrow">Install Lab / Complete library</p><h1 id="sd2-guide-title">See the work.<br>Build with confidence.</h1><p class="sd2-cp__lede">Start with your truck, choose the system being installed, and open a guide built to help you understand the job before the first bolt moves.</p><div class="sd2-cp__actions"><a class="sd2-cp__button sd2-cp__button--primary" href="#platforms">Choose a platform</a><a class="sd2-cp__button" href="install-part-overviews.html">Learn the systems</a></div></div><aside class="sd2-cp__hero-console"><span class="sd2-cp__console-kicker">Guide control</span><strong>Truck first.<br>Job second.</strong><div class="sd2-cp__console-data"><span>3 diesel platforms</span><span>Engine-specific paths</span><span>Shop-backed support</span></div></aside></div>
+			<div class="sd2-cp__shell sd2-cp__hero-grid"><div><p class="sd2-cp__eyebrow">Install Lab / Complete library</p><h1 id="sd2-guide-title">See the work.<br>Build with confidence.</h1><p class="sd2-cp__lede">Start with your truck, choose the system being installed, and open a guide built to help you understand the job before the first bolt moves.</p><div class="sd2-cp__actions"><a class="sd2-cp__button sd2-cp__button--primary" href="#platforms">Choose a platform</a><a class="sd2-cp__button" href="/install-part-overviews.html">Learn the systems</a></div></div><aside class="sd2-cp__hero-console"><span class="sd2-cp__console-kicker">Guide control</span><strong>Truck first.<br>Job second.</strong><div class="sd2-cp__console-data"><span>3 diesel platforms</span><span>Engine-specific paths</span><span>Shop-backed support</span></div></aside></div>
 		</section>
 		<div class="sd2-cp__signal"><div><span>01</span><strong>Save or identify your truck</strong></div><div><span>02</span><strong>Preview tools and access</strong></div><div><span>03</span><strong>Confirm product fitment</strong></div></div>
 		<section class="sd2-cp__section" id="platforms" aria-labelledby="sd2-platform-title"><div class="sd2-cp__shell"><div class="sd2-cp__section-head"><div><p class="sd2-cp__label">Choose your engine bay</p><h2 id="sd2-platform-title">Every guide starts with the platform.</h2></div><p>Open the library for your diesel family to find the engines, systems and walkthroughs relevant to the truck in your garage.</p></div><div class="sd2-cp__platform-grid">
-			<a class="sd2-cp__platform" href="install-tutorials-powerstroke.html"><img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%201.png" alt="Ford Powerstroke truck" loading="lazy"><span class="sd2-cp__platform-number">01 / Ford diesel</span><strong>Powerstroke</strong><span class="sd2-cp__platform-link">7.3L / 6.0L / 6.4L / 6.7L <b>&rarr;</b></span></a>
-			<a class="sd2-cp__platform" href="install-tutorials-duramax.html"><img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%203.png" alt="GM Duramax truck" loading="lazy"><span class="sd2-cp__platform-number">02 / GM diesel</span><strong>Duramax</strong><span class="sd2-cp__platform-link">LB7 through L5P <b>&rarr;</b></span></a>
-			<a class="sd2-cp__platform" href="install-tutorials-cummins.html"><img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%202.png" alt="Ram Cummins truck" loading="lazy"><span class="sd2-cp__platform-number">03 / Ram diesel</span><strong>Cummins</strong><span class="sd2-cp__platform-link">5.9L / 6.7L <b>&rarr;</b></span></a>
+			<a class="sd2-cp__platform" href="/install-tutorials-powerstroke.html"><img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%201.png" alt="Ford Powerstroke truck" loading="lazy"><span class="sd2-cp__platform-number">01 / Ford diesel</span><strong>Powerstroke</strong><span class="sd2-cp__platform-link">7.3L / 6.0L / 6.4L / 6.7L <b>&rarr;</b></span></a>
+			<a class="sd2-cp__platform" href="/install-tutorials-duramax.html"><img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%203.png" alt="GM Duramax truck" loading="lazy"><span class="sd2-cp__platform-number">02 / GM diesel</span><strong>Duramax</strong><span class="sd2-cp__platform-link">LB7 through L5P <b>&rarr;</b></span></a>
+			<a class="sd2-cp__platform" href="/install-tutorials-cummins.html"><img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%202.png" alt="Ram Cummins truck" loading="lazy"><span class="sd2-cp__platform-number">03 / Ram diesel</span><strong>Cummins</strong><span class="sd2-cp__platform-link">5.9L / 6.7L <b>&rarr;</b></span></a>
 		</div></div></section>
-		<section class="sd2-cp__section sd2-cp__section--dark" aria-labelledby="sd2-guide-system-title"><div class="sd2-cp__shell"><div class="sd2-cp__section-head"><div><p class="sd2-cp__label">Browse by system</p><h2 id="sd2-guide-system-title">Understand the part before installing it.</h2></div><p>Use the overview library when you need to compare system purpose, fitment considerations and the work involved before choosing a product.</p></div><div class="sd2-cp__feature-grid"><article><span>01 / Airflow</span><h3>Charge pipes</h3><p>Review boost-path layout, connection points and common installation considerations.</p></article><article><span>02 / Intake</span><h3>Cold air intakes</h3><p>Understand filter service, air-box placement and engine-bay routing.</p></article><article><span>03 / Filtration</span><h3>Filter systems</h3><p>See how fuel, coolant and oil filtration upgrades fit into a maintenance plan.</p></article><article><span>04 / Documents</span><h3>Instructions</h3><p>Open downloadable instructions for product-specific tools, steps and warnings.</p></article></div><div class="sd2-cp__actions"><a class="sd2-cp__button sd2-cp__button--primary" href="install-part-overviews.html">Open Part Overviews</a><a class="sd2-cp__button" href="install-instructions.html">Download Instructions</a></div></div></section>
+		<section class="sd2-cp__section sd2-cp__section--dark" aria-labelledby="sd2-guide-system-title"><div class="sd2-cp__shell"><div class="sd2-cp__section-head"><div><p class="sd2-cp__label">Browse by system</p><h2 id="sd2-guide-system-title">Understand the part before installing it.</h2></div><p>Use the overview library when you need to compare system purpose, fitment considerations and the work involved before choosing a product.</p></div><div class="sd2-cp__feature-grid"><article><span>01 / Airflow</span><h3>Charge pipes</h3><p>Review boost-path layout, connection points and common installation considerations.</p></article><article><span>02 / Intake</span><h3>Cold air intakes</h3><p>Understand filter service, air-box placement and engine-bay routing.</p></article><article><span>03 / Filtration</span><h3>Filter systems</h3><p>See how fuel, coolant and oil filtration upgrades fit into a maintenance plan.</p></article><article><span>04 / Documents</span><h3>Instructions</h3><p>Open downloadable instructions for product-specific tools, steps and warnings.</p></article></div><div class="sd2-cp__actions"><a class="sd2-cp__button sd2-cp__button--primary" href="/install-part-overviews.html">Open Part Overviews</a><a class="sd2-cp__button" href="/install-instructions.html">Download Instructions</a></div></div></section>
 		<section class="sd2-cp__section sd2-cp__faq" aria-labelledby="sd2-guide-faq-title"><div class="sd2-cp__shell sd2-cp__faq-grid"><div><p class="sd2-cp__label">Before the install</p><h2 id="sd2-guide-faq-title">Set the job up correctly.</h2></div><div class="sd2-cp__accordions"><details open><summary>How do I find the correct guide?</summary><p>Begin with the truck platform, then match the engine generation and product code shown on your part or order.</p></details><details><summary>Are videos a replacement for included instructions?</summary><p>No. Use the video to preview the work and follow the current product instructions for exact torque values, safety requirements and product-specific steps.</p></details><details><summary>What if my truck differs from the guide?</summary><p>Stop and confirm the product application. Previous modifications and model-year changes can alter access or routing; Parts Tech Support can help verify the next step.</p></details></div></div></section>
-		<section class="sd2-cp__final"><div class="sd2-cp__shell"><div><p class="sd2-cp__label">Need a second set of eyes?</p><h2>Talk to people who know diesel.</h2></div><a class="sd2-cp__button sd2-cp__button--light" href="help-sinister-diesel-parts-tech-support.html">Open Parts Tech Support</a></div></section>
+		<section class="sd2-cp__final"><div class="sd2-cp__shell"><div><p class="sd2-cp__label">Need a second set of eyes?</p><h2>Talk to people who know diesel.</h2></div><a class="sd2-cp__button sd2-cp__button--light" href="/help-sinister-diesel-parts-tech-support.html">Open Parts Tech Support</a></div></section>
 	</main>
 <mvt:comment>
-	Footer Experience V2 â€” additive, inactive. Real Miva constructs reused
+	Footer Experience V2 ? additive, inactive. Real Miva constructs reused
 	verbatim from cssui-global-footer.mvt: navigationset('links_resources'/
 	'help_center'/'links_help'), contentsection('store_hours'/'site_copyright'),
 	social_* flags, &mvt:global:store:*; fields. Build Log cards below use
 	placeholder content pending real content/blog Miva integration in a later
-	milestone â€” not fabricated as final copy.
+	milestone ? not fabricated as final copy.
 </mvt:comment>
 
 <footer class="sd2-v2-footer">
@@ -1153,4 +1153,6 @@
 	</div>
 </footer>
 
+<script defer src="/mm5/scripts/00000001/b37/sd2-v2-components.js?T=20260722v46"></script>
+<script defer src="/mm5/scripts/00000001/b37/sd2-motion.js?T=20260722v46"></script>
 </body></html>

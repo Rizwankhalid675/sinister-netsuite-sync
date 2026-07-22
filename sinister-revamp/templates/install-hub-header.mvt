@@ -51,7 +51,7 @@
 			<span class="sd2-v2-hdr-trust__plate">MADE &amp; TESTED IN THE USA &middot; SINCE 2009</span>
 			<span class="sd2-v2-hdr-trust__links">
 				<a href="/help-center.html">Help Center</a>
-				<a href="&mvte:urls:ORDH:auto;">Track Order</a>
+				<a href="/order-history-list.html">Track Order</a>
 			</span>
 		</div>
 	</div>
@@ -65,7 +65,7 @@
 				<svg class="sd2-icon sd2-icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
 			</button>
 
-			<a class="sd2-v2-hdr__logo" href="&mvte:urls:SFNT:auto;" title="&mvt:global:store:name;" rel="nofollow">
+			<a class="sd2-v2-hdr__logo" href="/" title="&mvt:global:store:name;" rel="nofollow">
 				<mvt:if expr="l.settings:readytheme:logo_type EQ 'text'">
 					<span class="sd2-v2-hdr__logo-text">&mvt:readytheme:logo_name;<small class="sd2-v2-hdr__logo-tag">&mvt:readytheme:logo_tagline;</small></span>
 				<mvt:elseif expr="l.settings:readytheme:logo_type EQ 'image' AND NOT ISNULL l.settings:readytheme:logo_image">
@@ -91,7 +91,7 @@
 			</div>
 
 			<div class="sd2-v2-hdr__util">
-				<a class="sd2-v2-hdr__util-item sd2-v2-hdr__account-link" href="&mvte:urls:ACLN:auto;" aria-label="Account">
+				<a class="sd2-v2-hdr__util-item sd2-v2-hdr__account-link" href="/customer-account.html" aria-label="Account">
 					<svg class="sd2-icon sd2-icon--lg" viewBox="0 0 24 24" aria-hidden="true">
 						<circle cx="12" cy="8" r="4"/>
 						<path d="M4 20a8 8 0 0 1 16 0"/>
@@ -623,14 +623,14 @@
 		<div class="sd2-v2-mega__side">
 			<div class="sd2-v2-mega__side-block">
 				<h3 class="sd2-v2-mega__col-title">Buying Guides</h3>
-				<a class="sd2-v2-mega__guide" href="&mvte:urls:NEWS:auto;">
+				<a class="sd2-v2-mega__guide" href="/help-center.html">
 					<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%201.png" alt="">
 					<span><span class="sd2-v2-mega__guide-title">6.7 Powerstroke Intercooler Guide</span><span class="sd2-v2-mega__guide-meta">8 min read</span></span>
 				</a>
 			</div>
 			<div class="sd2-v2-mega__side-block">
 				<h3 class="sd2-v2-mega__col-title">Popular Builds</h3>
-				<a class="sd2-v2-mega__build" href="&mvte:urls:NEWS:auto;"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2017 F-250 Build Spotlight</a>
+				<a class="sd2-v2-mega__build" href="/help-center.html"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2017 F-250 Build Spotlight</a>
 			</div>
 		</div>
 	</div>
@@ -683,14 +683,14 @@
 		<div class="sd2-v2-mega__side">
 			<div class="sd2-v2-mega__side-block">
 				<h3 class="sd2-v2-mega__col-title">Buying Guides</h3>
-				<a class="sd2-v2-mega__guide" href="&mvte:urls:NEWS:auto;">
+				<a class="sd2-v2-mega__guide" href="/help-center.html">
 					<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%203.png" alt="">
 					<span><span class="sd2-v2-mega__guide-title">Duramax EGR Delete: What to Know</span><span class="sd2-v2-mega__guide-meta">6 min read</span></span>
 				</a>
 			</div>
 			<div class="sd2-v2-mega__side-block">
 				<h3 class="sd2-v2-mega__col-title">Popular Builds</h3>
-				<a class="sd2-v2-mega__build" href="&mvte:urls:NEWS:auto;"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2015 Duramax Tow Rig</a>
+				<a class="sd2-v2-mega__build" href="/help-center.html"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2015 Duramax Tow Rig</a>
 			</div>
 		</div>
 	</div>
@@ -744,14 +744,14 @@
 		<div class="sd2-v2-mega__side">
 			<div class="sd2-v2-mega__side-block">
 				<h3 class="sd2-v2-mega__col-title">Buying Guides</h3>
-				<a class="sd2-v2-mega__guide" href="&mvte:urls:NEWS:auto;">
+				<a class="sd2-v2-mega__guide" href="/help-center.html">
 					<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%202.png" alt="">
 					<span><span class="sd2-v2-mega__guide-title">Cummins Turbo Upgrade Basics</span><span class="sd2-v2-mega__guide-meta">7 min read</span></span>
 				</a>
 			</div>
 			<div class="sd2-v2-mega__side-block">
 				<h3 class="sd2-v2-mega__col-title">Popular Builds</h3>
-				<a class="sd2-v2-mega__build" href="&mvte:urls:NEWS:auto;"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2019 Ram Cummins Pull Truck</a>
+				<a class="sd2-v2-mega__build" href="/help-center.html"><svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>2019 Ram Cummins Pull Truck</a>
 			</div>
 		</div>
 	</div>
@@ -847,7 +847,7 @@
 						<svg class="sd2-icon sd2-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
 					<div class="sd2-v2-drawer__sub">
 						<a href="&mvte:sd2_mega_apparel:url;">Shop All Apparel</a>
-						<a href="/mens_shirts.html">Shirts</a>
+						<a href="/mens-shirts.html">Shirts</a>
 						<a href="/hoodies.html">Hoodies</a>
 					</div>
 				</div>
@@ -861,11 +861,11 @@
 			<div class="sd2-v2-search-console__bar">
 				<div class="sd2-v2-search-console__bar-inner">
 					<div class="sd2-v2-search-console__form" itemscope itemtype="http://schema.org/WebSite">
-						<form method="get" action="&mvte:urls:SRCH:auto;" itemprop="potentialAction" itemscope itemtype="http://schema.org/SearchAction">
+						<form method="get" action="/search.html" itemprop="potentialAction" itemscope itemtype="http://schema.org/SearchAction">
 							<fieldset>
 								<legend>Product Search</legend>
 								<div class="sd2-v2-search-console__group">
-									<meta itemprop="target" content="&mvte:urls:SRCH:auto;?Search={Search}"/>
+									<meta itemprop="target" content="/search.html?Search={Search}"/>
 									<span class="sd2-v2-search-console__icon" aria-hidden="true">
 										<svg class="sd2-icon sd2-icon--lg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
 									</span>
@@ -959,7 +959,7 @@
 					</div>
 					<div class="sd2-v2-garage-form__actions">
 						<button class="sd2-btn sd2-btn--primary sd2-btn--full" type="submit">Save Vehicle</button>
-						<a class="sd2-v2-garage-shop" href="&mvte:urls:SRCH:auto;" data-v2-garage-shop hidden>
+						<a class="sd2-v2-garage-shop" href="/search.html" data-v2-garage-shop hidden>
 							<span>View Parts for My Truck</span>
 							<small data-v2-garage-shop-label></small>
 						</a>
@@ -987,7 +987,7 @@
 			<div class="sd2-v2-cart-vehicle is-empty" data-v2-cart-vehicle>
 				<svg class="sd2-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l1.5-5A2 2 0 0 1 6.4 5.5h11.2A2 2 0 0 1 19.5 7L21 12"/><path d="M3 12h18v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5Z"/></svg>
 				<span data-v2-cart-vehicle-text>Add your truck to confirm fitment</span>
-				<a href="&mvte:urls:SFNT:auto;" data-v2-garage-toggle>Add</a>
+				<a href="/" data-v2-garage-toggle>Add</a>
 			</div>
 
 			<div class="sd2-v2-cart-panel__body">
@@ -1015,7 +1015,7 @@
 						<span class="sd2-v2-cart-empty__mark" aria-hidden="true">0</span>
 						<p class="sd2-v2-cart-empty__title">Your Build Starts Here.</p>
 						<p class="sd2-v2-cart-empty__copy">Choose your truck, then add fitment-confirmed parts with confidence.</p>
-						<a class="sd2-btn sd2-btn--primary sd2-btn--full" href="&mvte:urls:SFNT:auto;">Explore Parts</a>
+						<a class="sd2-btn sd2-btn--primary sd2-btn--full" href="/">Explore Parts</a>
 					</div>
 				</mvt:if>
 			</div>
@@ -1025,7 +1025,7 @@
 					<span>Subtotal</span>
 					<span data-v2-cart-subtotal><mvt:if expr="l.settings:global_minibasket:basket_count GT 0">&mvt:global_minibasket:formatted_total;<mvt:else>&mdash;</mvt:if></span>
 				</div>
-				<a class="sd2-btn sd2-btn--primary sd2-btn--full" href="&mvte:urls:BASK:auto;">View Cart &amp; Checkout</a>
+				<a class="sd2-btn sd2-btn--primary sd2-btn--full" href="/basket-contents.html">View Cart &amp; Checkout</a>
 			</div>
 		</aside>
 	</div>

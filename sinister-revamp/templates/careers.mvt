@@ -1,6 +1,28 @@
 <mvt:item name="html_profile" />
-
-
-<div style="display: flex; justify-content: center;">
-  <iframe src="https://forms.monday.com/forms/embed/f45341832aa3735139fffe9e566f3cfc?r=use1" width="750" height="1300" style="border: 0; box-shadow: 5px 5px 56px 0px rgba(0,0,0,0.25);"></iframe>
-</div>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<base href="&mvte:global:basehref;">
+	<title>Careers at Sinister Diesel</title>
+	<meta name="description" content="Explore current career opportunities at Sinister Diesel in Roseville, California.">
+	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
+	<mvt:item name="head" param="head_tag" />
+</head>
+<body class="single-column sd2-careers-page">
+	<mvt:item name="hdft" param="global_header" />
+	<mvt:item name="hdft" param="header" />
+	<main class="sd2-cp sd2-careers">
+		<section class="sd2-cp__hero" aria-labelledby="sd2-careers-title">
+			<div class="sd2-cp__shell sd2-cp__hero-grid">
+				<div><p class="sd2-cp__eyebrow">Roseville, California</p><h1 id="sd2-careers-title">Build what<br>moves diesel.</h1><p class="sd2-cp__lede">Join a team focused on diesel performance, product quality and support for owners who depend on their trucks.</p><div class="sd2-cp__actions"><a class="sd2-cp__button sd2-cp__button--primary" href="#current-openings">View current openings</a><a class="sd2-cp__button" href="about-us.html">About Sinister Diesel</a></div></div>
+				<aside class="sd2-cp__hero-console"><span class="sd2-cp__console-kicker">Team profile</span><strong>Product.<br>People. Support.</strong><div class="sd2-cp__console-data"><span>Diesel focused</span><span>Customer driven</span><span>USA based</span></div></aside>
+			</div>
+		</section>
+		<div class="sd2-cp__signal"><div><span>01</span><strong>Build quality</strong></div><div><span>02</span><strong>Solve real problems</strong></div><div><span>03</span><strong>Support the owner</strong></div></div>
+		<section class="sd2-cp__section sd2-careers__openings" id="current-openings" aria-labelledby="sd2-openings-title"><div class="sd2-cp__shell"><div class="sd2-cp__section-head"><div><p class="sd2-cp__label">Current opportunities</p><h2 id="sd2-openings-title">Find your place on the team.</h2></div><p>Review available roles and submit your application securely through our recruiting partner.</p></div><div class="sd2-careers__board"><iframe src="https://forms.monday.com/forms/embed/f45341832aa3735139fffe9e566f3cfc?r=use1" title="Sinister Diesel career application" width="750" height="1300" loading="lazy"></iframe></div></div></section>
+		<section class="sd2-cp__section sd2-cp__section--dark" aria-labelledby="sd2-careers-values"><div class="sd2-cp__shell"><div class="sd2-cp__section-head"><div><p class="sd2-cp__label">How we work</p><h2 id="sd2-careers-values">Own the details.</h2></div><p>Strong work here connects product knowledge, careful execution and respect for the customer.</p></div><div class="sd2-cp__feature-grid"><article><span>01 / Craft</span><h3>Build with purpose</h3><p>Focus on the fit, finish and function that make a real difference.</p></article><article><span>02 / Team</span><h3>Share knowledge</h3><p>Work across departments to solve problems clearly and quickly.</p></article><article><span>03 / Owner</span><h3>Respect the build</h3><p>Every order supports a truck, a project and a customer goal.</p></article><article><span>04 / Growth</span><h3>Keep improving</h3><p>Use feedback and experience to make the next result stronger.</p></article></div></div></section>
+	</main>
+	<mvt:item name="hdft" param="footer" />
+	<mvt:item name="hdft" param="global_footer" />
+</body>
+</html>

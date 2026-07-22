@@ -1,35 +1,20 @@
 <mvt:item name="html_profile" />
 <head>
 	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<base href="&mvt:global:basehref;">
-	<mvt:if expr="NOT ISNULL l.settings:page:title">
-		<title>&mvt:page:title;</title>
-	<mvt:else>
-		<title>&mvt:store:name;: &mvt:page:name;</title>
-	</mvt:if>
+	<base href="&mvte:global:basehref;">
+	<mvt:if expr="NOT ISNULL l.settings:page:title"><title>&mvt:page:title;</title><mvt:else><title>&mvt:store:name;: &mvt:page:name;</title></mvt:if>
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
 	<mvt:item name="head" param="head_tag" />
 </head>
-<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass;">
+<body id="js-&mvte:page:code;" class="sd2-v2-embedded-page">
 	<mvt:item name="hdft" param="global_header" />
-<mvt:comment>  The below "section" is optional, it is used to structure most pages but is not required. You can format this area
- in any way that you want.
-
-Here is a link to the framework's guidelines should you want to adhere to their style guidelines:
-
-https://docs.miva.com/readytheme-colossus/index.html
-</mvt:comment>
-
-<div style="padding-bottom: 500%; position:relative; display:block; width: 100%; height: 100%">
-  <iframe width="100%" height="100%"
-    src="https://t.lt02.net/lp/F8R8pTXl/email/"
-    frameborder="0" allowfullscreen="" style="position:absolute; top:0; left: 0; display:block">
-  </iframe>
-</div>
-
-
-	
+	<main class="sd2-v2-search-page" data-v2-editorial-page data-editorial-variant="embedded-form">
+		<div class="sd2-wrap">
+			<header class="sd2-v2-search-page__head"><nav class="sd2-v2-breadcrumbs" aria-label="Breadcrumb"><a href="&mvte:urls:SFNT:auto;">Home</a><span aria-hidden="true">/</span><span>&mvte:page:name;</span></nav><p class="sd2-eyebrow">Owner access</p><h1 class="sd2-heading-lg">&mvte:page:name;</h1></header>
+			<section class="sd2-v2-embed-stage" aria-label="&mvte:page:name;"><iframe class="sd2-v2-partner-embed sd2-v2-partner-embed--long" src="https://t.lt02.net/lp/F8R8pTXl/email/" title="&mvte:page:name; form" loading="eager" allowfullscreen></iframe></section>
+		</div>
+	</main>
+	<mvt:item name="hdft" param="global_footer" />
 </body>
 </html>

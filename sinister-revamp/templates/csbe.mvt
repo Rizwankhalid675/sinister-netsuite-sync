@@ -15,29 +15,22 @@
 <body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass;">
 	<mvt:item name="hdft" param="global_header" />
 
-	<section class="o-layout">
-		<div class="o-layout__item">
-			<mvt:item name="hdft" param="header" />
-			<mvt:item name="readytheme" param="contentsection( 'messages' )" />
-		</div>
-	</section>
+	<mvt:item name="hdft" param="header" />
 
-	<section class="o-layout">
-		<div class="o-layout__item u-width-12">
-			<section class="t-expanded-block t-account-landing-section u-bg-white">
-				<div class="o-layout__item t-expanded-block__item t-account-landing-section__header u-width-12">
-					<mvt:item name="breadcrumbs" />
-					<span class="sd2-v2-heading-delta t-account-landing-section__heading">&mvt:page:name;</span>
-				</div>
-				<div class="o-layout__item t-expanded-block__item t-account-landing-section__content u-width-12">
-					<mvt:item name="subscriptionfields" />
-				</div>
-			</section>
-		</div>
-	</section>
-	
+	<main class="sd2-v2-account" data-v2-account>
+		<header class="sd2-v2-account-hero">
+			<mvt:item name="breadcrumbs" />
+			<p class="sd2-kicker">Account</p>
+			<h1>&mvt:page:name;</h1>
+			<p>Review and update the subscription connected to your account.</p>
+		</header>
+		<mvt:item name="readytheme" param="contentsection( 'messages' )" />
+		<section class="sd2-v2-account-card" aria-labelledby="sd2-v2-csbe-title">
+			<h2 id="sd2-v2-csbe-title">Subscription Details</h2>
+			<mvt:item name="subscriptionfields" />
+		</section>
+	</main>
 	<mvt:item name="hdft" param="footer" />
-
 	<mvt:item name="hdft" param="global_footer" />
 </body>
 </html>

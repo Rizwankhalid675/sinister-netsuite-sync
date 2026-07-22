@@ -1,239 +1,77 @@
-<!DOCTYPE html>
-<html>
-<mvt:comment>Inactive Product Detail V2 template. Do not assign to live PROD.</mvt:comment>
 <mvt:item name="html_profile" />
+<mvt:comment>Inactive Product Detail V2 page. Assign only to the copied PRODV2 test page.</mvt:comment>
+
+<mvt:comment>Build the same real YouTube custom-field array used by the production PROD page.</mvt:comment>
+<mvt:assign name="l.youtube_tn_size" value="'maxresdefault'" />
+<mvt:assign name="l.video_cf_counter" value="1" />
+<mvt:assign name="l.total_videos" value="8" />
+<mvt:assign name="l.video_count" value="0" />
+<mvt:assign name="g.at_least_one_video" value="0" />
+<mvt:while expr="l.video_cf_counter LE l.total_videos">
+	<mvt:assign name="l.settings:curr_video" value="0" />
+	<mvt:assign name="l.settings:curr_video:guid" value="miva_variable_value('l.settings:product:customfield_values:customfields:video_0' $ l.video_cf_counter)" />
+	<mvt:assign name="l.settings:curr_video:caption" value="miva_variable_value('l.settings:product:customfield_values:customfields:video_0' $ l.video_cf_counter $ '_caption')" />
+	<mvt:if expr="l.settings:curr_video:guid NE '' AND len(l.settings:curr_video:guid) LT 14">
+		<mvt:assign name="l.video_count" value="l.video_count + 1" />
+		<mvt:assign name="l.settings:curr_video:count" value="l.video_count" />
+		<mvt:assign name="l.settings:curr_video:guid_cf" value="'video_0' $ l.video_cf_counter" />
+		<mvt:assign name="l.settings:curr_video:caption_cf" value="'video_0' $ l.video_cf_counter $ '_caption'" />
+		<mvt:assign name="l.settings:curr_video:youtube_view_link" value="'https://www.youtube.com/watch?v=' $ l.settings:curr_video:guid" />
+		<mvt:assign name="l.settings:curr_video:youtube_embed_link" value="'https://www.youtube.com/embed/' $ l.settings:curr_video:guid" />
+		<mvt:assign name="l.settings:curr_video:youtube_tn" value="'https://i.ytimg.com/vi_webp/' $ l.settings:curr_video:guid $ '/' $ l.youtube_tn_size $ '.webp'" />
+		<mvt:assign name="l.miva_array_insertOK" value="miva_array_insert(l.settings:product:videos_arr, l.settings:curr_video, -1)" />
+		<mvt:assign name="g.at_least_one_video" value="1" />
+	</mvt:if>
+	<mvt:assign name="l.video_cf_counter" value="l.video_cf_counter + 1" />
+</mvt:while>
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<base href="&mvt:global:basehref;">
+	<mvt:if expr="NOT ISNULL l.settings:product:page_title">
+		<title>&mvt:product:page_title;</title>
+	<mvt:else>
+		<title>&mvte:product:name; | &mvte:store:name;</title>
+	</mvt:if>
+	<mvt:assign name="l.settings:product:stripped_descrip" value="miva_html_strip(l.settings:product:descrip, '')" />
+	<mvt:if expr="ISNULL l.settings:product:stripped_descrip"><mvt:assign name="l.settings:product:stripped_descrip" value="l.settings:product:name $ ' from Sinister Diesel. Confirm vehicle fitment, pricing, and availability before ordering.'" /></mvt:if>
+	<meta name="description" content="&mvte:product:stripped_descrip;">
+	<mvt:assign name="g.sd2_seo_description" value="l.settings:product:stripped_descrip" />
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
 	<mvt:item name="head" param="head_tag" />
-	<title>&mvte:product:name; | Sinister Diesel</title>
+	<mvt:item name="attributemachine" param="head_deferred" />
+	<mvt:item name="product_display_imagemachine" param="head_deferred" />
+	<mvt:item name="applepay" param="head" />
 </head>
-<body class="sd2-v2-page sd2-v2-pdp-page">
+<body id="js-&mvte:page:code;" class="sd2-v2-page sd2-v2-pdp-page">
 	<mvt:item name="hdft" param="global_header" />
 	<mvt:item name="hdft" param="header" />
-	<main class="sd2-v2-pdp" data-v2-pdp>
-		<header class="sd2-v2-product-hero sd2-reveal" data-reveal="fade-up">
-			<nav class="sd2-v2-breadcrumbs" aria-label="Breadcrumb">
-				<a href="&mvte:urls:SFNTV2:auto;">Home</a>
-				<span aria-hidden="true">/</span>
-				<a href="&mvte:urls:CTGYLISTV2:auto;">Parts</a>
-				<span aria-hidden="true">/</span>
-				<span>&mvte:product:name;</span>
-			</nav>
-			<p class="sd2-kicker">Sinister Diesel Product</p>
-			<h1>&mvte:product:name;</h1>
-			<div class="sd2-v2-product-hero__meta">
-				<span>SKU &mvte:product:code;</span>
-				<span data-v2-fitment-copy>Garage fitment not selected.</span>
-			</div>
-		</header>
 
-		<section class="sd2-v2-fitment-confirm sd2-reveal" data-reveal="fade-up" aria-label="Vehicle fitment">
-			<p class="sd2-kicker">Garage Fitment</p>
-			<h2>Confirm This Part Against Your Build</h2>
-			<p data-v2-fitment-copy>No vehicle selected. Open Garage to verify year, make, model, and engine before ordering.</p>
-			<button class="sd2-btn sd2-btn--secondary" type="button" data-v2-garage-toggle>Open Garage</button>
-		</section>
+	<div>
+		<mvt:item name="product_display" />
+	</div>
 
-		<section class="sd2-v2-pdp__layout sd2-reveal" data-reveal="fade-up" aria-label="Product purchase area">
-			<div class="sd2-v2-pdp__media sd2-reveal sd2-tilt" data-reveal="fade-right">
-				<section class="sd2-v2-pdp-gallery" aria-label="Product media">
-					<mvt:comment>
-						Real Miva image machine, reused verbatim from prod-product_display.mvt:
-						product_display_imagemachine renders the actual gallery/thumbnail markup
-						and JS hooks (data-PhotoGallery, #main_image, #thumbnails, #product-image-list)
-						from the real product image set. Do not replace with static <img> placeholders.
-					</mvt:comment>
-					<div class="sd2-v2-media" data-v2-gallery>
-						<div class="x-product-layout-images" data-PhotoGallery role="group" style="--prod-img-x: &mvte:product_display_imagemachine:image_width;px; --prod-img-y: &mvte:product_display_imagemachine:image_height;px; --prod-thumb-x: &mvte:product_display_imagemachine:thumb_width;px; --prod-thumb-y: &mvte:product_display_imagemachine:thumb_height;px;">
-							<section aria-label="Product image thumbnails" class="splide x-filmstrip-wrapper" data-filmstrip-wrapper>
-								<div class="splide__track x-filmstrip" data-filmstrip>
-									<ul class="splide__list x-filmstrip__list" id="thumbnails"></ul>
-								</div>
-							</section>
-							<div class="x-product-layout-images__main-image sd2-v2-media__viewer" id="main_image" data-v2-zoom-viewer>
-								<div id="filmstrip-video-iframe-container" class="u-hidden"></div>
-								<section class="splide" data-photograph>
-									<div class="splide__track">
-										<ul class="splide__list" id="product-image-list"></ul>
-									</div>
-								</section>
-								<button class="sd2-v2-media__zoom" type="button" data-v2-zoom-toggle aria-label="Toggle product image zoom">Zoom</button>
-							</div>
-							<mvt:item name="product_display_imagemachine" param="body_deferred:product:id"/>
-						</div>
-					</div>
-				</section>
-			</div>
-			<aside class="sd2-v2-buybox sd2-reveal" data-reveal="fade-left" aria-label="Purchase options">
-				<div class="sd2-v2-buybox__header">
-					<p class="sd2-kicker">Product Detail</p>
-					<h2>&mvte:product:name;</h2>
-				</div>
-				<div class="sd2-v2-price" aria-label="Product price">
-					<span class="sd2-v2-price__label">Price</span>
-					<div class="sd2-v2-price__row">
-						<mvt:if expr="l.settings:product:base_price GT l.settings:product:price">
-							<span class="sd2-v2-price__was"><s>&mvt:product:formatted_base_price;</s></span>
-						</mvt:if>
-						<span class="sd2-v2-price__current" id="price-value" itemprop="price" content="&mvt:product:price;">&mvt:product:formatted_price;</span>
-					</div>
-				</div>
-				<mvt:if expr="l.settings:product:inv_active OR l.settings:attributemachine:product:inv_active">
-					<div class="sd2-v2-buybox__badges">
-						<span class="sd2-v2-stock" id="inventory-message">&mvt:product:inv_long;</span>
-					</div>
-				</mvt:if>
-				<mvt:comment>
-					Real Miva purchase form, reused verbatim from prod-product_display.mvt (form
-					id="apdr" name="add"). Hidden fields (Old_Screen, Old_Search, Product_Name,
-					Product_Price, Category_Code, Offset/AllOffset/CatListingOffset/RelatedOffset/
-					SearchOffset) and product_attributes/discount_volume items must not be altered —
-					they are required by basket/pricing/attribute-machine logic downstream.
-				</mvt:comment>
-				<form class="sd2-v2-buybox__form" id="apdr" data-hook="purchase" action="&mvte:urls:BASK:auto;" method="post" name="add" data-v2-buy-form>
-					<input type="hidden" name="Old_Screen" value="&mvte:global:Screen;" />
-					<input type="hidden" name="Old_Search" value="&mvte:global:Search;" />
-					<input type="hidden" name="Action" value="ADPR" />
-					<input type="hidden" name="Product_Code" value="&mvte:product:code;" />
-					<input type="hidden" name="Product_Name" value="&mvtj:product:name;" />
-					<input type="hidden" name="Product_Price" value="&mvte:product:price;" />
-					<input type="hidden" name="Category_Code" value="&mvte:global:category_code;" />
-					<input type="hidden" name="Offset" value="&mvte:global:Offset;" />
-					<input type="hidden" name="AllOffset" value="&mvte:global:AllOffset;" />
-					<input type="hidden" name="CatListingOffset" value="&mvte:global:CatListingOffset;" />
-					<input type="hidden" name="RelatedOffset" value="&mvte:global:RelatedOffset;" />
-					<input type="hidden" name="SearchOffset" value="&mvte:global:SearchOffset;" />
-					<mvt:item name="extend" param="productfields" />
-					<mvt:item name="discount_volume" param="product:id" />
-					<div class="sd2-v2-buybox__attributes">
-						<mvt:item name="product_attributes" param="product:id" />
-					</div>
-					<mvt:if expr="l.settings:product:inv_level NE 'out'">
-						<label class="sd2-v2-buybox__label" for="l-quantity">Quantity</label>
-						<div class="sd2-v2-qty" data-v2-qty>
-							<button type="button" data-v2-qty-minus aria-label="Decrease quantity">-</button>
-							<input id="l-quantity" name="Quantity" type="tel" value="1" inputmode="numeric" data-v2-qty-input>
-							<button type="button" data-v2-qty-plus aria-label="Increase quantity">+</button>
-						</div>
-						<span class="sd2-btn sd2-btn--primary sd2-btn--wide" data-v2-buy-button onclick="document.forms.add.action = '&mvtj:urls:BASK:auto;'; document.forms.add.elements.Action.value = 'ADPR';">
-							<mvt:item name="buttons" param="AddToBasket"/>
-						</span>
-						<span class="sd2-btn sd2-btn--secondary sd2-btn--wide" data-mmnodisable="true" onclick="document.forms.add.action = '&mvtj:urls:WISH:secure;'; document.forms.add.elements.Action.value = 'ATWL';">
-							<mvt:item name="buttons" param="AddToWishList"/>
-						</span>
-					<mvt:else>
-						<p class="sd2-v2-buybox__oos">This item is currently out of stock.</p>
-					</mvt:if>
-				</form>
-				<section class="sd2-v2-shipping-info" aria-label="Shipping and warranty">
-					<div><strong>Shipping</strong><span>Delivery estimate is calculated at checkout.</span></div>
-					<div><strong>Support</strong><span>US-based support for ordering and installation questions.</span></div>
-				</section>
-			</aside>
-		</section>
+	<mvt:comment>Keep native variant price, inventory, discount, and swatch updates active.</mvt:comment>
+	<mvt:item name="attributemachine" param="body_deferred" />
+	<script>
+		if (typeof am&mvt:product:id; !== 'undefined') {
+			var attrMachCall = am&mvt:product:id;;
+			var attrPossible = amPossible&mvt:product:id;;
+		}
+	</script>
 
-		<section class="sd2-v2-pdp-section" id="description" aria-labelledby="sd2-v2-summary-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Overview</p><h2 id="sd2-v2-summary-title">Built For Workload, Fitment, And Finish</h2></div>
-			<div class="sd2-v2-pdp-copy">
-				&mvt:product:descrip;
-			</div>
-		</section>
-
-		<section class="sd2-v2-product-tabs" data-v2-pdp-tabs aria-label="Product detail sections">
-			<div class="sd2-v2-product-tabs__list" role="tablist" aria-label="Product information">
-				<button type="button" role="tab" aria-selected="true" aria-controls="sd2-tab-specs" id="sd2-tab-specs-control" data-v2-pdp-tab>Specifications</button>
-				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-install" id="sd2-tab-install-control" data-v2-pdp-tab>Installation</button>
-				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-reviews" id="sd2-tab-reviews-control" data-v2-pdp-tab>Reviews</button>
-				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-faq" id="sd2-tab-faq-control" data-v2-pdp-tab>FAQ</button>
-			</div>
-			<div class="sd2-v2-product-tabs__panel" role="tabpanel" id="sd2-tab-specs" aria-labelledby="sd2-tab-specs-control" data-v2-pdp-panel>Specifications content appears below.</div>
-			<div class="sd2-v2-product-tabs__panel" role="tabpanel" id="sd2-tab-install" aria-labelledby="sd2-tab-install-control" data-v2-pdp-panel hidden>Installation content appears below.</div>
-			<div class="sd2-v2-product-tabs__panel" role="tabpanel" id="sd2-tab-reviews" aria-labelledby="sd2-tab-reviews-control" data-v2-pdp-panel hidden>Reviews content appears below.</div>
-			<div class="sd2-v2-product-tabs__panel" role="tabpanel" id="sd2-tab-faq" aria-labelledby="sd2-tab-faq-control" data-v2-pdp-panel hidden>FAQ content appears below.</div>
-		</section>
-
-		<section class="sd2-v2-pdp-section" id="specifications" aria-labelledby="sd2-v2-specs-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Specifications</p><h2 id="sd2-v2-specs-title">Product Data</h2></div>
-			<table class="sd2-v2-spec-table"><tbody><tr><th scope="row">Product Code</th><td>&mvte:product:code;</td></tr><tr><th scope="row">Name</th><td>&mvte:product:name;</td></tr><mvt:if expr="l.settings:product:weight NE 0"><tr><th scope="row">Shipping Weight</th><td>&mvt:product:weight; &mvt:store:wtunits;</td></tr></mvt:if></tbody></table>
-			<mvt:comment>TODO: Materials/Install Time have no confirmed source field on the legacy product record (checked prod-product_display.mvt customfield_values) — do not fabricate; add rows only once a real custom field is confirmed.</mvt:comment>
-		</section>
-
-		<section class="sd2-v2-pdp-section" id="installation" aria-labelledby="sd2-v2-install-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Installation</p><h2 id="sd2-v2-install-title">Install Notes</h2></div>
-			<div class="sd2-v2-feature-list">
-				<mvt:if expr="NOT ISNULL l.settings:product:customfield_values:customfields:installation">
-					<div><strong>Instructions</strong><span><a href="&mvt:product:customfield_values:customfields:installation;">Download Install Instructions</a></span></div>
-				</mvt:if>
-				<div><strong>Support</strong><span>Contact Sinister Diesel support for product-specific install guidance.</span></div>
-			</div>
-		</section>
-
-		<section class="sd2-v2-pdp-section" id="reviews" aria-labelledby="sd2-v2-review-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Reviews</p><h2 id="sd2-v2-review-title">Customer Feedback</h2></div>
-			<mvt:comment>
-				TODO: Legacy PROD reviews are rendered by a third-party ShopperApproved JS widget
-				(script tag keyed on product:code, injected outside any Miva iterator) — not a
-				Miva token/array. Wiring this requires adding a JS Resource, which is out of scope
-				for this pass (JS Resources must not be modified). Leave as TODO until reviews
-				scope is explicitly approved.
-			</mvt:comment>
-			<div class="sd2-v2-review-summary"><span>Reviews are not yet connected in the V2 experience.</span></div>
-		</section>
-
-		<section class="sd2-v2-pdp-section" id="faq" aria-labelledby="sd2-v2-faq-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">FAQ</p><h2 id="sd2-v2-faq-title">Common Questions</h2></div>
-			<div class="sd2-v2-accordion" data-v2-accordion>
-				<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="true" data-v2-accordion-trigger>Will this fit my truck?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel><p>Select your vehicle in Garage to verify fitment messaging.</p></div></div>
-				<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="false" data-v2-accordion-trigger>What is included?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel hidden><p>[Placeholder] Included components from product data.</p></div></div>
-				<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="false" data-v2-accordion-trigger>Is installation support available?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel hidden><p>Sinister Diesel support can assist with product-specific install questions.</p></div></div>
-			</div>
-		</section>
-
-		<section class="sd2-v2-pdp-section" id="related-products" aria-labelledby="sd2-v2-related-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Related Products</p><h2 id="sd2-v2-related-title">Built Around This Part</h2></div>
-			<mvt:comment>
-				related_products:products is real (verified in prod-related_products.mvt);
-				legacy PROD currently has this item commented out in production. Composing it
-				live here per this pass's goal of wiring real Miva data — reuses confirmed
-				fields only (product:link, product:imagetypes:main, product:name,
-				product:base_price/price/formatted_price).
-			</mvt:comment>
-			<mvt:if expr="l.settings:related_product_count NE 0">
-				<div class="sd2-v2-pgrid">
-					<mvt:foreach iterator="product" array="related_products:products">
-						<article class="sd2-card sd2-v2-product-card">
-							<a class="sd2-v2-product-card__media" href="&mvte:urls:PRODV2:auto;?Product_Code=&mvta:product:code;">
-								<img src="&mvte:product:imagetypes:main;" alt="&mvte:product:name;" loading="lazy">
-							</a>
-							<div class="sd2-v2-product-card__body">
-								<h3 class="sd2-v2-product-card__title"><a href="&mvte:urls:PRODV2:auto;?Product_Code=&mvta:product:code;">&mvte:product:name;</a></h3>
-								<p class="sd2-v2-product-card__note" data-v2-fitment-copy>No vehicle selected. Confirm fitment in Garage.</p>
-								<div class="sd2-v2-product-card__foot">
-									<span class="sd2-v2-product-card__price">
-										<mvt:if expr="l.settings:product:base_price GT l.settings:product:price">
-											<s>&mvt:product:formatted_base_price;</s>
-										</mvt:if>
-										&mvt:product:formatted_price;
-									</span>
-									<a class="sd2-v2-product-card__link" href="&mvte:urls:PRODV2:auto;?Product_Code=&mvta:product:code;">View</a>
-								</div>
-							</div>
-						</article>
-					</mvt:foreach>
-				</div>
-			<mvt:else>
-				<p class="sd2-body">No related products are currently available for this item.</p>
-			</mvt:if>
-		</section>
-
-		<div class="sd2-v2-sticky-buy" data-v2-sticky-buy>
-			<div><strong>&mvte:product:name;</strong><span>&mvt:product:formatted_price;</span></div>
-			<mvt:if expr="l.settings:product:inv_level NE 'out'">
-				<span class="sd2-btn sd2-btn--primary" onclick="document.forms.add.action = '&mvtj:urls:BASK:auto;'; document.forms.add.elements.Action.value = 'ADPR'; document.forms.add.submit();">Add To Cart</span>
-			</mvt:if>
-		</div>
-	</main>
 	<mvt:item name="hdft" param="footer" />
 	<mvt:item name="hdft" param="global_footer" />
+	<mvt:comment>ShopperApproved is the verified live product-review source.</mvt:comment>
+	<script>
+		var sa_products_count = 3;
+		var sa_date_format = 'F j, Y';
+		var sa_product = '&mvtj:product:id;';
+		(function(w,d,t,f,o,s,a){o='shopperapproved';if(!w[o]){w[o]=function(){(w[o].arg=w[o].arg||[]).push(arguments)};s=d.createElement(t);a=d.getElementsByTagName(t)[0];s.async=1;s.src=f;a.parentNode.insertBefore(s,a)}})(window,document,'script','//www.shopperapproved.com/product/30390/'+sa_product+'.js');
+	</script>
+	<script src="js/sd2-v2-components.js"></script>
 </body>
 </html>

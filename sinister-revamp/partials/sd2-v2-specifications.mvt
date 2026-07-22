@@ -1,16 +1,7 @@
-<mvt:comment>Specifications V2 partial. Reuses Commerce Foundation spec table styling.</mvt:comment>
+<mvt:comment>Specifications V2 partial. Uses confirmed product/custom-field data only.</mvt:comment>
 <section class="sd2-v2-pdp-section" id="specifications" aria-labelledby="sd2-v2-specs-title">
-	<div class="sd2-v2-pdp-section__header">
-		<p class="sd2-kicker">Specifications</p>
-		<h2 id="sd2-v2-specs-title">Product Data</h2>
-	</div>
-	<table class="sd2-v2-spec-table">
-		<tbody>
-			<tr><th scope="row">Product Code</th><td>&mvte:product:code;</td></tr>
-			<tr><th scope="row">Name</th><td>&mvte:product:name;</td></tr>
-			<tr><th scope="row">Weight</th><td>[Placeholder] Source from product custom fields.</td></tr>
-			<tr><th scope="row">Materials</th><td>[Placeholder] Source from product custom fields.</td></tr>
-			<tr><th scope="row">Install Time</th><td>[Placeholder] Source from product custom fields.</td></tr>
-		</tbody>
-	</table>
+	<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Specifications</p><h2 id="sd2-v2-specs-title">Product Data &amp; Included Components</h2></div>
+	<table class="sd2-v2-spec-table"><tbody><tr><th scope="row">Item #</th><td>&mvte:product:code;</td></tr><mvt:if expr="NOT ISNULL l.settings:product:sku"><tr><th scope="row">SKU</th><td>&mvte:product:sku;</td></tr></mvt:if><mvt:if expr="l.settings:product:customfield_values:customfields:upc"><tr><th scope="row">UPC</th><td>&mvte:product:customfield_values:customfields:upc;</td></tr></mvt:if><mvt:if expr="l.settings:product:weight NE 0"><tr><th scope="row">Shipping Weight</th><td>&mvt:product:weight; &mvte:store:wtunits;</td></tr></mvt:if></tbody></table>
+	<mvt:if expr="NOT ISNULL l.settings:product:customfield_values:customfields:specifications"><div class="sd2-v2-pdp-copy">&mvt:product:customfield_values:customfields:specifications;</div></mvt:if>
+	<mvt:if expr="miva_array_elements(l.settings:product:customfield_values:combofacets:fitment)"><h3>Vehicle Applications</h3><ul class="sd2-v2-feature-list"><mvt:foreach iterator="fitment" array="product:customfield_values:combofacets:fitment"><li><mvt:eval expr="gettoken(l.settings:fitment,'>',1) $ ' ' $ gettoken(l.settings:fitment,'>',2) $ ' ' $ gettoken(l.settings:fitment,'>',3) $ ' ' $ gettoken(l.settings:fitment,'>',4)" /></li></mvt:foreach></ul></mvt:if>
 </section>

@@ -109,4 +109,33 @@ for (const file of [
     `${file} must give repeated View links a product-specific accessible name`);
 }
 
+for (const file of [
+  'templates/ctgy-category_listing.mvt',
+  'templates/ctgyv2-category_listing.mvt',
+  'templates/ctgylistv2-category_listing.mvt',
+  'templates/ctgyengv2-category_listing.mvt',
+  'templates/layout_ctgy-category_listing.mvt',
+  'templates/srch-search_results.mvt'
+]) {
+  const source = read(file);
+  assert.match(source, /<h2 class="sd2-v2-product-card__title">/,
+    `${file} must place product cards directly below the page H1 in the heading outline`);
+  assert.doesNotMatch(source, /<h3 class="sd2-v2-product-card__title">/,
+    `${file} must not skip from the page H1 to H3 product titles`);
+}
+
+const blog = read('templates/blog-content.mvt');
+assert.doesNotMatch(blog, /<h1 class="sd2-v2-heading-delta">/,
+  'the blog index must reserve H1 for its page title instead of repeating H1 for every post card');
+assert.match(blog, /<h2 class="sd2-v2-heading-delta">/,
+  'blog index post cards must use H2 titles');
+assert.match(blog, /glosub\(l\.settings:post:synopsis,\s*'<h1',\s*'<h3'\)/,
+  'blog card synopses must demote stored H1 headings beneath each H2 post title');
+assert.match(blog, /glosub\(l\.settings:sd2_post_synopsis,\s*'<\/h1>',\s*'<\/h3>'\)/,
+  'blog card synopsis heading normalization must preserve valid closing tags');
+assert.match(blog, /glosub\(l\.settings:post:header,\s*'<h1',\s*'<h3'\)/,
+  'blog card stored header content must demote embedded H1 headings beneath the post title');
+assert.doesNotMatch(blog, /<p class="sd2-v2-text-body">\s*&mvt:post:header;\s*<\/p>/,
+  'block-level stored blog header content must not be placed inside an invalid paragraph wrapper');
+
 console.log('V2 commerce SEO contracts verified');

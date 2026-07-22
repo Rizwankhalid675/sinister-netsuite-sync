@@ -194,7 +194,7 @@ var product_name = "&mvtj:product:name;";
 </script>
 </mvt:if>
 </head>
-<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass;">
+<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass; sd2-v2-live-prod">
 	<mvt:item name="hdft" param="global_header" />
 
 	<section class="o-layout">

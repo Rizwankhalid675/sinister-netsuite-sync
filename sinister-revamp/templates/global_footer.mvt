@@ -1,10 +1,10 @@
 <mvt:comment>
-	Footer Experience V2 — additive, inactive. Real Miva constructs reused
+	Footer Experience V2 ? additive, inactive. Real Miva constructs reused
 	verbatim from cssui-global-footer.mvt: navigationset('links_resources'/
 	'help_center'/'links_help'), contentsection('store_hours'/'site_copyright'),
 	social_* flags, &mvt:global:store:*; fields. Build Log cards below use
 	placeholder content pending real content/blog Miva integration in a later
-	milestone — not fabricated as final copy.
+	milestone ? not fabricated as final copy.
 </mvt:comment>
 
 <footer class="sd2-v2-footer">
@@ -55,17 +55,17 @@
 		</div>
 
 		<div class="sd2-v2-footer__col">
-			<div class="sd2-v2-footer__col-title">Resources</div>
+			<h2 class="sd2-v2-footer__col-title">Resources</h2>
 			<mvt:item name="readytheme" param="navigationset( 'links_resources' )" />
 		</div>
 
 		<div class="sd2-v2-footer__col">
-			<div class="sd2-v2-footer__col-title">Help Center</div>
+			<h2 class="sd2-v2-footer__col-title">Help Center</h2>
 			<mvt:item name="readytheme" param="navigationset( 'help_center' )" />
 		</div>
 
 		<div class="sd2-v2-footer__col">
-			<div class="sd2-v2-footer__col-title">Quick Links</div>
+			<h2 class="sd2-v2-footer__col-title">Quick Links</h2>
 			<mvt:item name="readytheme" param="navigationset( 'links_help' )" />
 		</div>
 	</div>
@@ -76,10 +76,16 @@
 				<mvt:item name="readytheme" param="contentsection( 'site_copyright' )" />
 			</div>
 			<div class="sd2-v2-footer__contact">
-				<a href="tel:19167729253">(916) 772-9253</a>
+				<a href="tel:+19167729253">(916) 772-9253</a>
 				<span>&middot;</span>
 				<span>&mvt:global:store:address;, &mvt:global:store:city; &mvt:global:store:state; &mvt:global:store:zip;</span>
 			</div>
 		</div>
 	</div>
 </footer>
+
+<mvt:if expr="g.useDevResources EQ 1">
+	<mvt:item name="head" param="footer_js_dev" />
+<mvt:else>
+	<mvt:item name="head" param="footer_js" />
+</mvt:if>

@@ -1,9 +1,8 @@
 <mvt:item name="html_profile" />
 <head>
 	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<base href="&mvt:global:basehref;">
+	<base href="&mvte:global:basehref;">
 	<mvt:if expr="NOT ISNULL l.settings:category:page_title">
 		<title>&mvt:category:page_title;</title>
 	<mvt:elseif expr="NOT ISNULL l.settings:page:title">
@@ -14,87 +13,60 @@
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
 	<mvt:item name="head" param="head_tag" />
 </head>
-<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass;">
+<body id="js-&mvte:page:code;" class="sd2-v2-brand-hub-page">
 	<mvt:item name="hdft" param="global_header" />
-  
+	<mvt:item name="hdft" param="header" />
+
 	<mvt:item name="customfields" param="Read_Category_Code(g.Category_Code, 'secondary_title_image', l.settings:secondary_title_image)" />
-	<mvt:if expr="NOT ISNULL l.settings:category_title:image OR NOT ISNULL l.settings:secondary_title_image">
-		<mvt:if expr="NOT ISNULL l.settings:category_title:image AND NOT ISNULL l.settings:secondary_title_image">
-			<mvt:assign name="l.settings:category_title:image_grid" value="'u-grids-1 u-grids-2--l'"/>
-		</mvt:if>
-	</mvt:if>
+	<mvt:do name="l.result" file="g.Module_Library_DB" value="Runtime_CategoryList_Load_Parent(l.settings:category:id, l.settings:subcategories)"/>
+	<mvt:assign name="l.settings:subcategory_count" value="miva_array_elements(l.settings:subcategories)" />
 
-	<section class="u-bg-white t-expanded-block">
-		<div class="o-wrapper t-wrapper">
+	<main class="sd2-v2-search-page" data-v2-editorial-page data-editorial-variant="brand-directory">
+		<div class="sd2-wrap">
+			<header class="sd2-v2-search-page__head">
+				<nav class="sd2-v2-breadcrumbs" aria-label="Breadcrumb">
+					<a href="&mvte:urls:SFNT:auto;">Home</a><span aria-hidden="true">/</span><span>&mvte:category:name;</span>
+				</nav>
+				<p class="sd2-eyebrow">Shop by manufacturer</p>
+				<h1 class="sd2-heading-lg">&mvte:category:name;</h1>
+			</header>
 
-			<div class="o-layout o-layout--row-reverse--l o-layout--wide">
-				<div class="o-layout__item u-width-12">
-					<mvt:item name="hdft" param="header" />
-
-					<section class="o-layout">
-					<mvt:if expr="NOT ISNULL l.settings:secondary_title_image">
-						<div class="o-layout__item u-width-12 u-width-9--l">
+			<div class="sd2-v2-static-page sd2-v2-brand-hub">
+				<div class="sd2-v2-static-page__layout">
+					<div class="sd2-v2-static-page__main">
+						<div class="sd2-v2-static-page__body">
 							<mvt:item name="prod_ctgy_hdft" param="ctgy_header" />
-						</div>					
-						<div class="o-layout__item u-width-12 u-width-3--l">
-							<img src="&mvte:secondary_title_image;" alt="&mvte:category:name;" loading="lazy" decoding="async">
-						</div>
-					<mvt:else>
-						<div class="o-layout__item">
-							<mvt:item name="prod_ctgy_hdft" param="ctgy_header" />
-						</div>					
-					</mvt:if>
-					</section>
+							<mvt:if expr="NOT ISNULL l.settings:secondary_title_image">
+								<img class="sd2-v2-brand-hub__banner" src="&mvte:secondary_title_image;" alt="&mvte:category:name;" loading="lazy" decoding="async">
+							</mvt:if>
 
-					<mvt:comment>
-						"cattree_categories" is a Flex Layout page-builder component name, not a real
-						classic-MVT global array — it was never populated here, which is why this
-						subcategory grid rendered empty. Using the same Runtime_CategoryList_Load_Parent /
-						URI_Load_Item_Canonical calls that smap-footer.mvt already uses successfully for
-						category children.
-					</mvt:comment>
-					<mvt:do name="l.result" file="g.Module_Library_DB" value="Runtime_CategoryList_Load_Parent(l.settings:category:id, l.settings:subcategories)"/>
-					<mvt:assign name="l.settings:subcategory_count" value="miva_array_elements(l.settings:subcategories)" />
-
-					<mvt:if expr="l.settings:subcategory_count GT 0">
-						<section class="o-layout u-grids-2 u-grids-3--s u-grids-4--m u-grids-5--l x-product-list">
-							<mvt:foreach iterator="subcategory" array="subcategories">
-								<mvt:assign name="l.uri:store_id" value="g.Store:id"/>
-								<mvt:assign name="l.uri:cat_id" value="l.settings:subcategory:id"/>
-								<mvt:do file="g.Module_Feature_URI_DB" name="l.have_uri" value="URI_Load_Item_Canonical(l.uri, l.settings:subcategory:link)"/>
-								<mvt:do file="g.Module_Library_DB" name="l.settings:GeneratedImage_Load_FileOK" value="Image_Load_File(l.settings:subcategory:image,  l.settings:top_category_image:image)"/>
-								<div class="o-layout__item u-text-center x-product-list__item">
-									<a class="u-block x-product-list__link" href="&mvte:subcategory:link:uri;">
-										<figure class="x-product-list__figure">
-											<picture class="x-product-list__picture" style="height: 150px;">
-												<img alt="&mvte:subcategory:name;" class="x-product-list__image" decoding="async" height="&mvte:top_category_image:image:height;" loading="lazy" src="&mvte:subcategory:image;" style="aspect-ratio: &mvte:top_category_image:image:width; / &mvte:top_category_image:image:height;; max-width: 100%;" width="&mvte:top_category_image:image:width;">
-											</picture>
-											<figcaption class="x-product-list__figure-caption x-product-list__figure-caption_alt">
-												<span class="x-product-list__name">&mvte:subcategory:name;</span>
-											</figcaption>
-										</figure>
-									</a>
-								</div>
-							</mvt:foreach>
-						</section>
-					</mvt:if>
-		
-					<mvt:comment> <mvt:item name="category_listing" /> </mvt:comment>
-					
-					<section class="o-layout">
-						<div class="o-layout__item">
+							<mvt:if expr="l.settings:subcategory_count GT 0">
+								<section class="sd2-v2-brand-grid" aria-label="&mvte:category:name; brands">
+									<mvt:foreach iterator="subcategory" array="subcategories">
+										<mvt:assign name="l.uri:store_id" value="g.Store:id"/>
+										<mvt:assign name="l.uri:cat_id" value="l.settings:subcategory:id"/>
+										<mvt:do file="g.Module_Feature_URI_DB" name="l.have_uri" value="URI_Load_Item_Canonical(l.uri, l.settings:subcategory:link)"/>
+										<a class="sd2-v2-brand-card" href="&mvte:subcategory:link:uri;">
+											<span class="sd2-v2-brand-card__media">
+												<mvt:if expr="NOT ISNULL l.settings:subcategory:image"><img src="&mvte:subcategory:image;" alt="" loading="lazy" decoding="async"><mvt:else><span aria-hidden="true">SD</span></mvt:if>
+											</span>
+											<span class="sd2-v2-brand-card__name">&mvte:subcategory:name;</span>
+											<span class="sd2-v2-brand-card__action">View products <span aria-hidden="true">&rarr;</span></span>
+										</a>
+									</mvt:foreach>
+								</section>
+							<mvt:else>
+								<mvt:item name="category_listing" />
+							</mvt:if>
 							<mvt:item name="prod_ctgy_hdft" param="ctgy_footer" />
 						</div>
-					</section>
-					
-					<mvt:item name="hdft" param="footer" />
-				</div>				
+					</div>
+				</div>
 			</div>
 		</div>
-	</section>
-	<br>
+	</main>
 
+	<mvt:item name="hdft" param="footer" />
 	<mvt:item name="hdft" param="global_footer" />
-
 </body>
 </html>

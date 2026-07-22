@@ -44,6 +44,25 @@ Folder: `integrations/` — full details in `integrations/README.md`.
 
 ---
 
+## Tech Stack
+All services are **Node.js** (`v1.0.0`). Common core: `axios` (HTTP), `oauth-1.0a` +
+`crypto-js` (NetSuite OAuth 1.0 / HMAC-SHA256), `node-cron` (scheduling), `dotenv` (secrets).
+
+| Project | Dependencies |
+| --- | --- |
+| `sinister-netsuite-sync` | axios, crypto-js, dotenv, node-cron, oauth-1.0a, pdfkit, xlsx |
+| `sinister-netsuite-sync-linux` | + uuid, **PM2** (nginx, dashboard server) |
+| `tiktok-netsuite-sync/…netsuite-sync` | axios, crypto-js, dotenv, node-cron, oauth-1.0a |
+| `tiktok-netsuite-sync/…tiktok-sync` | axios, crypto, dotenv, express, node-cron, oauth-1.0a, open |
+| `netsuite-monday-integration` | axios, dotenv, node-cron, oauth-1.0a, pdfkit, xlsx |
+| `sinister-forms-api` | express (Node ≥20, private) |
+
+- NetSuite jobs add `pdfkit` + `xlsx` for PDF/spreadsheet reports.
+- TikTok & forms services add `express` for OAuth callbacks / webhooks.
+- Linux deploy runs on **PM2** behind **nginx**.
+
+---
+
 ## Related
 - [[Website Revamp]] — the V2 store embeds monday.com help forms; `spons.mvt` has a
   (flagged) monday.com token to rotate.

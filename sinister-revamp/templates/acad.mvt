@@ -13,10 +13,6 @@
 	</mvt:if>
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
 	<mvt:item name="head" param="head_tag" />
-	<mvt:comment>Revamp V2 route takeover fallback: direct V2 CSS while live page resource assignments are verified.</mvt:comment>
-	<link rel="stylesheet" href="/mm5/css/00000001/sd2-global.css" media="all">
-	<link rel="stylesheet" href="/css/00000001/sd2-global.css" media="all">
-	<link rel="stylesheet" href="/sd2-global.css" media="all">
 </head>
 <body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass;">
 	<mvt:item name="hdft" param="global_header" />
@@ -49,10 +45,5 @@
 
 	<mvt:item name="hdft" param="footer" />
 	<mvt:item name="hdft" param="global_footer" />
-
-	<mvt:comment>Revamp V2 route takeover fallback: direct V2 JS while live page resource assignments are verified.</mvt:comment>
-	<script src="/mm5/scripts/00000001/sd2-v2-components.js" defer></script>
-	<script src="/scripts/00000001/sd2-v2-components.js" defer></script>
-	<script src="/sd2-v2-components.js" defer></script>
 </body>
 </html>

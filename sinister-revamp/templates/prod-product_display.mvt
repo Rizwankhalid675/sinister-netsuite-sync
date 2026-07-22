@@ -1,3 +1,6 @@
+<mvt:assign name="l.settings:sd2_primary_product_name" value="l.settings:product:name" />
+<mvt:assign name="l.settings:sd2_primary_formatted_price" value="l.settings:product:formatted_price" />
+<mvt:assign name="l.settings:sd2_primary_inv_level" value="l.settings:product:inv_level" />
 <main class="sd2-v2-pdp" data-v2-pdp>
 		<header class="sd2-v2-product-hero">
 			<div class="sd2-v3-product-hero__copy">
@@ -27,6 +30,9 @@
 			<h2>Confirm This Part Against Your Build</h2>
 			<p data-v2-fitment-copy>No vehicle selected. Open Garage to verify year, make, model, and engine before ordering.</p>
 			<button class="sd2-btn sd2-btn--secondary" type="button" data-v2-garage-toggle>Open Garage</button>
+			<div data-v2-product-fitments hidden>
+				<mvt:foreach iterator="fitment" array="product:customfield_values:combofacets:fitment"><span><mvt:eval expr="gettoken(l.settings:fitment,'>',1) $ ' ' $ gettoken(l.settings:fitment,'>',2) $ ' ' $ gettoken(l.settings:fitment,'>',3) $ ' ' $ gettoken(l.settings:fitment,'>',4)" /></span></mvt:foreach>
+			</div>
 		</section>
 
 		<section class="sd2-v2-pdp__layout" aria-label="Product purchase area" data-sd2-story>
@@ -135,12 +141,12 @@
 			</div>
 		</section>
 
-		<nav class="sd2-v2-product-tabs sd2-v3-product-jumpnav" aria-label="Product information">
-			<a href="#description">Overview</a>
-			<a href="#specifications">Specifications</a>
-			<a href="#installation">Installation</a>
-			<a href="#reviews">Reviews</a>
-			<a href="#faq">FAQ</a>
+		<nav class="sd2-v2-product-tabs sd2-v3-product-jumpnav" aria-label="Product information" data-v2-pdp-jumpnav>
+			<a href="&mvte:urls:PROD:auto_sep;Product_Code=&mvta:product:code;#description">Overview</a>
+			<a href="&mvte:urls:PROD:auto_sep;Product_Code=&mvta:product:code;#specifications">Specifications</a>
+			<a href="&mvte:urls:PROD:auto_sep;Product_Code=&mvta:product:code;#installation">Installation</a>
+			<a href="&mvte:urls:PROD:auto_sep;Product_Code=&mvta:product:code;#reviews">Reviews</a>
+			<a href="&mvte:urls:PROD:auto_sep;Product_Code=&mvta:product:code;#faq">FAQ</a>
 		</nav>
 
 		<section class="sd2-v2-pdp-section" id="specifications" aria-labelledby="sd2-v2-specs-title">
@@ -218,7 +224,7 @@
 											<span class="sd2-v2-price__current">&mvt:product:formatted_price;</span>
 										</div>
 									</div>
-									<a class="sd2-v2-product-card__link" data-mm-linktype="product-list-link" href="&mvte:product:link;">View</a>
+									<a class="sd2-v2-product-card__link" data-mm-linktype="product-list-link" href="&mvte:product:link;" aria-label="View &mvte:product:name;">View</a>
 								</div>
 								<mvt:if expr="l.settings:product:inv_active">
 									<p class="sd2-v2-stock"><span class="sd2-v2-stock__dot"></span>&mvt:product:inv_short;</p>
@@ -252,8 +258,8 @@
 		</section>
 
 		<div class="sd2-v2-sticky-buy" data-v2-sticky-buy>
-			<div><strong>&mvte:product:name;</strong><span>&mvt:product:formatted_price;</span></div>
-			<mvt:if expr="l.settings:product:inv_level NE 'out'">
+			<div><strong><mvt:eval expr="encodeentities(l.settings:sd2_primary_product_name)" /></strong><span><mvt:eval expr="encodeentities(l.settings:sd2_primary_formatted_price)" /></span></div>
+			<mvt:if expr="l.settings:sd2_primary_inv_level NE 'out'">
 				<span class="sd2-btn sd2-btn--primary" onclick="document.forms.add.action = '&mvtj:urls:BASK:auto;'; document.forms.add.elements.Action.value = 'ADPR'; document.forms.add.submit();">Add To Cart</span>
 			</mvt:if>
 		</div>

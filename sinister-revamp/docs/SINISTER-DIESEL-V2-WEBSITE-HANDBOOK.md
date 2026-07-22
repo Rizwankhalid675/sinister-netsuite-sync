@@ -291,7 +291,7 @@ flowchart TD
     B --> C[Customer receipt and team workflow]
 ```
 
-The browser submits to a same-origin application path. The server-side service validates the payload and creates the Monday.com item using credentials that are not shipped to the customer.
+The browser submits the normalized payload to the shared `sinister-forms-api` endpoint. The server-side service validates it and creates the Monday.com item using credentials that are never shipped to the customer. Until the permanent hostname reaches the correct origin, the preview uses a temporary tunnel only when the primary endpoint explicitly returns HTTP `404`; other failures are not retried, which avoids duplicate items after ambiguous responses.
 
 ---
 
@@ -301,8 +301,8 @@ The browser submits to a same-origin application path. The server-side service v
 |---|---|---|---|
 | Miva Merchant | Commerce source of truth | Implemented and previewed | Store owner / Miva administrator |
 | MMT | Theme synchronization and preview deployment | Last verified clean | Development/release owner |
-| Monday.com | Customer inquiry work management | Server-side mapping implemented; production workflow must be smoke-tested | Customer service / Monday administrator |
-| Forms relay | Validates help payloads and calls Monday.com | Deployed service previously health-checked; validate at launch | Application/server owner |
+| Monday.com | Customer inquiry work management | Server-side mapping implemented; each real production workflow still needs one controlled smoke test | Customer service / Monday administrator |
+| Forms relay | Validates help payloads and calls Monday.com | PM2 service healthy; 36/36 integration tests pass; permanent DNS still reaches the wrong origin | Application/server and DNS owners |
 | Google reCAPTCHA | Bot protection for applicable forms | Credentials were verified in Miva; verify rendered production actions | Miva / Google administrator |
 | Extend | Warranty or protection integration | External configuration dependency; vendor request observed returning 404 | Extend merchant owner / Miva module administrator |
 | Payment gateways | Card and alternate payment processing | Native Miva path retained | Finance / Miva administrator |
@@ -320,7 +320,7 @@ The browser submits to a same-origin application path. The server-side service v
 
 ### Forms relay operating model
 
-The repository's `integrations/forms-sync/` package documents native routes for sales, missing/damaged parts, returns/exchanges, order tracking, technical support, warranty, and shipping claims. Its tests use a fake provider and do not create real Monday.com items. Production calls must originate from the deployed server-side service and use configuration supplied through the service environment.
+The repository's `integrations/forms-sync/` package defines the server-side form contract for sales, missing/damaged parts, returns/exchanges, order tracking, technical support, warranty, and shipping claims. The six native Help Center templates preserve their own field names for Miva, while shared JavaScript normalizes those values to `name`, `email`, `phone`, `subject`, `message`, `source`, and `company_website` for `sinister-forms-api`. Workflow-specific order, product, issue, attachment, and notes data is retained in the subject/message sent to Monday.com. Automated tests use a fake provider and do not create real Monday.com items.
 
 ---
 
@@ -355,7 +355,7 @@ The matrix below distinguishes visible symptoms from root causes. This matters b
 | SEO | Public and transactional pages lacked one coherent indexing policy | Metadata evolved page by page | Added dynamic metadata, canonicals, structured data, and private-route `noindex,follow` | Stronger crawl and index hygiene |
 | Responsive layout | Controls, cards, and page families overflowed or felt oversized | Desktop-first dimensions and inconsistent breakpoints | Audited desktop/mobile routes and tightened responsive behavior | Better usability across devices |
 | Motion | Premium movement risked becoming distracting | Component effects were not centrally constrained | Lightweight dependency-free motion plus reduced-motion fallbacks | Polish without blocking accessibility |
-| Text selection | Default selection became unreadable over blue sections | Browser selection colors conflicted with the palette | Technical Blue interaction treatment has been designed; implementation remains tracked | Consistent branded interaction when completed |
+| Text selection | Default selection became unreadable over blue sections | Browser selection colors conflicted with the palette | Global Technical Blue selection is implemented in the shared V2 CSS | Consistent branded interaction on light and dark surfaces |
 | Extend | Vendor endpoint returned 404 | External merchant/module configuration | Escalate to authorized Extend/Miva owner; do not mask with CSS | Prevents false protection promises |
 
 ---
@@ -460,19 +460,20 @@ An earlier automated visual sweep recorded 52 routes. It was followed by additio
 
 ## Current Release Position
 
-### Verified state on July 21, 2026
+### Verified state on July 22, 2026
 
 | Dimension | Position | Evidence |
 |---|---|---|
 | Storefront branch | `Revamp_v2` preview | Rendered preview sessions and MMT workflow |
 | Core design | Implemented | Shared V2 CSS, templates, partials, and browser review |
 | Commerce presentation | Implemented | PDP, basket, checkout, account, category, and regression checks |
-| Automated tests | Passing at latest verification | Node test suite |
+| Automated tests | Passing at latest verification | 20/20 root regressions and 36/36 forms/API integration tests passed on July 22, 2026 |
 | MMT working state | Clean | `mmt status` → **No files modified** |
 | Git release state | Consolidation required | Many synchronized/deployed source files remain outside one clean release commit |
 | Production/default branch | Not activated by this handbook | Owner-controlled Miva publication remains |
 | Extend | Not release-verified | External configuration returns a vendor 404 |
-| Production forms | Final smoke test required | Server-side relay exists; verify every production workflow after publication |
+| Production forms | Storefront contract repaired; DNS/proxy correction and final real-routing smoke test required | Six native Help Center workflows and Sales Inquiry target the shared API contract with a temporary `404`-only tunnel fallback; the permanent hostname still reaches the wrong origin |
+| Technical Blue interaction | Implemented | Global branded text selection is live in the `Revamp_v2` branch CSS |
 | Real-user performance | Unknown until traffic | Post-launch RUM/Core Web Vitals |
 
 ### Release-readiness interpretation
@@ -488,12 +489,12 @@ The preview is suitable for final owner validation. It should not be represented
 | **Required** | Development / release owner | A clean, recoverable release reference is needed before production | Review the dirty Git tree, include only intended V2 source, create a release commit/tag, and archive the exact MMT state. |
 | **Required** | Store owner / Miva administrator | Production cannot begin without explicit activation | Complete the checklist below and publish `Revamp_v2` through the approved Miva branch workflow. |
 | **Required** | QA + store owner | Checkout success is not fully proven until an authorized end-to-end transaction is completed | Use an approved test gateway/card or controlled transaction, confirm order creation, email, payment state, and cancellation/refund procedure. |
-| **Required** | Customer service + forms owner | A form can look successful while routing to the wrong board/group | Submit one controlled request for every production help workflow and confirm the Monday.com item and customer receipt. |
+| **Required** | Customer service + forms owner | Source-level and intercepted-browser checks cannot prove the real board/group and customer receipt | After permanent DNS is corrected, submit one controlled request for every production help workflow and confirm the Monday.com item and customer receipt. |
+| **Required** | DNS / Cloudflare owner | `forms-api.sinisterdiesel.com` currently reaches an Apache origin instead of the forms server | Point the proxied `forms-api` DNS record to `163.192.15.136`, verify the public POST route, then remove the temporary `404`-only tunnel fallback. |
 | **External dependency** | Extend merchant owner / Miva administrator | Warranty/protection functionality may fail or misrepresent availability | Obtain Extend access or vendor support and correct the configured store/API relationship that returns 404. |
 | **Catalog ownership** | Merchandising / Miva catalog owner | Two configurable coolant-hose PDPs can display a zero base price before options | Define truthful base/variant pricing behavior in Miva; keep listing CTA as `Choose options` until corrected. |
 | **Recommended** | QA | Browser-specific issues may remain outside Chrome preview review | Smoke-test current Chrome, Safari, Firefox, and Edge plus iOS Safari and Android Chrome. |
 | **Recommended** | Accessibility owner | Automated checks do not replace assistive-technology review | Perform keyboard-only, zoom, contrast, form-label, error, and screen-reader smoke tests. |
-| **Approved design, not implemented** | Frontend owner | No release blocker, but leaves an inconsistent text-selection/microinteraction detail | Implement and verify the Technical Blue interaction specification. |
 | **Post-launch** | Marketing / analytics | Search and performance gains cannot be measured in preview | Capture baseline and 30-day Search Console, analytics, conversion, form, error, and Core Web Vitals data. |
 
 ### Explicitly not a storefront-code fix
@@ -625,7 +626,7 @@ Rollback promptly if any of the following occurs and cannot be corrected safely 
 - Resolve the Extend configuration or formally remove/defer the affected offer with stakeholder approval.
 - Correct configurable base-price records.
 - Establish Search Console, analytics, conversion, and Core Web Vitals baselines.
-- Implement the approved Technical Blue interaction layer if it was not included before launch.
+- Monitor the Technical Blue interaction layer with the rest of the shared design system during regression reviews.
 
 ### Days 31–60 — optimize the highest-impact friction
 
@@ -770,7 +771,7 @@ Account, login, password, wish-list management, basket, checkout, order, return 
 - Images need useful alternative text when informative and empty alternative text when decorative.
 - Motion must respect `prefers-reduced-motion`.
 - Text must remain readable at browser zoom and on narrow mobile widths.
-- The approved Technical Blue specification defines a restrained selection, focus, link, button, autofill, scrollbar, and reduced-motion layer; it remains a tracked implementation item until verified in source and preview.
+- The approved Technical Blue specification now provides a restrained, globally verified text-selection layer; focus, link, button, autofill, scrollbar, and reduced-motion behavior remains governed by the shared V2 design system.
 
 ---
 

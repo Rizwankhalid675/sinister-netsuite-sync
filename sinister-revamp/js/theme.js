@@ -5,6 +5,9 @@
 
 var themeFunctionality = {
 	init: function () {
+		if (typeof $.loadScript !== 'function') {
+			return;
+		}
 		/**
 		 * Load and initialize the Fasten Header extension
 		 */

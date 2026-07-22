@@ -162,9 +162,9 @@
         {
             "active": 1,
             "id": "220389c7e050dc32a3d7d3835179320c",
-            "link_dest": "news",
+            "link_dest": "https://sinisterdiesel.com/newsletter",
             "link_targ": "_self",
-            "link_type": "G",
+            "link_type": "U",
             "name": "Join Sinister Insider"
         },
         {

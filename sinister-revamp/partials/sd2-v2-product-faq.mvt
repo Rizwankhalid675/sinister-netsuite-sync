@@ -1,12 +1,6 @@
-<mvt:comment>Product FAQ V2 partial. Reuses Commerce Foundation accordion.</mvt:comment>
-<section class="sd2-v2-pdp-section" id="faq" aria-labelledby="sd2-v2-faq-title">
-	<div class="sd2-v2-pdp-section__header">
-		<p class="sd2-kicker">FAQ</p>
-		<h2 id="sd2-v2-faq-title">Common Questions</h2>
-	</div>
-	<div class="sd2-v2-accordion" data-v2-accordion>
-		<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="true" data-v2-accordion-trigger>Will this fit my truck?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel><p>Select your vehicle in Garage to verify fitment messaging.</p></div></div>
-		<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="false" data-v2-accordion-trigger>What is included?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel hidden><p>[Placeholder] Included components from product data.</p></div></div>
-		<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="false" data-v2-accordion-trigger>Is installation support available?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel hidden><p>Sinister Diesel support can assist with product-specific install questions.</p></div></div>
-	</div>
-</section>
+<mvt:comment>Product FAQ V2 partial. Answers point to verified product and support content.</mvt:comment>
+<section class="sd2-v2-pdp-section" id="faq" aria-labelledby="sd2-v2-faq-title"><div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">FAQ</p><h2 id="sd2-v2-faq-title">Common Questions</h2></div><div class="sd2-v2-accordion" data-v2-accordion>
+	<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="true" data-v2-accordion-trigger>Will this fit my truck?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel><p>Select your vehicle in Garage and review the vehicle applications in Product Data.</p></div></div>
+	<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="false" data-v2-accordion-trigger>What is included?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel hidden><p>Kit contents supplied for this item are listed in Product Data and the product overview.</p></div></div>
+	<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="false" data-v2-accordion-trigger>Is installation support available?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel hidden><p>Download the product instructions when available or contact Sinister Diesel support.</p></div></div>
+</div></section>

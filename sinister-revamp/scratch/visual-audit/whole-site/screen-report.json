@@ -1,0 +1,344 @@
+[
+  {
+    "code": "SARP",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=SARP",
+    "title": "Sinister Diesel: Return/Exchange",
+    "bodyId": "js-SARP",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present o-site-wrapper t-page-sarp",
+    "h1": [
+      "RETURNS / EXCHANGES"
+    ],
+    "v2": true,
+    "play": 11,
+    "overflow": 0
+  },
+  {
+    "code": "TURBOWARRANTY",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=TURBOWARRANTY",
+    "title": "Sinister Diesel: Turbo Warranty",
+    "bodyId": "js-turbowarranty",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present o-site-wrapper t-page-turbowarranty",
+    "h1": [
+      "TURBO WARRANTY DETAILS AND PROCESSES"
+    ],
+    "v2": true,
+    "play": 11,
+    "overflow": 0
+  },
+  {
+    "code": "SERT",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=SERT",
+    "title": "",
+    "bodyId": "",
+    "bodyClass": "",
+    "h1": [],
+    "v2": false,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "RULES",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=RULES",
+    "title": "giveaway rule | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [
+      "Sinister Diesel Truck Sweepstakes Official Rules"
+    ],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "TAX",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=TAX",
+    "title": "Return Season",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present newyears-2025 single-column",
+    "h1": [],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "TRUCK",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=TRUCK",
+    "title": "Truckfest | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "67CSCPT",
+    "status": 404,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=67CSCPT",
+    "title": "Part Not Available | Sinister Diesel",
+    "bodyId": "js-NTFD",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present o-site-wrapper sd2-recovery-page t-page-ntfd",
+    "h1": [
+      "WE COULD NOT OPEN THAT PAGE."
+    ],
+    "v2": true,
+    "play": 4,
+    "overflow": 0
+  },
+  {
+    "code": "NY25",
+    "status": 404,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=NY25",
+    "title": "Part Not Available | Sinister Diesel",
+    "bodyId": "js-NTFD",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present o-site-wrapper sd2-recovery-page t-page-ntfd",
+    "h1": [
+      "WE COULD NOT OPEN THAT PAGE."
+    ],
+    "v2": true,
+    "play": 4,
+    "overflow": 0
+  },
+  {
+    "code": "SPRING",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=SPRING",
+    "title": "Spring Sale",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present newyears-2025 single-column",
+    "h1": [],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "XMAS2025",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=XMAS2025",
+    "title": "Christmas Sale 2025",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present newyears-2025 single-column",
+    "h1": [],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "V2CAI",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=V2CAI",
+    "title": "v2 Cold Air Intakes | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [
+      "PRECISION ENGINEERED\nCold Air Intakes"
+    ],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "V325CP",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=V325CP",
+    "title": "2025 Cold Side Charge Pipe | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [
+      "2025 Cold Side Charge Pipe"
+    ],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "V34TH",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=V34TH",
+    "title": "4th of July Sale | 12% Off with Code JULY4 | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [
+      "SINISTER DIESEL\n4th of July Sale"
+    ],
+    "v2": true,
+    "play": 44,
+    "overflow": 0
+  },
+  {
+    "code": "V3CAI",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=V3CAI",
+    "title": "v3 Cold Air Intakes | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [
+      "PRECISION ENGINEERED\nCold Air Intakes"
+    ],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "V3CF",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=V3CF",
+    "title": "Premium Coolant Filtration Kits | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "single-column",
+    "h1": [
+      "Extend Engine Life with Clean Coolant"
+    ],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "V3ET",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=V3ET",
+    "title": "Premium Diesel Exhaust Tips | Aggressive Style & Performance | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "single-column",
+    "h1": [
+      "SINISTER DIESEL\nPREMIUM EXHAUST TIPS"
+    ],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "V3FF",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=V3FF",
+    "title": "v3 Fuel Filter | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [],
+    "v2": true,
+    "play": 0,
+    "overflow": 320
+  },
+  {
+    "code": "V3OC",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=V3OC",
+    "title": "6.0 Powerstroke Oil Cooler Upgrade | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "single-column",
+    "h1": [
+      "STOP OVERHEATING\nHigh-Performance Oil Cooler"
+    ],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "V3OIL",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=V3OIL",
+    "title": "v3 Oil Bypass | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [
+      "ULTIMATE PROTECTION\nOil Bypass Filtration Kits"
+    ],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "V3PRIME",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=V3PRIME",
+    "title": "Prime Time Savings | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [
+      "PRIME TIME SAVINGS\nUpgrade Your Diesel Performance"
+    ],
+    "v2": true,
+    "play": 47,
+    "overflow": 0
+  },
+  {
+    "code": "4THSALE",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=4THSALE",
+    "title": "4thsale | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [],
+    "v2": true,
+    "play": 0,
+    "overflow": 320
+  },
+  {
+    "code": "COOLANTFI",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=COOLANTFI",
+    "title": "Coolant Filtration | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "COOLFIL",
+    "status": 404,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=COOLFIL",
+    "title": "Part Not Available | Sinister Diesel",
+    "bodyId": "js-NTFD",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present o-site-wrapper sd2-recovery-page t-page-ntfd",
+    "h1": [
+      "WE COULD NOT OPEN THAT PAGE."
+    ],
+    "v2": true,
+    "play": 4,
+    "overflow": 0
+  },
+  {
+    "code": "FUELFILTE",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=FUELFILTE",
+    "title": "fuelfilter | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [],
+    "v2": true,
+    "play": 0,
+    "overflow": 320
+  },
+  {
+    "code": "INTAKES",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=INTAKES",
+    "title": "Intakes | Sinister Diesel",
+    "bodyId": "",
+    "bodyClass": "mm_runtimebranchpreview_bottom_left mm_runtimebranchpreview_present single-column",
+    "h1": [],
+    "v2": true,
+    "play": 0,
+    "overflow": 0
+  },
+  {
+    "code": "SPOTLIGHT",
+    "status": 200,
+    "url": "https://sinisterdiesel.com/mm5/merchant.mvc?Screen=SPOTLIGHT",
+    "title": "spotlight |",
+    "bodyId": "",
+    "bodyClass": "single-column",
+    "h1": [],
+    "v2": false,
+    "play": 0,
+    "overflow": 0
+  }
+]

@@ -68,4 +68,11 @@ for (const selector of [
   assert.ok(css.includes(selector), `shared CSS must contain ${selector}`);
 }
 
+assert.doesNotMatch(css, /\[class\*="sitemap"\]/, 'directory rules must not match every nested sitemap class');
+assert.doesNotMatch(css, /^\.sd2-editorial-workflow/m, 'dealer workflow rules must remain scoped to its editorial variant');
+assert.match(css, /\[data-editorial-variant="reviews"\] #SA_review_wrapper \{[^}]*overflow-x:\s*auto/s,
+  'fixed-width review widgets need a contained horizontal overflow fallback');
+assert.match(css, /\.sd2-blog__hero :is\(p,li,a,label,button\) \{[^}]*font-family:\s*var\(--sd2-font-body\)!important/s,
+  'blog hero supporting copy must use the V2 body typeface');
+
 console.log(`v2 editorial pages: ${Object.keys(variants).length} templates verified`);

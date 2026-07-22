@@ -39,7 +39,7 @@
 
 			<section class="sd2-help-form-shell" aria-labelledby="missing-form-title">
 				<aside class="sd2-help-form-shell__rail"><p class="sd2-eyebrow">Package support</p><h2 id="missing-form-title">Make the shipment whole.</h2><p>Tell us what arrived, what did not, and whether the product was installed.</p><ol class="sd2-help-form-shell__steps"><li><span>01</span><strong>Identify the order</strong></li><li><span>02</span><strong>Describe the issue</strong></li><li><span>03</span><strong>We route the resolution</strong></li></ol><div class="sd2-help-form-shell__signal" aria-hidden="true"><span></span><span></span><span></span></div></aside>
-				<form class="sd2-help-form" data-sd2-help-form="missing-damaged-parts" data-endpoint="/api/help-forms/missing-damaged-parts" data-submit-label="Send Parts Request">
+				<form class="sd2-help-form" data-sd2-help-form="missing-damaged-parts" data-endpoint="https://forms-api.sinisterdiesel.com/api/forms/submit" data-fallback-endpoint="https://conditioning-gorgeous-ddr-vids.trycloudflare.com/api/forms/submit" data-submit-label="Send Parts Request">
 					<div data-help-form-fields><div class="sd2-help-form__topline"><div><p class="sd2-help-form__kicker">Parts request</p><h2>What was missing or damaged?</h2></div><span class="sd2-help-form__route"><i aria-hidden="true"></i> Customer care</span></div>
 						<div class="sd2-help-form__grid">
 							<div class="sd2-help-field"><label for="missing-name">Name *</label><input id="missing-name" name="name" type="text" autocomplete="name" maxlength="255" required><span class="sd2-help-field__error" data-field-error="name"></span></div>

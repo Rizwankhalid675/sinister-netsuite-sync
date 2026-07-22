@@ -85,7 +85,7 @@
 									</div>
 								</li>
 								<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full u-text-center">
-									<input class="sd2-v2-button sd2-v2-button--huge u-bg-black u-font-tiny u-text-bold u-text-uppercase" type="submit" value="Continue">
+									<input class="sd2-btn sd2-btn--primary" type="submit" value="Continue">
 								</li>
 							</ul>
 						</fieldset>

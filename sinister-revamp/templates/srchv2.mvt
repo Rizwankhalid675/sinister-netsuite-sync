@@ -52,9 +52,9 @@
 					<button class="sd2-btn sd2-btn--primary" type="submit">Search</button>
 				</div>
 			</form>
-			<mvt:comment>TODO: register Vehicle Banner V2 in Miva Admin as readytheme contentsection('vehicle_banner') before using mvt:item composition.</mvt:comment>
+			<mvt:item name="readytheme" param="contentsection( 'vehicle_banner' )" />
 			<mvt:if expr="NOT ISNULL g.Search AND l.settings:search_product_count EQ 0">
-				<p class="sd2-v2-search-page__correction">Suggested correction placeholder: try a platform, engine, or part family.</p>
+				<p class="sd2-v2-search-page__correction">Check the spelling or try a platform, engine, part number, or product family.</p>
 			</mvt:if>
 		</header>
 
@@ -75,9 +75,9 @@
 			<div class="sd2-v2-search-suggestions__block">
 				<h2 class="sd2-v2-search-suggestions__title">Suggested Categories</h2>
 				<div class="sd2-v2-search-suggestions__links">
-					<a href="&mvte:urls:CTGYENGV2:auto;">Powerstroke Parts</a>
-					<a href="&mvte:urls:CTGYENGV2:auto;">Duramax Parts</a>
-					<a href="&mvte:urls:CTGYENGV2:auto;">Cummins Parts</a>
+						<a href="/ford-powerstroke-powerstroke-diesel-truck-parts-online.html">Powerstroke Parts</a>
+						<a href="/shop-gm-duramax-diesel-parts-sinister-diesel.html">Duramax Parts</a>
+						<a href="/dodge-cummins-diesel-performance-parts-sinister-diesel.html">Cummins Parts</a>
 				</div>
 			</div>
 		</section>
@@ -143,7 +143,7 @@
 							</div>
 						</div>
 						<div class="sd2-v2-search-empty__grid">
-							<div><h3>Popular Categories</h3><a href="&mvte:urls:CTGYLISTV2:auto;">Intercoolers &amp; Pipes</a><a href="&mvte:urls:CTGYLISTV2:auto;">Coolant &amp; Oil Filtration</a><a href="&mvte:urls:CTGYLISTV2:auto;">Turbos</a></div>
+			<div><h3>Popular Categories</h3><a href="/intercoolers-pipes.html">Intercoolers &amp; Pipes</a><a href="/view-all-filtration-kits.html">Coolant &amp; Oil Filtration</a><a href="/turbos.html">Turbos</a></div>
 							<div><h3>Popular Products</h3><a href="&mvte:urls:SRCHV2:auto;?Search=charge%20pipe">Charge Pipe Kits</a><a href="&mvte:urls:SRCHV2:auto;?Search=fuel%20filter">Fuel Filter Kits</a><a href="&mvte:urls:SRCHV2:auto;?Search=oil%20bypass">Oil Bypass Kits</a></div>
 							<div><h3>Buying Guides</h3><a href="&mvte:urls:NEWS:auto;">Platform Guides</a><a href="&mvte:urls:NEWS:auto;">Install Notes</a><a href="&mvte:urls:NEWS:auto;">Build Stories</a></div>
 						</div>

@@ -1,14 +1,2 @@
-<mvt:comment>Product Summary V2 partial.</mvt:comment>
-<section class="sd2-v2-pdp-section" id="description" aria-labelledby="sd2-v2-summary-title">
-	<div class="sd2-v2-pdp-section__header">
-		<p class="sd2-kicker">Overview</p>
-		<h2 id="sd2-v2-summary-title">Built For Workload, Fitment, And Finish</h2>
-	</div>
-	<div class="sd2-v2-pdp-copy">
-		<mvt:if expr="l.settings:product:descrip">
-			&mvt:product:descrip;
-		<mvt:else>
-			<p>[Placeholder] Product description will render from the active Miva product record.</p>
-		</mvt:if>
-	</div>
-</section>
+<mvt:comment>Product Summary V2 partial. Description comes from the active Miva product record.</mvt:comment>
+<mvt:if expr="NOT ISNULL l.settings:product:descrip"><section class="sd2-v2-pdp-section" id="description" aria-labelledby="sd2-v2-summary-title"><div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Overview</p><h2 id="sd2-v2-summary-title">Product Overview</h2></div><div class="sd2-v2-pdp-copy">&mvt:product:descrip;</div></section></mvt:if>

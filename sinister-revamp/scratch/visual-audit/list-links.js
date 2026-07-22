@@ -1,0 +1,2 @@
+﻿const { chromium } = require('playwright');
+(async()=>{const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:1440,height:1000}});await p.goto('https://sinisterdiesel.com/?BranchKey=b5afdddae9601468481279b3c52b007d',{waitUntil:'networkidle',timeout:60000});await p.waitForTimeout(3000);const links=await p.locator('a[href]').evaluateAll(as=>[...new Set(as.map(a=>a.href).filter(h=>h.includes('sinisterdiesel.com')))]);console.log(links.slice(0,100).join('\n'));await b.close();})();

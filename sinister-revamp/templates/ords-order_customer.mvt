@@ -35,7 +35,7 @@
 		<mvt:item name="customfields" param="Read_Order(l.settings:order:id, 'order_instructions')" />
 		<mvt:if expr="NOT ISNULL l.settings:customfields:order_instructions">
 			<li class="o-list-block__item">
-				<p class="u-font-tiny u-text-bold u-text-uppercasee">Delivery Notes</p>
+				<p class="u-font-tiny u-text-bold u-text-uppercase">Delivery Notes</p>
 				<div class="u-color-gray-50">
 					&mvt:order_instructions;<br>
 				</div>

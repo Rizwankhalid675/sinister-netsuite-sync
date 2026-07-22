@@ -88,6 +88,8 @@
 			var name = line.querySelector('.x-mini-basket__item-name');
 			var price = line.querySelector('.x-mini-basket__item-price');
 			var qty = line.querySelector('.x-mini-basket__item-quantity .u-text-medium');
+			var quantity = Math.max(1, parseInt(qty ? qty.textContent.trim() : '1', 10) || 1);
+			var basketGroup = line.getAttribute('data-basket-group') || '';
 			var remove = line.querySelector('.x-mini-basket__item-total a[href*="Action=RPRD"]');
 			var options = Array.prototype.slice.call(line.querySelectorAll('.x-mini-basket__item-attributes')).map(function (option) {
 				return '<p class="sd2-v2-cart-item__meta">' + escapeHtml(option.textContent.trim()) + '</p>';
@@ -100,7 +102,7 @@
 					'</a>',
 					'<div class="sd2-v2-cart-item__body">',
 						'<h3><a href="', escapeHtml(name ? name.getAttribute('href') : '#'), '">', escapeHtml(name ? name.textContent.trim() : ''), '</a></h3>',
-						'<p class="sd2-v2-cart-item__meta">Qty ', escapeHtml(qty ? qty.textContent.trim() : '1'), '</p>',
+						basketGroup ? '<form class="sd2-v2-cart-qty" data-v2-cart-qty data-basket-group="' + escapeHtml(basketGroup) + '"><button type="button" data-v2-cart-qty-minus aria-label="Decrease quantity">−</button><input type="number" min="0" inputmode="numeric" value="' + quantity + '" aria-label="Quantity" data-v2-cart-qty-input><button type="button" data-v2-cart-qty-plus aria-label="Increase quantity">+</button></form>' : '<p class="sd2-v2-cart-item__meta">Qty ' + quantity + '</p>',
 						options,
 						remove ? '<a class="sd2-v2-link-button" href="' + escapeHtml(remove.getAttribute('href')) + '">Remove</a>' : '',
 					'</div>',

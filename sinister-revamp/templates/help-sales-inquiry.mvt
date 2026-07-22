@@ -157,37 +157,39 @@
 	(function () {
 		var form = document.querySelector('.sd2-help-form');
 		if (!form) { return; }
-		// Endpoint: Cloudflare Tunnel -> localhost:3100 (sinister-forms-api) on the box.
-		// https so no mixed-content from the live storefront; CORS on the API allows
-		// https://sinisterdiesel.com + www. NOTE: this trycloudflare.com URL is EPHEMERAL --
-		// it changes if the tunnel restarts. Swap for a permanent named tunnel / domain before
-		// long-term production reliance.
-		var API = 'https://marketplace-conduct-object-fair.trycloudflare.com/api/forms/submit';
+		// Permanent HTTPS relay. CORS on the API allows the canonical storefront origins.
+		var API = 'https://forms-api.sinisterdiesel.com/api/forms/submit';
+		// Remove this fallback after DNS for the permanent hostname is verified against the API origin.
+		var FALLBACK_API = 'https://conditioning-gorgeous-ddr-vids.trycloudflare.com/api/forms/submit';
 		form.addEventListener('submit', function () {
 			try {
-				// ---- BODY KEYS: adjust to match server.js req.body / COLUMN_MAP ----
+				var sku = (form.contactItemSku || {}).value || '';
 				var payload = {
 					name:    (form.contactName    || {}).value || '',
 					email:   (form.contactEmail   || {}).value || '',
 					phone:   (form.contactPhone   || {}).value || '',
-					sku:     (form.contactItemSku || {}).value || '',
+					subject: sku ? 'Sales Inquiry — ' + sku : 'Sales Inquiry',
 					message: (form.contactMessage || {}).value || '',
-					website: (form.website        || {}).value || '', // honeypot passthrough
-					source:  'help-sales-inquiry'
+					company_website: (form.website || {}).value || '',
+					source:  'general'
 				};
-				// -------------------------------------------------------------------
 				var body = JSON.stringify(payload);
 				// fetch + keepalive survives the Miva redirect that fires immediately after
 				// submit (the request completes even as the page navigates away). Real CORS
 				// mode is required: the API's Access-Control-Allow-Origin must validate.
 				// sendBeacon is NOT used -- with application/json it forces a CORS preflight
 				// it cannot satisfy, so it silently fails.
-				fetch(API, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: body,
-					keepalive: true,
-					mode: 'cors'
+				function post(url) {
+					return fetch(url, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: body,
+						keepalive: true,
+						mode: 'cors'
+					});
+				}
+				post(API).then(function (response) {
+					if (response.status === 404) { return post(FALLBACK_API); }
 				})['catch'](function () { /* never block the Miva submit / email path */ });
 			} catch (e) { /* never block the Miva submit / email path */ }
 		});

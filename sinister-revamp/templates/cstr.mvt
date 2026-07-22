@@ -14,65 +14,62 @@
 </head>
 <body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass;">
 	<mvt:item name="hdft" param="global_header" />
+	<mvt:item name="hdft" param="header" />
 
-	<section class="o-layout">
-		<div class="o-layout__item">
-			<mvt:item name="hdft" param="header" />
-			<mvt:item name="readytheme" param="contentsection( 'messages' )" />
-		</div>
-	</section>
+	<main class="sd2-v2-auth" data-v2-auth>
+		<header class="sd2-v2-account-hero">
+			<p class="sd2-kicker">Account security</p>
+			<h1>&mvt:page:name;</h1>
+			<p>Create a secure new password for your account.</p>
+		</header>
 
-	<section class="o-layout">
-		<div class="o-layout__item u-width-12">
-			<section class="t-expanded-block t-account-landing-section u-bg-white">
-				<div class="o-layout__item t-expanded-block__item t-account-landing-section__content">
-					<form class="o-layout o-layout--justify-center" data-hook="cpca-form" method="post" action="&mvte:urls:CSTR:secure;">
-						<fieldset class="o-layout__item u-width-12 u-width-5--l">
-							<legend>&mvt:page:name;</legend>
-							<input type="hidden" name="Action" value="CSTR" />
-							<input type="hidden" name="CSRF_Token" value="&mvte:global:Basket:csrf_token;" />
-							<input type="hidden" name="Customer_PasswordResetToken" value="&mvte:global:Customer_PasswordResetToken;" />
-							<ul class="sd2-v2-form-list">
-								<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full">
-									<mvt:do file="g.Module_Feature_CUS_DB" name="l.success" value="CustomerSettings_Load(l.settings:customersettings)" />
-									<div class="x-messages x-messages--borderless">
-										<span class="sd2-v2-heading-echo u-block u-text-bold u-text-center u-text-uppercase">Requirements</span>
-										<span class="u-font-small">&bull; Minimum Password Length: &mvt:customersettings:pw_min_len;</span><br>
-										<mvt:if expr="l.settings:customersettings:pw_complex EQ 1">
-											<span class="u-font-small">&bull; At Least one Letter and one Number or Punctuation Character</span>
-										<mvt:elseif expr="l.settings:customersettings:pw_complex EQ 2">
-											<span class="u-font-small">&bull; Mixed Case Letters and at Least one Number or Punctuation Character</span>
-										</mvt:if>
-									</div>
-									<p class="u-text-bold">Please enter your new password.</p>
-									<mvt:if expr="g.Customer_Password_Invalid">
-										<label class="sd2-v2-form-label u-font-tiny u-text-bold u-text-uppercase is-required u-color-red" for="Customer_PasswordResetNewPassword">New Password</label>
-									<mvt:else>
-										<label class="sd2-v2-form-label u-font-tiny u-text-bold u-text-uppercase is-required" for="Customer_PasswordResetNewPassword">New Password</label>
-									</mvt:if>
-									<input id="Customer_PasswordResetNewPassword" class="sd2-v2-form-input sd2-v2-form-input--large" type="password" name="Customer_PasswordResetNewPassword" required>
-								</li>
-								<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full">
-									<mvt:if expr="g.Customer_VerifyPassword_Invalid">
-										<label class="sd2-v2-form-label u-font-tiny u-text-bold u-text-uppercase is-required u-color-red" for="Customer_PasswordResetVerifyNewPassword">Confirm Password</label>
-									<mvt:else>
-										<label class="sd2-v2-form-label u-font-tiny u-text-bold u-text-uppercase is-required" for="Customer_PasswordResetVerifyNewPassword">Confirm Password</label>
-									</mvt:if>
-									<input id="Customer_PasswordResetVerifyNewPasswordd" class="sd2-v2-form-input sd2-v2-form-input--large" type="password" name="Customer_PasswordResetVerifyNewPassword" required>
-								</li>
-								<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full u-text-right">
-									<input class="sd2-btn sd2-btn--large u-bg-black u-font-small u-text-uppercase" type="submit" value="Update" title="Click Here to Change Your Password">
-								</li>
-							</ul>
-						</fieldset>
-					</form>
-				</div>
-			</section>
-		</div>
-	</section>
-	
+		<mvt:item name="readytheme" param="contentsection( 'messages' )" />
+
+		<section class="sd2-v2-auth__panel">
+			<form data-hook="cpca-form" method="post" action="&mvte:urls:CSTR:secure;" autocomplete="off">
+				<fieldset>
+					<legend>&mvt:page:name;</legend>
+					<input type="hidden" name="Action" value="CSTR" />
+					<input type="hidden" name="CSRF_Token" value="&mvte:global:Basket:csrf_token;" />
+					<input type="hidden" name="Customer_PasswordResetToken" value="&mvte:global:Customer_PasswordResetToken;" />
+					<mvt:do file="g.Module_Feature_CUS_DB" name="l.success" value="CustomerSettings_Load(l.settings:customersettings)" />
+					<p class="sd2-v2-validation">
+						<strong>Requirements</strong><br>
+						Minimum Password Length: &mvt:customersettings:pw_min_len;
+						<mvt:if expr="l.settings:customersettings:pw_complex EQ 1">
+							&mdash; At Least one Letter and one Number or Punctuation Character
+						<mvt:elseif expr="l.settings:customersettings:pw_complex EQ 2">
+							&mdash; Mixed Case Letters and at Least one Number or Punctuation Character
+						</mvt:if>
+					</p>
+					<p>Please enter your new password.</p>
+					<ul class="sd2-v2-account-fields sd2-v2-account-fields--wide">
+						<li class="sd2-v2-account-field sd2-v2-account-field--full">
+							<mvt:if expr="g.Customer_Password_Invalid">
+								<label class="u-color-red" for="Customer_PasswordResetNewPassword">New Password</label>
+							<mvt:else>
+								<label for="Customer_PasswordResetNewPassword">New Password</label>
+							</mvt:if>
+							<input id="Customer_PasswordResetNewPassword" type="password" name="Customer_PasswordResetNewPassword" autocomplete="new-password" required>
+						</li>
+						<li class="sd2-v2-account-field sd2-v2-account-field--full">
+							<mvt:if expr="g.Customer_VerifyPassword_Invalid">
+								<label class="u-color-red" for="Customer_PasswordResetVerifyNewPassword">Confirm Password</label>
+							<mvt:else>
+								<label for="Customer_PasswordResetVerifyNewPassword">Confirm Password</label>
+							</mvt:if>
+							<input id="Customer_PasswordResetVerifyNewPassword" type="password" name="Customer_PasswordResetVerifyNewPassword" autocomplete="new-password" required>
+						</li>
+					</ul>
+					<div class="sd2-v2-account-actions">
+						<input class="sd2-btn sd2-btn--primary" type="submit" value="Update" title="Click Here to Change Your Password">
+					</div>
+				</fieldset>
+			</form>
+		</section>
+	</main>
+
 	<mvt:item name="hdft" param="footer" />
-
 	<mvt:item name="hdft" param="global_footer" />
 </body>
 </html>

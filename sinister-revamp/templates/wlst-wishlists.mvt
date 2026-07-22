@@ -1,5 +1,13 @@
 <mvt:if expr="l.settings:wishlists:total_count EQ 0">
-	<p class="x-messages x-messages--info">We were unable to find any wish lists to match your search.</p>
+	<section class="sd2-v2-wishlist-empty" aria-labelledby="sd2-v2-wishlist-empty-title">
+		<p class="sd2-kicker">Saved Builds</p>
+		<h3 id="sd2-v2-wishlist-empty-title">No wish lists found</h3>
+		<p>Create a list to save parts for your next build, or clear the current search and try again.</p>
+		<div class="sd2-v2-wishlist-head-actions">
+			<a class="sd2-btn sd2-btn--primary" href="&mvte:urls:WLAD:secure;">Create Wish List</a>
+			<a class="sd2-btn sd2-btn--outline" href="&mvte:urls:WLST:secure;">Clear Search</a>
+		</div>
+	</section>
 	<mvt:exit />
 </mvt:if>
 
@@ -26,7 +34,7 @@
 					</mvt:if>
 					<td class="sd2-v2-table-responsive__cell sd2-v2-table-responsive__cell--flush sd2-v2-table-responsive__cell--flex" data-label="Notes">&mvte:wishlist:notes;</td>
 					<td class="sd2-v2-table-responsive__cell sd2-v2-table-responsive__cell--flush sd2-v2-table-responsive__cell--flex" data-label="">
-						<a class="sd2-v2-button sd2-v2-button--clear u-bg-transparent u-color-black u-text-medium u-font-tiny u-text-uppercase" href="&mvte:urls:WISH:rr_sep;WishList_ID=&mvta:wishlist:id;" aria-label="View &mvte:wishlist:title;"><span class="u-font-small u-icon-chevron-right"></span></a>
+						<a class="sd2-v2-button sd2-v2-button--clear u-bg-transparent u-color-black u-text-medium u-font-tiny u-text-uppercase" href="&mvte:urls:WISH:rr_sep;WishList_ID=&mvta:wishlist:id;" aria-label="View &mvte:wishlist:title;"><span>View</span><span class="u-font-small u-icon-chevron-right" aria-hidden="true"></span></a>
 					</td>
 				</tr>
 			</mvt:foreach>

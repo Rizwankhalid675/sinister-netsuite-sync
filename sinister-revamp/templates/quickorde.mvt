@@ -3,79 +3,20 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<base href="&mvte:global:basehref;">
-	<mvt:if expr="NOT ISNULL l.settings:page:title">
-		<title>&mvt:page:title;</title>
-	<mvt:else>
-		<title>&mvt:page:name; | &mvt:store:name;</title>
-	</mvt:if>
+	<mvt:if expr="NOT ISNULL l.settings:page:title"><title>&mvt:page:title;</title><mvt:else><title>&mvt:page:name; | &mvt:store:name;</title></mvt:if>
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
 	<mvt:item name="head" param="head_tag" />
-	<style>
-		.mm-sequence-container {
-			background: white;
-			padding: 1rem;
-			position: relative;
-    		z-index: 1;
-			max-width: 1600px;
-			margin-left: auto;
-			margin-right: auto;
-		}
-
-		.breadcrumbs,
-		.cmp-breadcrumbs,
-		.t-breadcrumbs,
-		.page-title,
-		.cmp-page-title,
-		.blk-page-title-wrap {
-			display: none;
-		}
-
-		<mvt:if expr="'suivant' IN g.theme_path OR 'levels' in g.theme_path OR 'ironwool' IN g.theme_path OR 'coustic' IN g.theme_path OR 'divino' IN g.theme_path OR 'optics' IN g.theme_path">
-			<mvt:comment> suivant, levels, ironwool, coustic, & divino </mvt:comment>
-			.column-right > .main-content > .mm-sequence-container,
-			<mvt:comment> optics </mvt:comment>
-			.column-right > .mm-sequence-container {
-				margin-left: -0.75rem;
-				margin-right: -0.75rem;
-			}
-		</mvt:if>
-
-		<mvt:if expr="'colossus' IN g.theme_path">
-			main.o-wrapper > *:not(.mm-sequence-container) {
-				display: none;
-			}
-
-			.mm-sequence-container {
-				margin-bottom: 2rem;
-			}
-		</mvt:if>
-
-		<mvt:if expr="'luxe' IN g.theme_path">
-			.mm-sequence-container {
-				max-width: 100%;
-				padding-bottom: 0;
-			}
-		</mvt:if>
-
-		<mvt:if expr="'booc' IN g.theme_path">
-			.row.wrap.main-content > .column.whole:first-child {
-				display: none;
-			}
-		</mvt:if>
-
-		<mvt:if expr="'divino' IN g.theme_path">
-			.mm-sequence-container {
-				background: rgba(255,255,255, 0.6);
-			}
-		</mvt:if>
-	</style>
 </head>
-<body class="single-column">
+<body class="single-column sd2-v2-sequence-page sd2-v2-quick-order-page">
 	<mvt:item name="hdft" param="global_header" />
 	<mvt:item name="hdft" param="header" />
-	<div class="mm-sequence-container">
-		<mvt:item name="sequence" />
-	</div>
+	<main class="sd2-v2-search-page" data-v2-editorial-page data-editorial-variant="quick-order">
+		<div class="sd2-wrap">
+			<header class="sd2-v2-search-page__head"><nav class="sd2-v2-breadcrumbs" aria-label="Breadcrumb"><a href="&mvte:urls:SFNT:auto;">Home</a><span aria-hidden="true">/</span><span>&mvte:page:name;</span></nav><p class="sd2-eyebrow">Fast catalog entry</p><h1 class="sd2-heading-lg">Order by part number.</h1></header>
+			<div class="sd2-v2-sequence-intro"><div><span>01</span><strong>Search a part</strong></div><div><span>02</span><strong>Confirm fitment</strong></div><div><span>03</span><strong>Add to cart</strong></div></div>
+			<section class="mm-sequence-container sd2-v2-sequence-stage" aria-label="Quick order form"><mvt:item name="sequence" /></section>
+		</div>
+	</main>
 	<mvt:item name="hdft" param="footer" />
 	<mvt:item name="hdft" param="global_footer" />
 </body>

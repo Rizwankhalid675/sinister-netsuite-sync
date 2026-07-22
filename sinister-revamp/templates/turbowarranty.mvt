@@ -17,7 +17,7 @@
 	<mvt:item name="head" param="head_tag" />
 </head>
 
-<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass;">
+<body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass; sd2-v2-policy-legacy-bridge">
 	<mvt:item name="hdft" param="global_header" />
 
 	<section class="o-layout">
@@ -402,7 +402,7 @@
 						</div>
 
 						<!-- SIDEBAR -->
-						<aside class="o-layout__item u-width-12 u-width-3--l u-width-2--w">
+						<aside class="o-layout__item u-width-12 u-width-3--l u-width-2--w sd2-v2-policy-legacy-bridge__nav">
 							<mvt:item name="readytheme" param="navigationset( 'static_navigation' )" />
 						</aside>
 

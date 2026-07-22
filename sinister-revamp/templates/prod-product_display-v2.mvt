@@ -1,166 +1,174 @@
-<mvt:comment>Inactive Product Detail V2 template. Do not assign to live PROD.</mvt:comment>
-<!DOCTYPE html>
-<html lang="en">
-<mvt:item name="html_profile" />
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<base href="&mvt:global:basehref;" />
-	<title>&mvte:product:name; | Sinister Diesel</title>
-	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
-	<mvt:item name="head" param="head_tag" />
-	<link rel="stylesheet" href="css/sd2-global.css">
-</head>
-<body class="sd2-v2-page sd2-v2-pdp-page">
-	<mvt:item name="hdft" param="global_header" />
-	<main class="sd2-v2-pdp" data-v2-pdp>
-		<header class="sd2-v2-product-hero">
-			<nav class="sd2-v2-breadcrumbs" aria-label="Breadcrumb">
-				<a href="&mvte:urls:SFNT:auto;">Home</a>
-				<span aria-hidden="true">/</span>
-				<a href="&mvte:urls:CTGY:auto;">Parts</a>
-				<span aria-hidden="true">/</span>
-				<span>&mvte:product:name;</span>
-			</nav>
-			<p class="sd2-kicker">Sinister Diesel Product</p>
-			<h1>&mvte:product:name;</h1>
-			<div class="sd2-v2-product-hero__meta">
-				<span>SKU &mvte:product:code;</span>
-				<span>[Placeholder] Review count</span>
-				<span data-v2-fitment-copy>Garage fitment not selected.</span>
-			</div>
-		</header>
+<mvt:comment>
+	Inactive Product Display V2 item. All commerce fields and integrations below are sourced
+	from the verified PROD item/template configuration; no static product data is used.
+</mvt:comment>
 
-		<section class="sd2-v2-fitment-confirm" aria-label="Vehicle fitment">
+<mvt:if expr="(l.settings:state_via_ip EQ 'CA') AND l.settings:product:customfield_values:customfields:no_sale_california">
+	<mvt:item name="california_restricted" />
+</mvt:if>
+
+<main class="sd2-v2-pdp" data-v2-pdp>
+	<mvt:item name="readytheme" param="contentsection( 'product_promo_banner' )" />
+
+	<header class="sd2-v2-product-hero">
+		<nav class="sd2-v2-breadcrumbs" aria-label="Breadcrumb">
+			<a href="&mvte:urls:SFNT:auto;">Home</a><span aria-hidden="true">/</span>
+			<a href="&mvte:urls:CTGY:auto;">Parts</a><span aria-hidden="true">/</span>
+			<span aria-current="page">&mvte:product:name;</span>
+		</nav>
+		<p class="sd2-kicker">Sinister Diesel Product</p>
+		<h1>&mvte:product:name;</h1>
+		<div class="sd2-v2-product-hero__meta">
+			<span>SKU <mvt:if expr="NOT ISNULL l.settings:product:sku">&mvte:product:sku;<mvt:else>&mvte:product:code;</mvt:if></span>
+			<span id="product_just_stars" class="reg aside" role="region" tabindex="-1" aria-label="Product rating summary"></span>
+			<span data-v2-fitment-copy>Garage fitment not selected.</span>
+		</div>
+	</header>
+
+	<section class="sd2-v2-fitment-confirm" aria-label="Vehicle fitment">
+		<div class="sd2-v2-fitment-confirm__copy">
 			<p class="sd2-kicker">Garage Fitment</p>
 			<h2>Confirm This Part Against Your Build</h2>
 			<p data-v2-fitment-copy>No vehicle selected. Open Garage to verify year, make, model, and engine before ordering.</p>
-			<button class="sd2-btn sd2-btn--secondary" type="button" data-v2-garage-toggle>Open Garage</button>
-		</section>
-
-		<section class="sd2-v2-pdp__layout" aria-label="Product purchase area">
-			<div class="sd2-v2-pdp__media">
-				<section class="sd2-v2-pdp-gallery" aria-label="Product media">
-					<div class="sd2-v2-media" data-v2-gallery>
-						<div class="sd2-v2-media__viewer" data-v2-zoom-viewer>
-							<img src="&mvte:product:image;" alt="&mvte:product:name;" data-v2-gallery-main loading="eager">
-							<button class="sd2-v2-media__zoom" type="button" data-v2-zoom-toggle aria-label="Toggle product image zoom">Zoom</button>
-							<p class="sd2-v2-pdp-gallery__count" aria-live="polite"><span data-v2-gallery-count-current>1</span> / <span data-v2-gallery-count-total>4</span></p>
-						</div>
-						<div class="sd2-v2-media__thumbs" aria-label="Product thumbnails">
-							<button class="is-active" type="button" data-v2-gallery-thumb data-v2-gallery-src="&mvte:product:image;" aria-label="View product image 1"><img src="&mvte:product:image;" alt=""></button>
-							<button type="button" data-v2-gallery-thumb data-v2-gallery-src="&mvte:product:image;" aria-label="View product image 2"><img src="&mvte:product:image;" alt=""></button>
-							<button type="button" data-v2-gallery-thumb data-v2-gallery-src="&mvte:product:image;" aria-label="View product image 3"><img src="&mvte:product:image;" alt=""></button>
-							<button type="button" data-v2-gallery-thumb data-v2-gallery-src="&mvte:product:image;" aria-label="View product video placeholder"><span class="sd2-v2-pdp-gallery__video">Video</span></button>
-						</div>
-					</div>
-				</section>
-			</div>
-			<aside class="sd2-v2-buybox" aria-label="Purchase options">
-				<div class="sd2-v2-buybox__header">
-					<p class="sd2-kicker">Product Detail</p>
-					<h2>&mvte:product:name;</h2>
-				</div>
-				<div class="sd2-v2-price" aria-label="Product price">
-					<span class="sd2-v2-price__label">Price</span>
-					<div class="sd2-v2-price__row"><span class="sd2-v2-price__current">&mvt:product:formatted_price;</span></div>
-				</div>
-				<div class="sd2-v2-buybox__badges">
-					<span class="sd2-v2-stock is-in-stock">In stock</span>
-					<span class="sd2-v2-badge">Ships from Sinister Diesel</span>
-					<span class="sd2-v2-badge">Warranty available</span>
-					<span class="sd2-v2-badge">Financing placeholder</span>
-				</div>
-				<form class="sd2-v2-buybox__form" id="sd2-v2-pdp-form" method="post" action="&mvte:urls:BASK:auto;" data-v2-buy-form>
-					<input type="hidden" name="Action" value="ADPR">
-					<input type="hidden" name="Product_Code" value="&mvte:product:code;">
-					<label class="sd2-v2-buybox__label" for="sd2-v2-pdp-qty">Quantity</label>
-					<div class="sd2-v2-qty" data-v2-qty>
-						<button type="button" data-v2-qty-minus aria-label="Decrease quantity">-</button>
-						<input id="sd2-v2-pdp-qty" name="Quantity" type="number" min="1" value="1" inputmode="numeric" data-v2-qty-input>
-						<button type="button" data-v2-qty-plus aria-label="Increase quantity">+</button>
-					</div>
-					<button class="sd2-btn sd2-btn--primary sd2-btn--wide" type="submit" data-v2-buy-button>Add To Cart</button>
-					<button class="sd2-btn sd2-btn--secondary sd2-btn--wide" type="button" disabled>Buy Now Placeholder</button>
-				</form>
-				<section class="sd2-v2-shipping-info" aria-label="Shipping and warranty">
-					<div><strong>Shipping</strong><span>Delivery estimate is calculated at checkout.</span></div>
-					<div><strong>Warranty</strong><span>Warranty details render from product content where available.</span></div>
-					<div><strong>Support</strong><span>US-based support for ordering and installation questions.</span></div>
-				</section>
-			</aside>
-		</section>
-
-		<section class="sd2-v2-pdp-section" id="description" aria-labelledby="sd2-v2-summary-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Overview</p><h2 id="sd2-v2-summary-title">Built For Workload, Fitment, And Finish</h2></div>
-			<div class="sd2-v2-pdp-copy">
-				<mvt:if expr="l.settings:product:descrip">
-					&mvt:product:descrip;
-				<mvt:else>
-					<p>[Placeholder] Product description will render from the active Miva product record.</p>
-				</mvt:if>
-			</div>
-		</section>
-
-		<section class="sd2-v2-product-tabs" data-v2-pdp-tabs aria-label="Product detail sections">
-			<div class="sd2-v2-product-tabs__list" role="tablist" aria-label="Product information">
-				<button type="button" role="tab" aria-selected="true" aria-controls="sd2-tab-specs" id="sd2-tab-specs-control" data-v2-pdp-tab>Specifications</button>
-				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-install" id="sd2-tab-install-control" data-v2-pdp-tab>Installation</button>
-				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-reviews" id="sd2-tab-reviews-control" data-v2-pdp-tab>Reviews</button>
-				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-faq" id="sd2-tab-faq-control" data-v2-pdp-tab>FAQ</button>
-			</div>
-			<div class="sd2-v2-product-tabs__panel" role="tabpanel" id="sd2-tab-specs" aria-labelledby="sd2-tab-specs-control" data-v2-pdp-panel>Specifications content appears below.</div>
-			<div class="sd2-v2-product-tabs__panel" role="tabpanel" id="sd2-tab-install" aria-labelledby="sd2-tab-install-control" data-v2-pdp-panel hidden>Installation content appears below.</div>
-			<div class="sd2-v2-product-tabs__panel" role="tabpanel" id="sd2-tab-reviews" aria-labelledby="sd2-tab-reviews-control" data-v2-pdp-panel hidden>Reviews content appears below.</div>
-			<div class="sd2-v2-product-tabs__panel" role="tabpanel" id="sd2-tab-faq" aria-labelledby="sd2-tab-faq-control" data-v2-pdp-panel hidden>FAQ content appears below.</div>
-		</section>
-
-		<section class="sd2-v2-pdp-section" id="specifications" aria-labelledby="sd2-v2-specs-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Specifications</p><h2 id="sd2-v2-specs-title">Product Data</h2></div>
-			<table class="sd2-v2-spec-table"><tbody><tr><th scope="row">Product Code</th><td>&mvte:product:code;</td></tr><tr><th scope="row">Name</th><td>&mvte:product:name;</td></tr><tr><th scope="row">Weight</th><td>[Placeholder] Source from product custom fields.</td></tr><tr><th scope="row">Materials</th><td>[Placeholder] Source from product custom fields.</td></tr><tr><th scope="row">Install Time</th><td>[Placeholder] Source from product custom fields.</td></tr></tbody></table>
-		</section>
-
-		<section class="sd2-v2-pdp-section" id="installation" aria-labelledby="sd2-v2-install-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Installation</p><h2 id="sd2-v2-install-title">Install Notes</h2></div>
-			<div class="sd2-v2-feature-list"><div><strong>Instructions</strong><span>[Placeholder] Installation PDF or instruction content.</span></div><div><strong>Tools</strong><span>[Placeholder] Tool requirements from product content.</span></div><div><strong>Support</strong><span>Contact Sinister Diesel support for product-specific install guidance.</span></div></div>
-		</section>
-
-		<section class="sd2-v2-pdp-section" id="reviews" aria-labelledby="sd2-v2-review-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Reviews</p><h2 id="sd2-v2-review-title">Customer Feedback</h2></div>
-			<div class="sd2-v2-review-summary"><strong>[Placeholder] Rating summary</strong><span>Rating distribution will render when review data is connected.</span></div>
-			<div class="sd2-v2-review-preview" aria-label="Latest reviews"><article><strong>[Placeholder] Latest Review</strong><p>Review preview content will render from the approved review source.</p></article><article><strong>[Placeholder] Latest Review</strong><p>Review preview content will render from the approved review source.</p></article></div>
-		</section>
-
-		<section class="sd2-v2-pdp-section" id="faq" aria-labelledby="sd2-v2-faq-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">FAQ</p><h2 id="sd2-v2-faq-title">Common Questions</h2></div>
-			<div class="sd2-v2-accordion" data-v2-accordion>
-				<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="true" data-v2-accordion-trigger>Will this fit my truck?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel><p>Select your vehicle in Garage to verify fitment messaging.</p></div></div>
-				<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="false" data-v2-accordion-trigger>What is included?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel hidden><p>[Placeholder] Included components from product data.</p></div></div>
-				<div class="sd2-v2-accordion__item"><button class="sd2-v2-accordion__trigger" type="button" aria-expanded="false" data-v2-accordion-trigger>Is installation support available?</button><div class="sd2-v2-accordion__panel" data-v2-accordion-panel hidden><p>Sinister Diesel support can assist with product-specific install questions.</p></div></div>
-			</div>
-		</section>
-
-		<section class="sd2-v2-pdp-section" id="related-products" aria-labelledby="sd2-v2-related-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Related Products</p><h2 id="sd2-v2-related-title">Built Around This Part</h2></div>
-			<div class="sd2-v2-pgrid">
-				<article class="sd2-card sd2-v2-product-card"><a class="sd2-v2-product-card__media" href="&mvte:urls:SFNT:auto;"><img src="graphics/00000001/placeholder.png" alt="" loading="lazy"><span class="sd2-v2-product-card__flag">Placeholder</span></a><div class="sd2-v2-product-card__body"><p class="sd2-v2-product-card__platform">Related</p><h3 class="sd2-v2-product-card__title"><a href="&mvte:urls:SFNT:auto;">[Placeholder] Related Product</a></h3><p class="sd2-v2-product-card__note" data-v2-fitment-copy>No vehicle selected. Confirm fitment in Garage.</p><div class="sd2-v2-product-card__foot"><span class="sd2-v2-product-card__price">Price TBD</span><a class="sd2-v2-product-card__link" href="&mvte:urls:SFNT:auto;">View</a></div></div></article>
-				<article class="sd2-card sd2-v2-product-card"><a class="sd2-v2-product-card__media" href="&mvte:urls:SFNT:auto;"><img src="graphics/00000001/placeholder.png" alt="" loading="lazy"><span class="sd2-v2-product-card__flag">Placeholder</span></a><div class="sd2-v2-product-card__body"><p class="sd2-v2-product-card__platform">Related</p><h3 class="sd2-v2-product-card__title"><a href="&mvte:urls:SFNT:auto;">[Placeholder] Related Product</a></h3><p class="sd2-v2-product-card__note" data-v2-fitment-copy>No vehicle selected. Confirm fitment in Garage.</p><div class="sd2-v2-product-card__foot"><span class="sd2-v2-product-card__price">Price TBD</span><a class="sd2-v2-product-card__link" href="&mvte:urls:SFNT:auto;">View</a></div></div></article>
-				<article class="sd2-card sd2-v2-product-card"><a class="sd2-v2-product-card__media" href="&mvte:urls:SFNT:auto;"><img src="graphics/00000001/placeholder.png" alt="" loading="lazy"><span class="sd2-v2-product-card__flag">Placeholder</span></a><div class="sd2-v2-product-card__body"><p class="sd2-v2-product-card__platform">Related</p><h3 class="sd2-v2-product-card__title"><a href="&mvte:urls:SFNT:auto;">[Placeholder] Related Product</a></h3><p class="sd2-v2-product-card__note" data-v2-fitment-copy>No vehicle selected. Confirm fitment in Garage.</p><div class="sd2-v2-product-card__foot"><span class="sd2-v2-product-card__price">Price TBD</span><a class="sd2-v2-product-card__link" href="&mvte:urls:SFNT:auto;">View</a></div></div></article>
-			</div>
-		</section>
-
-		<section class="sd2-v2-pdp-section sd2-v2-complete-build" aria-labelledby="sd2-v2-build-title">
-			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Complete Your Build</p><h2 id="sd2-v2-build-title">Bundle Recommendations</h2></div>
-			<div class="sd2-v2-pdp-build-grid"><article><strong>[Placeholder] Bundle Slot</strong><span>Accessory or companion part recommendation.</span></article><article><strong>[Placeholder] Recently Viewed</strong><span>Local recently viewed products can populate this area later.</span></article></div>
-		</section>
-
-		<div class="sd2-v2-sticky-buy" data-v2-sticky-buy>
-			<div><strong>&mvte:product:name;</strong><span>&mvt:product:formatted_price;</span></div>
-			<button class="sd2-btn sd2-btn--primary" type="submit" form="sd2-v2-pdp-form">Add To Cart</button>
 		</div>
-	</main>
-	<mvt:item name="hdft" param="global_footer" />
-	<script src="js/sd2-v2-components.js"></script>
-</body>
-</html>
+		<button class="sd2-btn sd2-btn--secondary" type="button" data-v2-garage-toggle>Open Garage</button>
+		<div data-v2-product-fitments hidden>
+			<mvt:foreach iterator="fitment" array="product:customfield_values:combofacets:fitment"><span><mvt:eval expr="gettoken(l.settings:fitment,'>',1) $ ' ' $ gettoken(l.settings:fitment,'>',2) $ ' ' $ gettoken(l.settings:fitment,'>',3) $ ' ' $ gettoken(l.settings:fitment,'>',4)" /></span></mvt:foreach>
+		</div>
+	</section>
+
+	<section class="sd2-v2-pdp__layout" aria-label="Product purchase area">
+		<div class="sd2-v2-pdp__media">
+			<mvt:if expr="NOT ISNULL l.settings:product:customfield_values:customfields:product_label AND l.settings:product:customfield_values:customfields:product_label NE 'none'">
+				<span class="sd2-v2-badge">&mvte:product:customfield_values:customfields:product_label;</span>
+			</mvt:if>
+			<section class="sd2-v2-pdp-gallery" aria-label="Product media">
+				<div class="sd2-v2-media" data-v2-gallery>
+					<div class="x-product-layout-images" data-PhotoGallery role="group" style="--prod-img-x: &mvte:product_display_imagemachine:image_width;px; --prod-img-y: &mvte:product_display_imagemachine:image_height;px; --prod-thumb-x: &mvte:product_display_imagemachine:thumb_width;px; --prod-thumb-y: &mvte:product_display_imagemachine:thumb_height;px;">
+						<section aria-label="Product image thumbnails" class="splide x-filmstrip-wrapper" data-filmstrip-wrapper>
+							<div class="splide__track x-filmstrip" data-filmstrip><ul class="splide__list x-filmstrip__list" id="thumbnails"></ul></div>
+						</section>
+						<div class="x-product-layout-images__main-image sd2-v2-media__viewer" id="main_image" data-v2-zoom-viewer>
+							<div id="filmstrip-video-iframe-container" class="u-hidden"></div>
+							<section class="splide" data-photograph><div class="splide__track"><ul class="splide__list" id="product-image-list"></ul></div></section>
+							<button class="sd2-v2-media__zoom" type="button" data-v2-zoom-toggle aria-label="Toggle product image zoom">Zoom</button>
+						</div>
+						<mvt:item name="product_display_imagemachine" param="body_deferred:product:id" />
+					</div>
+				</div>
+			</section>
+		</div>
+
+		<aside class="sd2-v2-buybox" aria-label="Purchase options">
+			<div class="sd2-v2-buybox__header"><p class="sd2-kicker">Product Detail</p><h2>&mvte:product:name;</h2></div>
+			<div class="sd2-v2-price" aria-label="Product price">
+				<span class="sd2-v2-price__label">Price</span>
+				<div class="sd2-v2-price__row">
+					<mvt:if expr="l.settings:product:base_price GT l.settings:product:price"><span class="sd2-v2-price__was"><s id="price-value-additional">&mvt:product:formatted_base_price;</s></span></mvt:if>
+					<span class="sd2-v2-price__current" id="price-value" itemprop="price" content="&mvt:product:price;">&mvt:product:formatted_price;</span>
+				</div>
+			</div>
+			<div id="product-discounts" class="sd2-v2-buybox__discounts" aria-live="polite">
+				<mvt:foreach iterator="discount" array="product:discounts"><p>&mvte:discount:descrip;: <strong>&mvt:discount:formatted_discount;</strong></p></mvt:foreach>
+			</div>
+			<div class="sd2-v2-buybox__badges">
+				<mvt:if expr="l.settings:product:inv_active OR l.settings:attributemachine:product:inv_active"><span class="sd2-v2-stock" id="inventory-message">&mvt:product:inv_long;</span><mvt:else><span class="sd2-v2-stock" id="inventory-message"></span></mvt:if>
+				<mvt:if expr="l.settings:product:customfield_values:customfields:free_ground EQ 1 OR l.settings:product:customfield_values:customfields:free_ground EQ 3"><span class="sd2-v2-badge">Free ground shipping</span></mvt:if>
+			</div>
+
+			<form class="sd2-v2-buybox__form" id="apdr" data-hook="purchase" action="&mvte:urls:BASK:auto;" method="post" name="add" data-v2-buy-form>
+				<input type="hidden" name="Old_Screen" value="&mvte:global:Screen;">
+				<input type="hidden" name="Old_Search" value="&mvte:global:Search;">
+				<input type="hidden" name="Action" value="ADPR">
+				<input type="hidden" name="Product_Code" value="&mvte:product:code;">
+				<input type="hidden" name="Product_Name" value="&mvtj:product:name;">
+				<input type="hidden" name="Product_Price" value="&mvte:product:price;">
+				<input type="hidden" name="Category_Code" value="&mvte:global:Category_Code;">
+				<input type="hidden" name="Offset" value="&mvte:global:Offset;">
+				<input type="hidden" name="AllOffset" value="&mvte:global:AllOffset;">
+				<input type="hidden" name="CatListingOffset" value="&mvte:global:CatListingOffset;">
+				<input type="hidden" name="RelatedOffset" value="&mvte:global:RelatedOffset;">
+				<input type="hidden" name="SearchOffset" value="&mvte:global:SearchOffset;">
+				<mvt:item name="extend" param="productfields" />
+				<mvt:item name="discount_volume" param="product:id" />
+				<div class="sd2-v2-buybox__attributes"><mvt:item name="product_attributes" param="product:id" /></div>
+				<div><mvt:item name="extend" param="product" /></div>
+				<div class="sd2-v2-buybox__message" data-hook="purchase-message" aria-live="polite"></div>
+				<mvt:if expr="l.settings:product:inv_level NE 'out'">
+					<mvt:if expr="(l.settings:state_via_ip NE 'CA') OR ISNULL l.settings:product:customfield_values:customfields:no_sale_california">
+						<label class="sd2-v2-buybox__label" for="l-quantity">Quantity</label>
+						<div class="sd2-v2-qty" data-v2-qty><button type="button" data-v2-qty-minus aria-label="Decrease quantity">-</button><input id="l-quantity" name="Quantity" type="tel" value="1" inputmode="numeric" data-v2-qty-input><button type="button" data-v2-qty-plus aria-label="Increase quantity">+</button></div>
+						<div class="sd2-v2-buybox__native-button-wrap sd2-v2-buybox__native-button-wrap--primary" data-v2-buy-button data-hook="add-to-cart" data-action="&mvtj:urls:BASK:auto;" onclick="document.forms.add.action='&mvtj:urls:BASK:auto;';document.forms.add.elements.Action.value='ADPR';"><mvt:item name="buttons" param="AddToBasket" /></div>
+					</mvt:if>
+					<div class="sd2-v2-buybox__native-button-wrap sd2-v2-buybox__native-button-wrap--secondary" data-mmnodisable="true" onclick="document.forms.add.action='&mvtj:urls:WISH:secure;';document.forms.add.elements.Action.value='ATWL';"><mvt:item name="buttons" param="AddToWishList" /></div>
+				<mvt:else><p class="sd2-v2-buybox__oos">This item is currently out of stock.</p></mvt:if>
+				<mvt:if expr="(l.settings:state_via_ip NE 'CA') OR ISNULL l.settings:product:customfield_values:customfields:no_sale_california">
+					<div class="sd2-v2-buybox__accelerated">
+					<mvt:item name="mvaffirm_aslowas" param="product:product" />
+					<mvt:item name="readytheme" param="contentsection( 'paypalcp_configuration' )" />
+					<mvt:item name="paypalcp_buttons" param="product" />
+					<mvt:item name="applepay" param="product" />
+					</div>
+				</mvt:if>
+			</form>
+			<p><a href="https://www.p65warnings.ca.gov/" rel="nofollow">California Prop 65 warning</a></p>
+		</aside>
+	</section>
+
+	<div class="sd2-v2-sticky-buy" data-v2-sticky-buy>
+		<div><strong>&mvte:product:name;</strong><span>&mvt:product:formatted_price;</span></div>
+		<mvt:if expr="l.settings:product:inv_level NE 'out' AND ((l.settings:state_via_ip NE 'CA') OR ISNULL l.settings:product:customfield_values:customfields:no_sale_california)"><button class="sd2-btn sd2-btn--primary" type="button" onclick="document.forms.add.action='&mvtj:urls:BASK:auto;';document.forms.add.elements.Action.value='ADPR';document.forms.add.submit();">Add To Cart</button></mvt:if>
+	</div>
+
+	<section class="sd2-v2-pdp-section" id="description" aria-labelledby="sd2-v2-summary-title">
+		<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Overview</p><h2 id="sd2-v2-summary-title">Product Overview</h2></div>
+		<div class="sd2-v2-pdp-copy">&mvt:product:descrip;</div>
+	</section>
+
+	<nav class="sd2-v2-product-tabs" aria-label="Product information">
+		<a href="#specifications">Specifications</a>
+		<mvt:if expr="NOT ISNULL l.settings:product:customfield_values:customfields:installation"><a href="#installation">Installation</a></mvt:if>
+		<mvt:if expr="g.at_least_one_video"><a href="#videos">Videos</a></mvt:if>
+		<a href="#reviews">Reviews</a><a href="#related-products">Related Products</a>
+	</nav>
+
+	<section class="sd2-v2-pdp-section" id="specifications" aria-labelledby="sd2-v2-specs-title">
+		<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Specifications</p><h2 id="sd2-v2-specs-title">Product Data &amp; Included Components</h2></div>
+		<table class="sd2-v2-spec-table"><tbody>
+			<tr><th scope="row">Item #</th><td>&mvte:product:code;</td></tr>
+			<mvt:if expr="NOT ISNULL l.settings:product:sku"><tr><th scope="row">SKU</th><td>&mvte:product:sku;</td></tr></mvt:if>
+			<mvt:if expr="l.settings:product:customfield_values:customfields:upc"><tr><th scope="row">UPC</th><td>&mvte:product:customfield_values:customfields:upc;</td></tr></mvt:if>
+			<mvt:if expr="l.settings:product:weight NE 0"><tr><th scope="row">Shipping Weight</th><td>&mvt:product:weight; &mvte:store:wtunits;</td></tr></mvt:if>
+		</tbody></table>
+		<mvt:if expr="NOT ISNULL l.settings:product:customfield_values:customfields:specifications"><div class="sd2-v2-pdp-copy">&mvt:product:customfield_values:customfields:specifications;</div></mvt:if>
+		<mvt:if expr="miva_array_elements(l.settings:product:customfield_values:combofacets:fitment)">
+			<h3>Vehicle Applications</h3><ul class="sd2-v2-feature-list"><mvt:foreach iterator="fitment" array="product:customfield_values:combofacets:fitment"><li><mvt:eval expr="gettoken(l.settings:fitment,'>',1) $ ' ' $ gettoken(l.settings:fitment,'>',2) $ ' ' $ gettoken(l.settings:fitment,'>',3) $ ' ' $ gettoken(l.settings:fitment,'>',4)" /></li></mvt:foreach></ul>
+		</mvt:if>
+	</section>
+
+	<mvt:if expr="NOT ISNULL l.settings:product:customfield_values:customfields:installation">
+		<section class="sd2-v2-pdp-section" id="installation" aria-labelledby="sd2-v2-install-title">
+			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Installation</p><h2 id="sd2-v2-install-title">Installation Documents</h2></div>
+			<a class="sd2-btn sd2-btn--secondary" href="&mvte:product:customfield_values:customfields:installation;" target="_blank" rel="noopener">Download Install Instructions</a>
+		</section>
+	</mvt:if>
+
+	<mvt:if expr="g.at_least_one_video">
+		<section class="sd2-v2-pdp-section" id="videos" aria-labelledby="sd2-v2-videos-title">
+			<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Videos</p><h2 id="sd2-v2-videos-title">Product &amp; Installation Videos</h2></div>
+			<div class="sd2-v2-pdp-feature-grid">
+				<mvt:foreach iterator="video" array="product:videos_arr"><article><a href="&mvte:video:youtube_view_link;" target="_blank" rel="noopener"><img src="&mvte:video:youtube_tn;" alt="&mvte:product:name; video &mvte:video:count;" loading="lazy" decoding="async"><strong><mvt:if expr="l.settings:video:caption NE ''">&mvte:video:caption;<mvt:else>Watch product video</mvt:if></strong></a></article></mvt:foreach>
+			</div>
+		</section>
+	</mvt:if>
+
+	<section class="sd2-v2-pdp-section" id="reviews" aria-labelledby="sd2-v2-review-title">
+		<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Reviews</p><h2 id="sd2-v2-review-title">Customer Feedback</h2></div>
+		<div id="shopper_review_page"><div id="review_header"></div><div id="product_page"></div><div id="review_image"><a href="https://www.shopperapproved.com/reviews/sinisterdiesel.com/" target="_blank" rel="nofollow noopener" aria-label="Read Sinister Diesel reviews on ShopperApproved"></a></div></div>
+	</section>
+
+	<section class="sd2-v2-pdp-section" id="related-products" aria-labelledby="sd2-v2-related-heading">
+		<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Related Products</p><h2 id="sd2-v2-related-heading">Built Around This Part</h2></div>
+		<mvt:if expr="l.settings:related_product_count NE 0"><mvt:item name="related_products" /><mvt:else><p>No related products are currently available for this item.</p></mvt:if>
+	</section>
+</main>

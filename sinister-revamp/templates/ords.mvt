@@ -31,7 +31,7 @@
 
 			<nav class="sd2-v2-account-nav" aria-label="Account sections">
 				<a href="&mvte:urls:ACLN:auto;">Dashboard</a>
-				<a class="is-current" href="&mvte:urls:ORDH:auto;">Orders</a>
+				<a class="is-current" href="&mvte:urls:ORDH:auto;" aria-current="page">Orders</a>
 				<a href="&mvte:urls:CABK:auto;">Addresses</a>
 				<a href="&mvte:urls:CPCD:auto;">Payment</a>
 				<a href="&mvte:urls:CSUB:auto;">Subscriptions</a>
@@ -43,7 +43,7 @@
 				<button type="button" data-v2-garage-toggle>Garage</button>
 			</nav>
 
-			<section class="sd2-v2-account-grid">
+			<section class="sd2-v2-account-grid sd2-v2-account-grid--order-detail">
 				<div class="sd2-v2-account-card">
 					<mvt:item name="view_order" />
 				</div>

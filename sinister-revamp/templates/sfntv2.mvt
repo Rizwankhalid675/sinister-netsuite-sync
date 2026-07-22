@@ -2,6 +2,10 @@
 <html>
 <mvt:item name="html_profile" />
 <head>
+	<title>Diesel Performance Parts for Powerstroke, Duramax &amp; Cummins | Sinister Diesel</title>
+	<meta name="description" content="Shop fitment-first diesel performance parts for Ford Powerstroke, Chevy and GMC Duramax, and Ram Cummins trucks from Sinister Diesel.">
+	<mvt:assign name="g.sd2_seo_title" value="'Diesel Performance Parts for Powerstroke, Duramax &amp; Cummins | Sinister Diesel'" />
+	<mvt:assign name="g.sd2_seo_description" value="'Shop fitment-first diesel performance parts for Ford Powerstroke, Chevy and GMC Duramax, and Ram Cummins trucks from Sinister Diesel.'" />
 	<mvt:if expr="g.useDevResources EQ 1"><mvt:item name="head" param="css_list_dev" /><mvt:else><mvt:item name="head" param="css_list" /></mvt:if>
 	<mvt:item name="head" param="head_tag" />
 	<mvt:comment>
@@ -36,8 +40,8 @@
 						<a class="sd2-btn sd2-btn--outline" href="&mvte:urls:CTGYENGV2:auto;">Shop Platforms</a>
 					</div>
 				</div>
-				<div class="sd2-v2-home-hero__media sd2-reveal sd2-tilt sd2-float" data-reveal="fade-left" aria-label="Sinister Diesel shop truck placeholder">
-					<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%201.png" alt="Placeholder Sinister Diesel truck image">
+				<div class="sd2-v2-home-hero__media sd2-reveal sd2-tilt sd2-float" data-reveal="fade-left" aria-label="Sinister Diesel performance truck">
+					<mvt:item name="readytheme" param="image( 'storefront_hero_image2' )" />
 				</div>
 				<div class="sd2-v2-home-hero__factline sd2-reveal" data-reveal="fade-up">
 					<span>MADE AND TESTED IN THE USA</span>
@@ -67,16 +71,16 @@
 				<h2 class="sd2-heading-lg" id="sd2-v2-platforms-title">Start with the truck, then narrow the build.</h2>
 			</div>
 			<div class="sd2-v2-platform-grid sd2-stagger">
-				<a class="sd2-v2-platform-card sd2-v2-platform-card--large sd2-tilt" href="&mvte:urls:CTGYENGV2:auto;">
-					<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%201.png" alt="Ford Powerstroke placeholder">
+				<a class="sd2-v2-platform-card sd2-v2-platform-card--large sd2-tilt" href="/ford-powerstroke-powerstroke-diesel-truck-parts-online.html">
+					<mvt:item name="readytheme" param="image( 'storefront_promo_large' )" />
 					<span>Powerstroke</span>
 				</a>
-				<a class="sd2-v2-platform-card sd2-tilt" href="&mvte:urls:CTGYENGV2:auto;">
-					<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%203.png" alt="GM Duramax placeholder">
+				<a class="sd2-v2-platform-card sd2-tilt" href="/shop-gm-duramax-diesel-parts-sinister-diesel.html">
+					<mvt:item name="readytheme" param="image( 'storefront_promo_one' )" />
 					<span>Duramax</span>
 				</a>
-				<a class="sd2-v2-platform-card sd2-tilt" href="&mvte:urls:CTGYENGV2:auto;">
-					<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%202.png" alt="Ram Cummins placeholder">
+				<a class="sd2-v2-platform-card sd2-tilt" href="/dodge-cummins-diesel-performance-parts-sinister-diesel.html">
+					<mvt:item name="readytheme" param="image( 'storefront_promo_two' )" />
 					<span>Cummins</span>
 				</a>
 			</div>
@@ -100,49 +104,21 @@
 		<div class="sd2-wrap">
 			<div class="sd2-v2-section-head sd2-reveal" data-reveal="fade-up">
 				<p class="sd2-eyebrow">Featured Parts</p>
-				<h2 class="sd2-heading-lg" id="sd2-v2-products-title">Placeholder products pending real Miva product binding.</h2>
+				<h2 class="sd2-heading-lg" id="sd2-v2-products-title">Featured upgrades selected by Sinister Diesel.</h2>
 			</div>
-			<div class="sd2-v2-product-grid sd2-stagger">
-				<article class="sd2-card sd2-v2-product-card sd2-v2-product-card--hero sd2-tilt">
-					<a class="sd2-v2-product-card__media" href="&mvte:urls:CTGYLISTV2:auto;">
-						<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%201.png" alt="Placeholder featured Powerstroke part">
-						<span class="sd2-v2-product-card__flag">PLACEHOLDER</span>
-					</a>
-					<div class="sd2-v2-product-card__body">
-						<p class="sd2-v2-product-card__platform">Powerstroke</p>
-						<h3 class="sd2-v2-product-card__title"><a href="&mvte:urls:CTGYLISTV2:auto;">Intercooler and pipe systems</a></h3>
-						<p class="sd2-v2-product-card__note">Representative category card until real product data is wired.</p>
-						<div class="sd2-v2-product-card__foot"><span class="sd2-v2-product-card__price">Miva price pending</span><a class="sd2-v2-product-card__link" href="&mvte:urls:CTGYLISTV2:auto;">View</a></div>
-					</div>
-				</article>
-				<article class="sd2-card sd2-v2-product-card sd2-tilt">
-					<a class="sd2-v2-product-card__media" href="&mvte:urls:CTGYLISTV2:auto;"><img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%202.png" alt="Placeholder filtration product"><span class="sd2-v2-product-card__flag">PLACEHOLDER</span></a>
-					<div class="sd2-v2-product-card__body"><p class="sd2-v2-product-card__platform">Filtration</p><h3 class="sd2-v2-product-card__title"><a href="&mvte:urls:CTGYLISTV2:auto;">Coolant and oil filtration</a></h3><p class="sd2-v2-product-card__note">Real product binding pending.</p><div class="sd2-v2-product-card__foot"><span class="sd2-v2-product-card__price">Miva price pending</span><a class="sd2-v2-product-card__link" href="&mvte:urls:CTGYLISTV2:auto;">View</a></div></div>
-				</article>
-				<article class="sd2-card sd2-v2-product-card sd2-tilt">
-					<a class="sd2-v2-product-card__media" href="&mvte:urls:CTGYLISTV2:auto;"><img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%203.png" alt="Placeholder turbo product"><span class="sd2-v2-product-card__flag">PLACEHOLDER</span></a>
-					<div class="sd2-v2-product-card__body"><p class="sd2-v2-product-card__platform">Airflow</p><h3 class="sd2-v2-product-card__title"><a href="&mvte:urls:CTGYLISTV2:auto;">Turbo systems</a></h3><p class="sd2-v2-product-card__note">Real product binding pending.</p><div class="sd2-v2-product-card__foot"><span class="sd2-v2-product-card__price">Miva price pending</span><a class="sd2-v2-product-card__link" href="&mvte:urls:CTGYLISTV2:auto;">View</a></div></div>
-				</article>
-			</div>
+			<mvt:item name="readytheme" param="productlisting( 'featured_products' )" />
 		</div>
 	</section>
 
 	<section class="sd2-section sd2-v2-home-build" aria-labelledby="sd2-v2-build-title">
 		<div class="sd2-wrap">
-			<article class="sd2-v2-build-story sd2-reveal" data-reveal="fade-up">
-				<div class="sd2-v2-build-story__media sd2-tilt"><img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%203.png" alt="Placeholder diesel build story"></div>
-				<div class="sd2-v2-build-story__body">
-					<p class="sd2-eyebrow">Build Story</p>
-					<h2 class="sd2-heading-lg" id="sd2-v2-build-title">Tow rig setup, built around reliability.</h2>
-					<p class="sd2-body">Placeholder editorial content pending a real build story. The approved structure supports real truck context, parts used, install notes, and proof links.</p>
-					<blockquote class="sd2-v2-build-story__quote">"The goal is confidence under load, not noise for its own sake."</blockquote>
-				</div>
-				<aside class="sd2-v2-build-story__specs" aria-label="Build specifications">
-					<div><span>Platform</span><strong>Duramax</strong></div>
-					<div><span>Use Case</span><strong>Towing</strong></div>
-					<div><span>Data</span><strong>Pending</strong></div>
-				</aside>
-			</article>
+			<div class="sd2-v2-section-head sd2-reveal" data-reveal="fade-up">
+				<p class="sd2-eyebrow">From the Shop</p>
+				<h2 class="sd2-heading-lg" id="sd2-v2-build-title">Engineering, installation, and real build stories.</h2>
+			</div>
+			<div class="sd2-v2-build-story sd2-v2-build-story--managed">
+				<mvt:item name="content" />
+			</div>
 		</div>
 	</section>
 

@@ -14,31 +14,22 @@
 </head>
 <body id="js-&mvte:page:code;" class="o-site-wrapper t-page-&mvt:global:pageClass; sd2-v2-state-page sd2-v2-order-state-page">
 	<mvt:item name="hdft" param="global_header" />
+	<mvt:item name="hdft" param="header" />
 
 	<main class="sd2-v2-state-shell">
 	<section class="o-layout sd2-v2-state-content">
 		<div class="o-layout__item u-width-12">
-			<section class="t-expanded-block t-account-landing-section u-bg-white">
-				<div class="o-layout__item t-expanded-block__item t-account-landing-section__header u-width-12">
-					<mvt:item name="hdft" param="header" />
-
-					<section class="o-layout o-layout--justify-center sd2-v2-state-card sd2-v2-state-card--center">
-						<div class="o-layout__item u-width-12 u-width-6--m">
-							<span class="sd2-kicker">Order protected</span>
-							<h1>This order is already complete.</h1>
-							<p class="x-messages x-messages--warning">Your order has already been processed. Reloading this page will not place another order.</p>
-							<a class="sd2-btn sd2-btn--primary" href="&mvte:urls:SFNT:auto;">Continue Shopping</a>
-						</div>
-					</section>
-
-					<mvt:item name="hdft" param="footer" />
-					
-				</div>
+			<section class="sd2-v2-state-card sd2-v2-state-card--center">
+				<span class="sd2-kicker">Order protected</span>
+				<h1>This order is already complete.</h1>
+				<p class="x-messages x-messages--warning">Your order has already been processed. Reloading this page will not place another order.</p>
+				<a class="sd2-btn sd2-btn--primary" href="&mvte:urls:SFNT:auto;">Continue Shopping</a>
 			</section>
 		</div>
 	</section>
 	</main>
 
+	<mvt:item name="hdft" param="footer" />
 	<mvt:item name="hdft" param="global_footer" />
 </body>
 </html>

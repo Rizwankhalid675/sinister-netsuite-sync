@@ -42,8 +42,8 @@
 						<span class="o-layout__item">
 							<mvt:if expr="l.settings:wishlist:cust_id EQ g.Basket:cust_id AND g.Customer_Session_Verified">
 								<span class="sd2-v2-control-group u-font-small u-text-uppercase o-layout--justify-end">
-									<a class="sd2-v2-button sd2-v2-control-group__button u-bg-black" href="&mvte:urls:WLED:auto_sep;WishList_ID=&mvta:wishlist:id;">Edit</a>
-									<a class="sd2-v2-button sd2-v2-button--hollow sd2-v2-control-group__button u-bg-white u-color-gray-50" href="&mvte:urls:WLST:secure_sep;Action=DWSH&WishList_ID=&mvta:wishlist:id;" onClick="if ( !confirm( 'Are you sure you want to delete your wish list? This action cannot be undone\x0A\x0AContinue?' ) ) return false;">Delete</a>
+									<a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:WLED:auto_sep;WishList_ID=&mvta:wishlist:id;">Edit</a>
+									<a class="sd2-btn sd2-btn--outline" href="&mvte:urls:WLST:secure_sep;Action=DWSH&WishList_ID=&mvta:wishlist:id;">Delete</a>
 								</span>
 							</mvt:if>
 						</span>
@@ -78,10 +78,11 @@
 								<input type="hidden" name="Action" value="AFWA">
 								<input type="hidden" name="WishList_ID" value="&mvte:global:WishList_ID;">
 								<ul class="sd2-v2-form-list">
-									<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full u-text-right">
-										<input class="sd2-v2-button sd2-v2-button--huge u-bg-black u-text-bold u-font-small u-text-uppercase" type="submit" value="Add All To Cart">
-									</li>
-							</fieldset>
+					<li class="sd2-v2-form-list__item sd2-v2-form-list__item--full u-text-right">
+						<input class="sd2-btn sd2-btn--primary" type="submit" value="Add All To Cart">
+					</li>
+				</ul>
+			</fieldset>
 						</form>
 					</mvt:if>
 				</div>
