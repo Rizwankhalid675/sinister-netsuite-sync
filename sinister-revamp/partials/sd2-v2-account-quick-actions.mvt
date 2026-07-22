@@ -3,7 +3,7 @@
 	<h2 id="sd2-v2-actions-title">Quick Actions</h2>
 	<div class="sd2-v2-account-actions">
 		<a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:ORDH:auto;">View Orders</a>
-		<a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:ACAD:auto;">Manage Addresses</a>
+		<a class="sd2-btn sd2-btn--secondary" href="&mvte:urls:CABK:auto;">Manage Addresses</a>
 		<button class="sd2-btn sd2-btn--secondary" type="button" data-v2-garage-toggle>Manage Garage</button>
 	</div>
 </section>
