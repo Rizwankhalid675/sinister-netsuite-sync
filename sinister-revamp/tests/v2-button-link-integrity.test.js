@@ -5,6 +5,8 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const css = read('css/sd2-global.css');
+const home = read('templates/sfnt.mvt');
+const motion = read('js/sd2-motion.js');
 
 const auditedLinkSources = [
   'templates/aboutus.mvt',
@@ -67,5 +69,23 @@ assert.match(
   'catalog pagination buttons must use valid display syntax and 44px pointer targets'
 );
 assert.doesNotMatch(css, /\bdis\s*:/i, 'button and pagination declarations must not contain the invalid dis property');
+
+for (const platform of ['Powerstroke', 'Duramax', 'Cummins']) {
+  assert.match(
+    home,
+    new RegExp(`<a class="sd2-btn sd2-btn--light"[^>]*data-v4-route-direct[^>]*>Enter ${platform}<\\/a>`, 'i'),
+    `${platform} Truck Lab CTA must use immediate native navigation`
+  );
+}
+assert.match(
+  motion,
+  /if\s*\(link\.hasAttribute\("data-v4-route-direct"\)\)\s*return;/,
+  'the branded route wipe must allow reliability-critical CTAs to use native navigation'
+);
+assert.match(
+  motion,
+  /event\.target\.closest\("a,button,\.sd2-v5-truck__hud"\)/,
+  'Truck Lab tilt must stand down over HUD controls so the target cannot move before pointer-down'
+);
 
 console.log('V2 button contrast and internal-link integrity contracts verified');

@@ -647,6 +647,7 @@
                 select(index + (event.key === "ArrowRight" ? 1 : -1), false);
             });
             stage.addEventListener("pointerdown", function (event) {
+                if (event.target.closest && event.target.closest("a,button,.sd2-v5-truck__hud")) return;
                 dragStart = event.clientX;
             });
             stage.addEventListener("pointerup", function (event) {
@@ -659,6 +660,11 @@
 
             if (!shouldReduce() && window.matchMedia && window.matchMedia("(pointer: fine)").matches) {
                 stage.addEventListener("pointermove", function (event) {
+                    if (event.target.closest && event.target.closest("a,button,.sd2-v5-truck__hud")) {
+                        lab.style.setProperty("--truck-px", "0");
+                        lab.style.setProperty("--truck-py", "0");
+                        return;
+                    }
                     var rect = stage.getBoundingClientRect();
                     var x = ((event.clientX - rect.left) / rect.width - 0.5) * 4;
                     var y = ((event.clientY - rect.top) / rect.height - 0.5) * 4;
@@ -727,6 +733,7 @@
             if (shouldReduce() || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
             var link = event.target.closest("a[href]");
             if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+            if (link.hasAttribute("data-v4-route-direct")) return;
             var href = link.getAttribute("href");
             if (!href || href.charAt(0) === "#" || href.indexOf("javascript:") === 0 || href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return;
             var url;

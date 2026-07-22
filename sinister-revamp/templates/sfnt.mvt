@@ -171,7 +171,7 @@
 						<div class="sd2-v5-truck__hud">
 							<p><span>01</span> Powerstroke</p><h3>Blue Oval.<br>Build it your way.</h3>
 							<div class="sd2-v5-truck__readout"><span>Platform</span><strong>Ford Super Duty</strong><span>Catalog</span><strong>Live Miva Parts</strong></div>
-							<a class="sd2-btn sd2-btn--light" href="/ford-powerstroke-powerstroke-diesel-truck-parts-online.html">Enter Powerstroke</a>
+							<a class="sd2-btn sd2-btn--light" href="/ford-powerstroke-powerstroke-diesel-truck-parts-online.html" data-v4-route-direct>Enter Powerstroke</a>
 						</div>
 					</article>
 
@@ -183,7 +183,7 @@
 						<div class="sd2-v5-truck__hud">
 							<p><span>02</span> Duramax</p><h3>Heavy duty.<br>Dialed in.</h3>
 							<div class="sd2-v5-truck__readout"><span>Platform</span><strong>GM Heavy Duty</strong><span>Catalog</span><strong>Live Miva Parts</strong></div>
-							<a class="sd2-btn sd2-btn--light" href="/shop-gm-duramax-diesel-parts-sinister-diesel.html" tabindex="-1">Enter Duramax</a>
+							<a class="sd2-btn sd2-btn--light" href="/shop-gm-duramax-diesel-parts-sinister-diesel.html" tabindex="-1" data-v4-route-direct>Enter Duramax</a>
 						</div>
 					</article>
 
@@ -195,7 +195,7 @@
 						<div class="sd2-v5-truck__hud">
 							<p><span>03</span> Cummins</p><h3>Inline six.<br>All business.</h3>
 							<div class="sd2-v5-truck__readout"><span>Platform</span><strong>Ram Heavy Duty</strong><span>Catalog</span><strong>Live Miva Parts</strong></div>
-							<a class="sd2-btn sd2-btn--light" href="/dodge-cummins-diesel-performance-parts-sinister-diesel.html" tabindex="-1">Enter Cummins</a>
+							<a class="sd2-btn sd2-btn--light" href="/dodge-cummins-diesel-performance-parts-sinister-diesel.html" tabindex="-1" data-v4-route-direct>Enter Cummins</a>
 						</div>
 					</article>
 				</div>
