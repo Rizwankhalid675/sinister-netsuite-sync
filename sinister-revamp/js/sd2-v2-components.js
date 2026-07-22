@@ -525,6 +525,7 @@
 	var empty = root.querySelector('[data-v2-search-empty]');
 	var results = root.querySelector('.sd2-v2-search-console__results');
 	var fallbackTimer = null;
+	var providerResultsVisible = false;
 	var opener = null;
 	var emptyPrompt = empty ? empty.textContent : '';
 
@@ -558,17 +559,27 @@
 			empty.hidden = false;
 			return;
 		}
-		if (hasProviderResults()) { empty.hidden = true; return; }
+		if (hasProviderResults()) {
+			providerResultsVisible = true;
+			empty.hidden = true;
+			return;
+		}
 		empty.textContent = 'Searching for instant matches...';
 		empty.hidden = false;
 		fallbackTimer = window.setTimeout(showSearchFallback, 900);
 	}
 	if (results && empty) {
 		new MutationObserver(function () {
-			if (!hasProviderResults()) { return; }
-			window.clearTimeout(fallbackTimer);
-			fallbackTimer = null;
-			empty.hidden = true;
+			if (hasProviderResults()) {
+				providerResultsVisible = true;
+				window.clearTimeout(fallbackTimer);
+				fallbackTimer = null;
+				empty.hidden = true;
+				return;
+			}
+			if (!providerResultsVisible) { return; }
+			providerResultsVisible = false;
+			syncEmptyState();
 		}).observe(results, { childList: true, subtree: true });
 	}
 
