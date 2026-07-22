@@ -38,7 +38,6 @@
 	</mvt:if>
 
 <main class="sd2-v2-home" data-v2-home>
-	<div class="sd2-v2-home-intro" aria-hidden="true"><span>Sinister Diesel</span></div>
 	<section class="sd2-v2-home-hero" aria-labelledby="sd2-v2-home-hero-title">
 		<div class="sd2-v2-home-hero__shell">
 			<div class="sd2-v2-home-hero__frame">
@@ -52,7 +51,7 @@
 					</div>
 				</div>
 				<div class="sd2-v2-home-hero__media sd2-depth-scene" aria-label="Sinister Diesel performance truck">
-					<img class="sd2-depth-layer" data-sd2-depth="-0.1" src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%201.png" alt="Sinister Diesel performance truck">
+					<img class="sd2-depth-layer" data-sd2-depth="-0.1" src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%201.png" alt="Sinister Diesel performance truck" fetchpriority="high" decoding="async">
 					<div class="sd2-v2-home-hero__telemetry sd2-depth-layer sd2-reveal sd2-reveal--left" data-sd2-depth="0.18" data-reveal="fade-left">
 						<div class="sd2-v2-home-hero__telemetry-head"><span>Live Build System</span><i aria-hidden="true"></i></div>
 						<div class="sd2-v2-home-hero__telemetry-core"><span>Platform coverage</span><strong>3</strong><small>Powerstroke / Duramax / Cummins</small></div>
