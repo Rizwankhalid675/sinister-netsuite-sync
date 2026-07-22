@@ -132,13 +132,22 @@ function setDialogInteractive(dialog, interactive) {
 		header.dataset.v2Ready = '1';
 		var onScroll = function () {
 			header.classList.toggle('is-scrolled', window.scrollY > 4);
+		};
+		var measurementFrame = 0;
+		var measureHeader = function () {
+			measurementFrame = 0;
 			var rect = header.getBoundingClientRect();
 			document.documentElement.style.setProperty('--sd2-sticky-clearance', Math.max(0, Math.ceil(rect.bottom + 12)) + 'px');
 		};
+		var scheduleHeaderMeasurement = function () {
+			if (measurementFrame) { return; }
+			measurementFrame = window.requestAnimationFrame(measureHeader);
+		};
 		document.addEventListener('scroll', onScroll, { passive: true });
-		window.addEventListener('resize', onScroll, { passive: true });
-		if ('ResizeObserver' in window) { new ResizeObserver(onScroll).observe(header); }
+		window.addEventListener('resize', scheduleHeaderMeasurement, { passive: true });
+		if ('ResizeObserver' in window) { new ResizeObserver(scheduleHeaderMeasurement).observe(header); }
 		onScroll();
+		scheduleHeaderMeasurement();
 	}
 
 	var drawer = document.querySelector('[data-v2-drawer]');

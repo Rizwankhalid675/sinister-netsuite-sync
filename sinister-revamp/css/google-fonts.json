@@ -8,6 +8,14 @@
         {
             "name": "rel",
             "value": "stylesheet"
+        },
+        {
+            "name": "media",
+            "value": "print"
+        },
+        {
+            "name": "onload",
+            "value": "this.media='all'"
         }
     ]
 }

@@ -69,7 +69,7 @@
 				<mvt:if expr="l.settings:readytheme:logo_type EQ 'text'">
 					<span class="sd2-v2-hdr__logo-text">&mvt:readytheme:logo_name;<small class="sd2-v2-hdr__logo-tag">&mvt:readytheme:logo_tagline;</small></span>
 				<mvt:elseif expr="l.settings:readytheme:logo_type EQ 'image' AND NOT ISNULL l.settings:readytheme:logo_image">
-					<img src="&mvte:readytheme:logo_image;" alt="&mvt:readytheme:logo_alt;">
+					<img src="&mvte:readytheme:logo_image;" alt="&mvt:readytheme:logo_alt;" width="2400" height="876">
 				<mvt:else>
 					<span class="sd2-v2-hdr__logo-text">Sinister Diesel<small class="sd2-v2-hdr__logo-tag">Diesel Performance</small></span>
 				</mvt:if>

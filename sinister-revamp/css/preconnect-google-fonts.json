@@ -4,5 +4,14 @@
     "filepath": "https://fonts.gstatic.com",
     "is_global": true,
     "active": true,
-    "attributes": []
+    "attributes": [
+        {
+            "name": "rel",
+            "value": "preconnect"
+        },
+        {
+            "name": "crossorigin",
+            "value": ""
+        }
+    ]
 }

@@ -1,29 +1,35 @@
 <link rel="icon" type="image/png" href="https://sinisterdiesel.com/mm5/graphics/00000001/8/apple-icon-1_2.png">
 <link rel="shortcut icon" href="https://sinisterdiesel.com/mm5/graphics/00000001/8/apple-icon-1_2.png">
 <link rel="apple-touch-icon" href="https://sinisterdiesel.com/graphics/00000001/8/apple-icon-1_2.png">
-<mvt:item name="customfields" param="Read_Basket( 'state_via_ip', l.settings:state_via_ip )" />
-<mvt:if expr="(NOT l.settings:state_via_ip) OR g.Test_Ip_Reset">
-	<mvt:if expr="g.Test_Use_Ip">
-		<mvt:assign name="l.settings:remote_addr" value="g.Test_Use_Ip" />
-	<mvt:else>
-		<mvt:assign name="l.settings:remote_addr" value="s.remote_addr" />
+<mvt:if expr="'PROD' CIN toupper( l.settings:page:code ) OR toupper( l.settings:page:code ) EQ 'PATR'">
+	<mvt:item name="customfields" param="Read_Basket( 'state_via_ip', l.settings:state_via_ip )" />
+	<mvt:if expr="(NOT l.settings:state_via_ip) OR g.Test_Ip_Reset">
+		<mvt:if expr="g.Test_Use_Ip">
+			<mvt:assign name="l.settings:remote_addr" value="g.Test_Use_Ip" />
+		<mvt:else>
+			<mvt:assign name="l.settings:remote_addr" value="s.remote_addr" />
+		</mvt:if>
+
+		<mvt:assign name="l.settings:api_url" value="'https://pro.ip-api.com/json/' $ l.settings:remote_addr $ '?key=zEwoB0HWbQodmzp'"/>
+		<mvt:call ACTION="l.settings:api_url" METHOD="'GET'">
+			<mvt:assign name="l.settings:api_response" value="l.settings:api_response $ s.callvalue"/>
+		</mvt:call>
+		<mvt:assign name="l.decoded" value="Miva_Json_Decode(l.settings:api_response, l.settings:response_array)"/>
+
+		<mvt:item name="customfields" param="Write_Basket( 'state_via_ip', l.settings:response_array:region )" />
+		<mvt:assign name="l.settings:state_via_ip" value="l.settings:response_array:region" />
 	</mvt:if>
-
-	<mvt:assign name="l.settings:api_url" value="'https://pro.ip-api.com/json/' $ l.settings:remote_addr $ '?key=zEwoB0HWbQodmzp'"/>
-	<mvt:call ACTION="l.settings:api_url" METHOD="'GET'">
-		<mvt:assign name="l.settings:api_response" value="l.settings:api_response $ s.callvalue"/>
-	</mvt:call>
-	<mvt:assign name="l.decoded" value="Miva_Json_Decode(l.settings:api_response, l.settings:response_array)"/>
-
-	<mvt:item name="customfields" param="Write_Basket( 'state_via_ip', l.settings:response_array:region )" /> 
-	<mvt:assign name="l.settings:state_via_ip" value="l.settings:response_array:region" />
+	<mvt:item name="customfields" param="Read_Basket( 'state_via_ip', l.settings:state_via_ip )" />
 </mvt:if>
-<mvt:item name="customfields" param="Read_Basket( 'state_via_ip', l.settings:state_via_ip )" />
 
 <mvt:comment>Commerce-first SEO foundation. Page templates may set the g.sd2_seo_* values before loading this shared head.</mvt:comment>
 <mvt:assign name="g.sd2_seo_page_code" value="toupper( l.settings:page:code )" />
 <mvt:assign name="g.sd2_seo_page_token" value="'|' $ g.sd2_seo_page_code $ '|'" />
 <mvt:assign name="g.sd2_seo_private_page_codes" value="'|ABAL|ACAD|ACCTV2|ACED|ACLN|ACRT|ACRW|AFAD|AFCL|AFED|AFFR|AFPW|AFRT|AMAZONPAY_OCST|AMAZONPAY_OPAY|AMAZONPAY_OSEL|BASK|BASKV2|BSKE|CABK|CADA|CADE|CEML|CPCA|CPCD|CPCE|CPRO|CPWD|CSBE|FPWD|INVC|LOGN|OCST|OCSTV2|OPAY|ORDH|ORDL|ORDS|ORHL|OSEL|OUS1|OUSM|POUT|RGFT|RSRQ|SRCH|SRCHV2|WISH|WLAD|WLED|WLGN|WLST|'" />
+
+<mvt:if expr="g.sd2_seo_page_code EQ 'SFNT' OR g.sd2_seo_page_code EQ 'SFNTV2'">
+	<link rel="preload" as="image" href="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%201.png" fetchpriority="high">
+</mvt:if>
 
 <mvt:if expr="'CTGY' CIN g.sd2_seo_page_code">
 	<mvt:assign name="g.sd2_seo_canonical" value="l.settings:category:link" />
@@ -168,9 +174,6 @@
 </mvt:if>
 <mvt:item name="prodctgy_meta" param="combined" />
 <script type="text/javascript" src="&mvt:global:clientside_url;Module_Code=mvga&amp;Filename=mvga.js"></script>
-
-<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
-<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
 
 <mvt:comment>
 	|
@@ -555,6 +558,5 @@ max-height:100%!important;
 </style>
 
 <mvt:item name="ga_tracking" />
-<script type="text/javascript" src="&mvt:global:clientside_url;Module_Code=mvga&amp;Filename=mvga.js"></script>
 <mvt:item name="ga_transaction" />
 <mvt:item name="head" param="modules" />
