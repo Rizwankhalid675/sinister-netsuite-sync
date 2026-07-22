@@ -10230,3 +10230,23 @@ body.sd2-install-library-page .sd2-v3-shell > .sd2-v2-hdr-trust .sd2-v2-hdr-trus
 		align-items: start;
 	}
 }
+
+/* V44 PDP TECHNICAL LABEL READABILITY
+   Keep dossier labels technical, but never below the V2 readable 11px floor. */
+.sd2-v2-pdp #reviews .sd2-v2-review-summary::after {
+	font-size: 11px;
+	line-height: 1.3;
+	letter-spacing: .12em;
+}
+
+.sd2-v2-pdp #installation .sd2-v2-feature-list strong {
+	font-size: 11px;
+	line-height: 1.3;
+	letter-spacing: .12em;
+}
+
+.sd2-v2-pdp .sd2-v2-spec-table th {
+	font-size: 11px;
+	line-height: 1.45;
+	letter-spacing: .1em;
+}
