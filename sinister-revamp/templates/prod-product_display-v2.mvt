@@ -120,17 +120,17 @@
 		<mvt:if expr="l.settings:product:inv_level NE 'out' AND ((l.settings:state_via_ip NE 'CA') OR ISNULL l.settings:product:customfield_values:customfields:no_sale_california)"><button class="sd2-btn sd2-btn--primary" type="button" onclick="document.forms.add.action='&mvtj:urls:BASK:auto;';document.forms.add.elements.Action.value='ADPR';document.forms.add.submit();">Add To Cart</button></mvt:if>
 	</div>
 
-	<section class="sd2-v2-pdp-section" id="description" aria-labelledby="sd2-v2-summary-title">
-		<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Overview</p><h2 id="sd2-v2-summary-title">Product Overview</h2></div>
-		<div class="sd2-v2-pdp-copy">&mvt:product:descrip;</div>
-	</section>
-
 	<nav class="sd2-v2-product-tabs" aria-label="Product information">
 		<a href="#specifications">Specifications</a>
 		<mvt:if expr="NOT ISNULL l.settings:product:customfield_values:customfields:installation"><a href="#installation">Installation</a></mvt:if>
 		<mvt:if expr="g.at_least_one_video"><a href="#videos">Videos</a></mvt:if>
 		<a href="#reviews">Reviews</a><a href="#related-products">Related Products</a>
 	</nav>
+
+	<section class="sd2-v2-pdp-section" id="description" aria-labelledby="sd2-v2-summary-title">
+		<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Overview</p><h2 id="sd2-v2-summary-title">Product Overview</h2></div>
+		<div class="sd2-v2-pdp-copy">&mvt:product:descrip;</div>
+	</section>
 
 	<section class="sd2-v2-pdp-section" id="specifications" aria-labelledby="sd2-v2-specs-title">
 		<div class="sd2-v2-pdp-section__header"><p class="sd2-kicker">Specifications</p><h2 id="sd2-v2-specs-title">Product Data &amp; Included Components</h2></div>

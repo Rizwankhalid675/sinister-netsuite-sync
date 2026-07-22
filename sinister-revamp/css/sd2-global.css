@@ -10080,3 +10080,137 @@ body.sd2-install-library-page .sd2-v3-shell > .sd2-v2-hdr-trust .sd2-v2-hdr-trus
 	pointer-events:auto;
 	transition-delay:0s;
 }
+/* V43 PDP LEGACY OVERVIEW MODERNIZATION
+   Preserves merchant-authored description markup while giving the content a
+   resilient V2 reading rhythm across desktop and mobile. */
+.sd2-v2-pdp #description .sd2-v2-pdp-copy {
+	display: flow-root;
+	width: 100%;
+	min-width: 0;
+	color: var(--sd2-text-mid);
+	font-family: var(--sd2-font-body) !important;
+	font-size: clamp(16px, 1.15vw, 18px) !important;
+	line-height: 1.72 !important;
+	overflow-wrap: break-word;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy > :is(p, ul, ol, h2, h3, h4, h5, h6, blockquote) {
+	max-width: 76ch;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy :is(p, li, td, th) {
+	font-family: var(--sd2-font-body) !important;
+	line-height: inherit;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy :is(h1, h2, h3, h4, h5, h6) {
+	margin: 1.45em 0 .55em !important;
+	color: var(--sd2-text) !important;
+	font-family: var(--sd2-font-display) !important;
+	font-weight: 600 !important;
+	line-height: 1 !important;
+	letter-spacing: -.025em !important;
+	text-wrap: balance;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy h2 {
+	font-size: clamp(30px, 3.4vw, 46px) !important;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy h3 {
+	font-size: clamp(24px, 2.6vw, 34px) !important;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy h4 {
+	font-size: clamp(20px, 2vw, 26px) !important;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy :is(ul, ol) {
+	display: grid;
+	gap: 10px;
+	margin: 20px 0 28px !important;
+	padding-left: 24px !important;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy a {
+	color: var(--sd2-blue) !important;
+	font-weight: 650;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy figure {
+	max-width: 100%;
+	margin: clamp(28px, 5vw, 56px) 0;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy img {
+	display: block;
+	max-width: 100% !important;
+	height: auto !important;
+	margin: clamp(24px, 4vw, 48px) auto;
+	border-radius: 18px;
+	object-fit: contain;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy table {
+	display: table;
+	width: 100% !important;
+	max-width: 100%;
+	border: 1px solid var(--sd2-border);
+	border-collapse: separate;
+	border-spacing: 0;
+	border-radius: 16px;
+	background: #fff;
+	overflow: hidden;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy :is(th, td) {
+	padding: 14px 16px !important;
+	border: 0 !important;
+	border-bottom: 1px solid var(--sd2-border) !important;
+	color: var(--sd2-text-mid) !important;
+	font-family: var(--sd2-font-body) !important;
+	font-size: 15px !important;
+	line-height: 1.5 !important;
+	text-align: left;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy th {
+	background: #eef3fb;
+	color: var(--sd2-text) !important;
+	font-weight: 750 !important;
+}
+
+.sd2-v2-pdp #description .sd2-v2-pdp-copy :is(iframe,video) {
+	display: block;
+	width: 100% !important;
+	max-width: 100%;
+	height: auto !important;
+	aspect-ratio: 16 / 9;
+	border: 0;
+	border-radius: 18px;
+}
+
+@media (max-width:700px) {
+	.sd2-v2-pdp #description .sd2-v2-pdp-copy {
+		overflow-wrap: anywhere;
+	}
+
+	.sd2-v2-pdp #description .sd2-v2-pdp-copy img,
+	.sd2-v2-pdp #description .sd2-v2-pdp-copy :is(iframe,video) {
+		border-radius: 12px;
+	}
+
+	.sd2-v2-pdp #description .sd2-v2-pdp-copy table {
+		display: block;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+}
+
+@media (min-width:901px) {
+	.sd2-v2-pdp .sd2-v3-product-jumpnav {
+		top: 144px;
+	}
+}
