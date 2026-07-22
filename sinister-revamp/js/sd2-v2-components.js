@@ -783,7 +783,12 @@ function setDialogInteractive(dialog, interactive) {
 			item.classList.remove('is-open');
 			if (item.hasAttribute('aria-hidden')) { item.setAttribute('aria-hidden', 'true'); }
 			var dialog = item.matches('.sd2-v2-cart-drawer') ? item.querySelector('.sd2-v2-cart-panel') : item;
-			if (dialog && (dialog.matches('[data-v2-drawer]') || dialog.matches('.sd2-v2-cart-panel'))) { setDialogInteractive(dialog, false); }
+			if (dialog && (dialog.matches('[data-v2-drawer]') || dialog.matches('.sd2-v2-cart-panel'))) {
+				dialog.classList.remove('is-open');
+				if (dialog.hasAttribute('aria-hidden')) { dialog.setAttribute('aria-hidden', 'true'); }
+				if (opener && dialog.contains(opener)) { opener = document.querySelector('[data-v2-cart-open]'); }
+				setDialogInteractive(dialog, false);
+			}
 		});
 		document.querySelectorAll('[data-v2-search-open], [data-v2-cart-open]').forEach(function (item) { item.setAttribute('aria-expanded', 'false'); });
 		document.querySelectorAll('.sd2-v2-scrim, .sd2-v2-cart-scrim, .sd2-v2-search-scrim').forEach(function (item) {
