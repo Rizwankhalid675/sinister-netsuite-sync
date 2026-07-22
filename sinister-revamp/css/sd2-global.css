@@ -5682,7 +5682,13 @@ body .sd2-v2-account .sd2-v2-account-cards-2up--credentials { display:grid!impor
 	justify-self:start; min-height:54px; margin-top:8px; padding-inline:26px; border-color:#3159eb;
 	background:#3159eb; color:#fff; box-shadow:0 14px 32px rgba(49,89,235,.28);
 }
-.sd2-v2-build-story__body .sd2-btn:hover { border-color:#fff; background:#fff; color:#07101f; }
+.sd2-v2-build-story__body .sd2-btn:visited {
+	border-color:#3159eb; background:#3159eb; color:#fff!important;
+}
+.sd2-v2-build-story__body .sd2-btn:is(:hover,:focus-visible,:active) {
+	border-color:#fff; background:#fff; color:#07101f!important;
+}
+#sd2-v2-platforms-title { scroll-margin-top:180px; }
 .sd2-v2-build-story__specs {
 	grid-column:1 / -1; grid-template-columns:repeat(3,minmax(0,1fr)); align-content:stretch; gap:0; padding:0;
 	border:0; border-top:1px solid rgba(255,255,255,.17); border-radius:0;

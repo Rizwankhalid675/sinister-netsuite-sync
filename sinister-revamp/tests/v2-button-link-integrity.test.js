@@ -7,6 +7,7 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const css = read('css/sd2-global.css');
 const home = read('templates/sfnt.mvt');
 const motion = read('js/sd2-motion.js');
+const components = read('js/sd2-v2-components.js');
 
 const auditedLinkSources = [
   'templates/aboutus.mvt',
@@ -86,6 +87,31 @@ assert.match(
   motion,
   /event\.target\.closest\("a,button,\.sd2-v5-truck__hud"\)/,
   'Truck Lab tilt must stand down over HUD controls so the target cannot move before pointer-down'
+);
+assert.match(
+  css,
+  /\.sd2-v2-build-story__body\s+\.sd2-btn:is\(:hover,:focus-visible,:active\)\s*\{(?=[^}]*background:\s*#fff)(?=[^}]*color:\s*#07101f!important)[^}]*\}/,
+  'Build Blueprint CTA interaction states must keep dark text on the white surface'
+);
+assert.match(
+  css,
+  /\.sd2-v2-build-story__body\s+\.sd2-btn:visited\s*\{(?=[^}]*background:\s*#3159eb)(?=[^}]*color:\s*#fff!important)[^}]*\}/,
+  'Build Blueprint CTA visited state must retain its blue surface and white label'
+);
+assert.equal(
+  (home.match(/href="\/#sd2-v2-platforms-title"[^>]*data-sd2-scroll-to="sd2-v2-platforms-title"/g) || []).length,
+  2,
+  'both homepage platform CTAs must use root-safe fallbacks and same-document scroll targets'
+);
+assert.match(
+  components,
+  /document\.querySelectorAll\('\[data-sd2-scroll-to\]'\)[\s\S]*?event\.preventDefault\(\)[\s\S]*?target\.scrollIntoView/,
+  'homepage platform CTAs must bypass Miva basehref and scroll to the rendered target'
+);
+assert.match(
+  css,
+  /#sd2-v2-platforms-title\s*\{[^}]*scroll-margin-top:\s*180px[^}]*\}/,
+  'the homepage platform target must clear the sticky V2 header when scrolled into view'
 );
 
 console.log('V2 button contrast and internal-link integrity contracts verified');

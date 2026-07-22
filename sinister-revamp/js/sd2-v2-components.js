@@ -1710,6 +1710,21 @@ counters.forEach(run);
 	});
 })();
 
+/* Same-page homepage jumps must not be resolved against Miva's /mm5/ base URL. */
+(function () {
+	'use strict';
+	document.querySelectorAll('[data-sd2-scroll-to]').forEach(function (link) {
+		link.addEventListener('click', function (event) {
+			var target = document.getElementById(link.dataset.sd2ScrollTo);
+			if (!target) { return; }
+			event.preventDefault();
+			var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+			history.replaceState(null, '', window.location.pathname + window.location.search + '#' + target.id);
+		});
+	});
+})();
+
 /* Help sub-page form embeds (monday.com iframes + the LiveHelpNow ticket widget on
    Order Tracking). Both are effectively cross-origin: we cannot read their real
    rendered content height, so there is no way to size the container exactly from

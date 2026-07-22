@@ -48,7 +48,7 @@
 					<p class="sd2-body">Fitment-first diesel performance for Powerstroke, Duramax, and Cummins. Real parts, live pricing, and a build path shaped around your truck.</p>
 					<div class="sd2-v2-home-hero__actions">
 						<button class="sd2-btn sd2-btn--primary" type="button" data-v2-garage-toggle>Build Around My Truck</button>
-						<a class="sd2-btn sd2-btn--outline sd2-hero-platform-cta" href="#sd2-v2-platforms-title"><span>Explore Platforms</span></a>
+						<a class="sd2-btn sd2-btn--outline sd2-hero-platform-cta" href="/#sd2-v2-platforms-title" data-sd2-scroll-to="sd2-v2-platforms-title"><span>Explore Platforms</span></a>
 					</div>
 				</div>
 				<div class="sd2-v2-home-hero__media sd2-depth-scene" aria-label="Sinister Diesel performance truck">
@@ -311,7 +311,7 @@
 					<p class="sd2-eyebrow">Build Blueprint</p>
 					<h2 class="sd2-heading-lg" id="sd2-v2-build-title">Plan the system before the parts.</h2>
 					<p class="sd2-body">Start with your truck, choose how it works, then build through cooling, airflow, filtration, and monitoring without losing the thread.</p>
-					<a class="sd2-btn sd2-btn--outline" href="#sd2-v2-platforms-title">Choose Your Platform</a>
+					<a class="sd2-btn sd2-btn--outline" href="/#sd2-v2-platforms-title" data-sd2-scroll-to="sd2-v2-platforms-title">Choose Your Platform</a>
 				</div>
 				<aside class="sd2-v2-build-story__specs" aria-label="Build specifications">
 					<div><span>01</span><strong>Save Your Truck</strong></div>
