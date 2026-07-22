@@ -10213,4 +10213,20 @@ body.sd2-install-library-page .sd2-v3-shell > .sd2-v2-hdr-trust .sd2-v2-hdr-trus
 	.sd2-v2-pdp .sd2-v3-product-jumpnav {
 		top: 144px;
 	}
+
+	.sd2-v2-pdp #description.sd2-v3-pdp-narrative {
+		grid-template-columns: minmax(220px, .3fr) minmax(0, 1fr);
+		gap: clamp(56px, 5vw, 84px);
+		padding: clamp(72px, 6vw, 88px);
+	}
+
+	.sd2-v2-pdp #description .sd2-v2-pdp-copy {
+		max-width: none;
+	}
+
+	.sd2-v2-pdp #description .sd2-v2-pdp-copy > :is(ul, ol) {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		column-gap: 32px;
+		align-items: start;
+	}
 }
