@@ -588,9 +588,9 @@
 #
 </mvt:comment>
 <mvt:if expr="g.scotsblogger_blog:settings:comments_multi AND NOT l.settings:comment:censored">
-    <h5 class="sd2-v2-heading-echo sb-collapsible" style="margin-left: 40px;"><b>reply to comment</b></h5>
+    <button class="sd2-v2-heading-echo sb-collapsible" type="button" id="reply-toggle-&mvte:comment:id;" aria-controls="reply-form-&mvte:comment:id;" aria-expanded="false" style="margin-left: 40px;"><b>reply to comment</b></button>
 
-    <form class="sb-collapse-content" action="&mvt:scotsblogger:currentpost:url;" method="post" style="margin-left: 40px;">
+    <form class="sb-collapse-content" id="reply-form-&mvte:comment:id;" action="&mvt:scotsblogger:currentpost:url;" method="post" style="margin-left: 40px;">
 
         <input type="hidden" name="sb_comment_parent_id" value="&mvt:comment:id;">
 
@@ -598,26 +598,25 @@
         <ul class="sd2-v2-form-list">
 
         <li class="sd2-v2-form-list__item">
-                <label class="sd2-v2-form-label" for="commentTitle">Title</label>
-                <input name="_scotsblogger_comment_title" type="text" class="sd2-v2-form-input" id="commentTitle" placeholder="reply title" autocomplete="off">
+                <label class="sd2-v2-form-label" for="reply-title-&mvte:comment:id;">Title</label>
+                <input name="_scotsblogger_comment_title" type="text" class="sd2-v2-form-input" id="reply-title-&mvte:comment:id;" placeholder="reply title" autocomplete="off">
         </li>
 
         <mvt:if expr="l.can_comment EQ 'a'">
             <li class="sd2-v2-form-list__item">
-                    <label class="sd2-v2-form-label" for="commentTitle">Name</label>
-                <input name="_scotsblogger_comment_author_nm" type="text" class="sd2-v2-form-input" style="width: 100%" placeholder="author name">
+                    <label class="sd2-v2-form-label" for="reply-author-&mvte:comment:id;">Name</label>
+                <input name="_scotsblogger_comment_author_nm" type="text" class="sd2-v2-form-input" id="reply-author-&mvte:comment:id;" style="width: 100%" placeholder="author name">
             </li>
         </mvt:if>
 
         <li class="sd2-v2-form-list__item">
-                <label class="sd2-v2-form-label" for="comment">Reply</label>
-                <textarea name="_scotsblogger_comment" class="sd2-v2-form-input sd2-v2-form-input--long" rows="10" cols="80" style="width: 100%" type="text" id="comment" placeholder="enter your reply here"></textarea>
+                <label class="sd2-v2-form-label" for="reply-body-&mvte:comment:id;">Reply</label>
+                <textarea name="_scotsblogger_comment" class="sd2-v2-form-input sd2-v2-form-input--long" rows="10" cols="80" style="width: 100%" id="reply-body-&mvte:comment:id;" placeholder="enter your reply here"></textarea>
             <button type="submit" class="sd2-v2-button sd2-v2-control-group__button">Post Reply</button>
         </li>
 
-        <input type="hidden" name="scotsblogger_category_code" value="&mvt:global:scotsblogger_category_code;">
-
         </ul>
+        <input type="hidden" name="scotsblogger_category_code" value="&mvt:global:scotsblogger_category_code;">
         </fieldset>
     </form>
 </mvt:if>
@@ -640,13 +639,11 @@
 
             for (i = 0; i < coll.length; i++) {
                 coll[i].addEventListener("click", function() {
-                    this.classList.toggle("sb-active");
                     var content = this.nextElementSibling;
-                    if (content.style.display === "block") {
-                        content.style.display = "none";
-                    } else {
-                        content.style.display = "block";
-                    }
+                    var isOpen = content.style.display !== "block";
+                    this.classList.toggle("sb-active", isOpen);
+                    content.style.display = isOpen ? "block" : "none";
+                    this.setAttribute("aria-expanded", isOpen ? "true" : "false");
                 });
             }
         </script>
@@ -675,26 +672,26 @@
         <ul class="sd2-v2-form-list">
 
         <li class="sd2-v2-form-list__item">
-            <label class="sd2-v2-form-label" for="commentTitle">Title</label>
-            <input name="_scotsblogger_comment_title" type="text" class="sd2-v2-form-input" id="commentTitle" placeholder="comment title" autocomplete="off">
+            <label class="sd2-v2-form-label" for="blog-comment-title">Title</label>
+            <input name="_scotsblogger_comment_title" type="text" class="sd2-v2-form-input" id="blog-comment-title" placeholder="comment title" autocomplete="off">
         </li>
 
         <mvt:if expr="l.can_comment EQ 'a'">
             <li class="sd2-v2-form-list__item">
-                <label class="sd2-v2-form-label" for="commentTitle">Name</label>
-                <input name="_scotsblogger_comment_author_nm" type="text" class="sd2-v2-form-input" style="width: 100%" placeholder="author name">
+                <label class="sd2-v2-form-label" for="blog-comment-author">Name</label>
+                <input name="_scotsblogger_comment_author_nm" type="text" class="sd2-v2-form-input" id="blog-comment-author" style="width: 100%" placeholder="author name">
             </li>
         </mvt:if>
 
         <li class="sd2-v2-form-list__item">
-                <label class="sd2-v2-form-label" for="comment">Comment</label>
-            <textarea name="_scotsblogger_comment" class="sd2-v2-form-input sd2-v2-form-input--long" rows="10" cols="80" style="width: 100%" type="text" id="comment" placeholder="enter your comment here"></textarea>
+                <label class="sd2-v2-form-label" for="blog-comment-body">Comment</label>
+            <textarea name="_scotsblogger_comment" class="sd2-v2-form-input sd2-v2-form-input--long" rows="10" cols="80" style="width: 100%" id="blog-comment-body" placeholder="enter your comment here"></textarea>
           <button type="submit" class="sd2-v2-button sd2-v2-control-group__button">Post Comment</button>
         </li>
 
+        </ul>
+        <input type="hidden" name="scotsblogger_category_code" value="&mvt:global:scotsblogger_category_code;">
         </fieldset>
-
-        <input type="hidden" name="scotsblogger_category_code" value="&mvt:global:scotsblogger_category_code;">            </ul>
 
         </form>
     </mvt:if>

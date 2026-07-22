@@ -163,7 +163,7 @@
 
 			<div class="sd2-v5-truck-lab__shell">
 				<div class="sd2-v5-truck-stage" data-v5-truck-stage tabindex="0" role="region" aria-roledescription="carousel" aria-label="Diesel truck platforms">
-					<article class="sd2-v5-truck is-active" data-v5-truck="powerstroke" aria-hidden="false">
+					<article class="sd2-v5-truck is-active" role="tabpanel" id="sd2-v5-truck-panel-powerstroke" aria-labelledby="sd2-v5-truck-tab-powerstroke" data-v5-truck="powerstroke" aria-hidden="false">
 						<a class="sd2-v5-truck__visual" href="/ford-powerstroke-powerstroke-diesel-truck-parts-online.html" tabindex="0">
 							<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%201.png" alt="Ford Super Duty representing the Powerstroke catalog">
 							<span class="sd2-v5-truck__scan" aria-hidden="true"></span>
@@ -175,7 +175,7 @@
 						</div>
 					</article>
 
-					<article class="sd2-v5-truck is-next" data-v5-truck="duramax" aria-hidden="true">
+					<article class="sd2-v5-truck is-next" role="tabpanel" id="sd2-v5-truck-panel-duramax" aria-labelledby="sd2-v5-truck-tab-duramax" data-v5-truck="duramax" aria-hidden="true">
 						<a class="sd2-v5-truck__visual" href="/shop-gm-duramax-diesel-parts-sinister-diesel.html" tabindex="-1">
 							<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%203.png" alt="GM heavy-duty pickup representing the Duramax catalog">
 							<span class="sd2-v5-truck__scan" aria-hidden="true"></span>
@@ -187,7 +187,7 @@
 						</div>
 					</article>
 
-					<article class="sd2-v5-truck is-prev" data-v5-truck="cummins" aria-hidden="true">
+					<article class="sd2-v5-truck is-prev" role="tabpanel" id="sd2-v5-truck-panel-cummins" aria-labelledby="sd2-v5-truck-tab-cummins" data-v5-truck="cummins" aria-hidden="true">
 						<a class="sd2-v5-truck__visual" href="/dodge-cummins-diesel-performance-parts-sinister-diesel.html" tabindex="-1">
 							<img src="https://sinisterdiesel.com/mm5/graphics/00000001/8/Generated%20image%202.png" alt="Ram heavy-duty pickup representing the Cummins catalog">
 							<span class="sd2-v5-truck__scan" aria-hidden="true"></span>
@@ -203,9 +203,9 @@
 				<div class="sd2-v5-truck-controls">
 					<button type="button" data-v5-truck-prev aria-label="Previous truck">&#8592;</button>
 					<div role="tablist" aria-label="Choose a truck platform">
-						<button type="button" role="tab" data-v5-truck-select="powerstroke" aria-selected="true"><i>01</i> Powerstroke</button>
-						<button type="button" role="tab" data-v5-truck-select="duramax" aria-selected="false"><i>02</i> Duramax</button>
-						<button type="button" role="tab" data-v5-truck-select="cummins" aria-selected="false"><i>03</i> Cummins</button>
+						<button type="button" role="tab" id="sd2-v5-truck-tab-powerstroke" aria-controls="sd2-v5-truck-panel-powerstroke" data-v5-truck-select="powerstroke" aria-selected="true" tabindex="0"><i>01</i> Powerstroke</button>
+						<button type="button" role="tab" id="sd2-v5-truck-tab-duramax" aria-controls="sd2-v5-truck-panel-duramax" data-v5-truck-select="duramax" aria-selected="false" tabindex="-1"><i>02</i> Duramax</button>
+						<button type="button" role="tab" id="sd2-v5-truck-tab-cummins" aria-controls="sd2-v5-truck-panel-cummins" data-v5-truck-select="cummins" aria-selected="false" tabindex="-1"><i>03</i> Cummins</button>
 					</div>
 					<button type="button" data-v5-truck-next aria-label="Next truck">&#8594;</button>
 				</div>
@@ -235,16 +235,16 @@
 		</div>
 		<div class="sd2-v4-build-console__machine">
 			<div class="sd2-v4-build-console__switch" role="tablist" aria-label="Build mode">
-				<button type="button" role="tab" aria-selected="true" data-v4-mode="daily">Daily</button>
-				<button type="button" role="tab" aria-selected="false" data-v4-mode="tow">Tow</button>
-				<button type="button" role="tab" aria-selected="false" data-v4-mode="performance">Performance</button>
+				<button type="button" role="tab" id="sd2-v4-mode-tab-daily" aria-controls="sd2-v4-mode-panel-daily" data-v4-mode="daily" aria-selected="true" tabindex="0">Daily</button>
+				<button type="button" role="tab" id="sd2-v4-mode-tab-tow" aria-controls="sd2-v4-mode-panel-tow" data-v4-mode="tow" aria-selected="false" tabindex="-1">Tow</button>
+				<button type="button" role="tab" id="sd2-v4-mode-tab-performance" aria-controls="sd2-v4-mode-panel-performance" data-v4-mode="performance" aria-selected="false" tabindex="-1">Performance</button>
 			</div>
 			<div class="sd2-v4-build-console__display">
 				<div class="sd2-v4-build-console__dial" aria-hidden="true"><i></i><span data-v4-mode-code>01</span></div>
 				<div class="sd2-v4-build-console__panels">
-					<article class="is-active" data-v4-mode-panel="daily"><span>Mode 01</span><h3>Daily-driver balance.</h3><p>Start with maintenance, filtration, monitoring, and platform-correct essentials.</p></article>
-					<article data-v4-mode-panel="tow"><span>Mode 02</span><h3>Confidence under load.</h3><p>Explore cooling, airflow, transmission, and monitoring paths for towing priorities.</p></article>
-					<article data-v4-mode-panel="performance"><span>Mode 03</span><h3>Build the system.</h3><p>Connect airflow, fuel, tuning, and supporting parts instead of treating upgrades in isolation.</p></article>
+					<article class="is-active" role="tabpanel" id="sd2-v4-mode-panel-daily" aria-labelledby="sd2-v4-mode-tab-daily" aria-hidden="false" data-v4-mode-panel="daily"><span>Mode 01</span><h3>Daily-driver balance.</h3><p>Start with maintenance, filtration, monitoring, and platform-correct essentials.</p></article>
+					<article role="tabpanel" id="sd2-v4-mode-panel-tow" aria-labelledby="sd2-v4-mode-tab-tow" aria-hidden="true" data-v4-mode-panel="tow"><span>Mode 02</span><h3>Confidence under load.</h3><p>Explore cooling, airflow, transmission, and monitoring paths for towing priorities.</p></article>
+					<article role="tabpanel" id="sd2-v4-mode-panel-performance" aria-labelledby="sd2-v4-mode-tab-performance" aria-hidden="true" data-v4-mode-panel="performance"><span>Mode 03</span><h3>Build the system.</h3><p>Connect airflow, fuel, tuning, and supporting parts instead of treating upgrades in isolation.</p></article>
 				</div>
 			</div>
 			<button class="sd2-btn sd2-btn--primary" type="button" data-v2-garage-toggle>Match My Truck</button>

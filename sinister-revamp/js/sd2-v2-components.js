@@ -1446,7 +1446,10 @@ function setDialogInteractive(dialog, interactive) {
 		var tabs = Array.prototype.slice.call(root.querySelectorAll('[data-v2-pdp-tab]'));
 		var panels = Array.prototype.slice.call(root.querySelectorAll('[data-v2-pdp-panel]'));
 		function activate(tab) {
-			tabs.forEach(function (item) { item.setAttribute('aria-selected', item === tab ? 'true' : 'false'); });
+			tabs.forEach(function (item) {
+				item.setAttribute('aria-selected', item === tab ? 'true' : 'false');
+				item.setAttribute('tabindex', item === tab ? '0' : '-1');
+			});
 			panels.forEach(function (panel) { panel.hidden = panel.id !== tab.getAttribute('aria-controls'); });
 			tab.focus();
 		}

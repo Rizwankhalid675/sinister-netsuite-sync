@@ -148,10 +148,10 @@
 
 		<section class="sd2-v2-product-tabs" data-v2-pdp-tabs aria-label="Product detail sections">
 			<div class="sd2-v2-product-tabs__list" role="tablist" aria-label="Product information">
-				<button type="button" role="tab" aria-selected="true" aria-controls="sd2-tab-specs" id="sd2-tab-specs-control" data-v2-pdp-tab>Specifications</button>
-				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-install" id="sd2-tab-install-control" data-v2-pdp-tab>Installation</button>
-				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-reviews" id="sd2-tab-reviews-control" data-v2-pdp-tab>Reviews</button>
-				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-faq" id="sd2-tab-faq-control" data-v2-pdp-tab>FAQ</button>
+				<button type="button" role="tab" aria-selected="true" aria-controls="sd2-tab-specs" id="sd2-tab-specs-control" tabindex="0" data-v2-pdp-tab>Specifications</button>
+				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-install" id="sd2-tab-install-control" tabindex="-1" data-v2-pdp-tab>Installation</button>
+				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-reviews" id="sd2-tab-reviews-control" tabindex="-1" data-v2-pdp-tab>Reviews</button>
+				<button type="button" role="tab" aria-selected="false" aria-controls="sd2-tab-faq" id="sd2-tab-faq-control" tabindex="-1" data-v2-pdp-tab>FAQ</button>
 			</div>
 			<div class="sd2-v2-product-tabs__panel" role="tabpanel" id="sd2-tab-specs" aria-labelledby="sd2-tab-specs-control" data-v2-pdp-panel>Product code, name, and known product data are shown below.</div>
 			<div class="sd2-v2-product-tabs__panel" role="tabpanel" id="sd2-tab-install" aria-labelledby="sd2-tab-install-control" data-v2-pdp-panel hidden>[Placeholder] Installation content requires approved product custom fields.</div>

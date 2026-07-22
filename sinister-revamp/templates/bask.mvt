@@ -276,6 +276,10 @@ console.log({insurance_opt_in});
 	display: block;
 	width: 10%;
 	height: 10%;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -284,17 +288,17 @@ console.log({insurance_opt_in});
 <div id="insurance_dialog" style="position:relative; display:none;">
 <mvt:item name="readytheme" param="image( 'shipping_protection_mobile' )" />
 <mvt:item name="readytheme" param="image( 'shipping_protection' )" />
-<a id="learn_more_close" href="" target="_blank"></a>
-<a id="learn_more_link" href="https://sinisterdiesel.com/shipping-policies.html" target="_blank"></a>
+<button id="learn_more_close" type="button" aria-label="Close shipping protection details"></button>
+<a id="learn_more_link" href="https://sinisterdiesel.com/shipping-policies.html" target="_blank" rel="noopener noreferrer" aria-label="Read shipping protection policy"></a>
 </div>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 <script>
- $('#learn_more').click(function () {
+ $('#learn_more').click(function (event) {
         $('#insurance_dialog').dialog({modal:true
 });
 event.preventDefault();        
     });
- $('#learn_more_close').click(function () {
+ $('#learn_more_close').click(function (event) {
         $('#insurance_dialog').dialog('close');
 event.preventDefault();        
     });

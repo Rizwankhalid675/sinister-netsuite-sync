@@ -577,7 +577,11 @@
                     button.setAttribute("tabindex", on ? "0" : "-1");
                     if (on) { selected = index; if (focus) button.focus(); }
                 });
-                panels.forEach(function (panel) { panel.classList.toggle("is-active", panel.getAttribute("data-v4-mode-panel") === mode); });
+                panels.forEach(function (panel) {
+                    var active = panel.getAttribute("data-v4-mode-panel") === mode;
+                    panel.classList.toggle("is-active", active);
+                    panel.setAttribute("aria-hidden", active ? "false" : "true");
+                });
                 if (dial) dial.style.setProperty("--v4-mode", selected);
                 if (code) code.textContent = "0" + (selected + 1);
             }
