@@ -34,5 +34,7 @@ export const run = async ({ api, logger }) => {
 };
 
 export const options = {
-  triggers: { api: false },
+  // TEMP: enabled to run this one-off seed against dev via API, then
+  // reverted to triggers.api = false immediately after.
+  triggers: { api: true },
 };
