@@ -8,6 +8,7 @@ export const INTERNAL_NAV_ITEMS = Object.freeze([
   { path: "/errors", label: "Errors", short: "ER", permission: PERMISSIONS.VIEW_AUDIT },
   { path: "/reports", label: "Reports", short: "RP", permission: PERMISSIONS.VIEW_REPORTS },
   { path: "/finance", label: "Finance", short: "FI", permission: PERMISSIONS.VIEW_FINANCE },
+  { path: "/audit-log", label: "Audit Log", short: "AL", permission: PERMISSIONS.VIEW_AUDIT },
   { path: "/settings", label: "Settings", short: "ST", permission: PERMISSIONS.MANAGE_SETTINGS },
   { path: "/users", label: "Users", short: "US", permission: PERMISSIONS.VIEW_USERS },
 ]);

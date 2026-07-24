@@ -27,6 +27,7 @@ import { InternalSettingsPage } from "../routes/internalSettings";
 import { InternalAuthCallbackPage, InternalLoginPage } from "../routes/internalLogin";
 import { UsersPage } from "../routes/users";
 import { FinancePage } from "../routes/finance";
+import { AuditLogPage } from "../routes/auditLog";
 import { Gate, RoleProvider } from "../lib/useRole";
 import { PERMISSIONS } from "../lib/rbac";
 import { InternalAppShell } from "./InternalAppShell";
@@ -65,6 +66,7 @@ function App() {
           <Route path="settings" element={<InternalSettingsPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="finance" element={<FinancePage />} />
+          <Route path="audit-log" element={<AuditLogPage />} />
         </Route>
         <Route path="*" element={<Error404 />} />
       </Route>
