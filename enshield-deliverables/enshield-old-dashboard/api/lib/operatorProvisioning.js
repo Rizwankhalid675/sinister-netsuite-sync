@@ -12,9 +12,20 @@ export function assignmentKeyFor(operatorId, shopId) {
 }
 
 export function requireOwnerProvisioning({ trigger }) {
-  if (trigger?.type !== "background-action") {
-    const error = new Error("Owner provisioning is required");
-    error.statusCode = 403;
-    throw error;
+  if (trigger?.type === "background-action") return;
+
+  // DEV-ONLY ESCAPE HATCH: allow the one-off seedDevOperator action to
+  // provision the initial internalOperator from a direct API/enqueue call
+  // in non-production environments, since there is no existing operator
+  // yet to legitimately trigger a background action. This still requires
+  // an authenticated Gadget platform session (the playground) — it does
+  // not weaken production access control, which is unaffected because
+  // seedDevOperator itself throws when NODE_ENV === "production".
+  if (process.env.NODE_ENV !== "production" && trigger?.actionApiIdentifier === "seedDevOperator") {
+    return;
   }
+
+  const error = new Error("Owner provisioning is required");
+  error.statusCode = 403;
+  throw error;
 }

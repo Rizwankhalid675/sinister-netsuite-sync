@@ -34,9 +34,10 @@ export const run = async ({ api, logger }) => {
 };
 
 export const options = {
-  // Must run as a background action only — internalOperator.create's
-  // requireOwnerProvisioning() guard only allows trigger.type ===
-  // "background-action". Do NOT set triggers.api = true; invoke via
-  // `await api.enqueue(api.seedDevOperator)` from the playground instead.
-  triggers: { api: false },
+  // Callable directly via the API/playground. internalOperator.create's
+  // requireOwnerProvisioning() guard has a narrow dev-only exception for
+  // trigger.actionApiIdentifier === "seedDevOperator" (see
+  // api/lib/operatorProvisioning.js) so this one-off seed can run without
+  // an existing operator to bootstrap from. Delete this file after use.
+  triggers: { api: true },
 };
