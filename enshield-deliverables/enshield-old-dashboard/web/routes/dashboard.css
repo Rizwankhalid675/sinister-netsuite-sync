@@ -1,5 +1,5 @@
 /* Enshield single-shop analytics dashboard — matches mock_dashboard.png */
-.esd-root {
+:root {
   --esd-teal: #087982;
   --esd-teal-dark: #06626a;
   --esd-ink: #0f1b2d;
@@ -12,6 +12,8 @@
   --esd-danger: #c02626;
   --esd-warning: #b06a00;
   --esd-focus: #2f7cff;
+}
+.esd-root {
   display: flex;
   min-height: 100dvh;
   max-width: 100vw;
@@ -19,6 +21,49 @@
   background: var(--esd-bg);
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--esd-ink);
+}
+
+/* Standalone auth pages (login / callback) — outside .esd-root, so styled independently */
+.esd-auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  background: var(--esd-bg);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--esd-ink);
+  padding: 24px;
+  box-sizing: border-box;
+}
+.esd-auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--esd-card);
+  border: 1px solid var(--esd-border);
+  border-radius: 14px;
+  padding: 32px 28px;
+  box-shadow: 0 8px 24px rgba(15, 27, 45, 0.08);
+  text-align: center;
+}
+.esd-auth-card h1 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--esd-ink);
+}
+.esd-auth-card p {
+  margin: 0 0 22px;
+  color: var(--esd-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.esd-auth-card .esd-btn {
+  width: 100%;
+}
+.esd-auth-card .esd-error {
+  color: var(--esd-danger);
+  font-size: 13px;
+  margin: 0 0 16px;
 }
 
 /* Visible keyboard focus for all interactive elements (WCAG 2.4.7) */
