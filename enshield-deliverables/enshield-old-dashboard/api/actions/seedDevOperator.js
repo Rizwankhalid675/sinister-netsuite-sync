@@ -8,6 +8,8 @@
  *
  * Delete this file after running it once.
  */
+import { withDevSeedEscape } from "../lib/operatorProvisioning.js";
+
 export const run = async ({ api, logger }) => {
   if (process.env.NODE_ENV === "production") {
     throw new Error("seedDevOperator must never run in production");
@@ -22,12 +24,14 @@ export const run = async ({ api, logger }) => {
     return { success: true, skipped: true, id: existing.id, personId: existing.personId };
   }
 
-  const record = await api.internalOperator.create({
-    personId: "dev-tester-1",
-    name: "Dev Tester",
-    email: "dev@enshield.local",
-    status: "active",
-  });
+  const record = await withDevSeedEscape(() =>
+    api.internalOperator.create({
+      personId: "dev-tester-1",
+      name: "Dev Tester",
+      email: "dev@enshield.local",
+      status: "active",
+    })
+  );
 
   logger.info({ id: record.id }, "Seeded dev internalOperator");
   return { success: true, skipped: false, id: record.id, personId: record.personId };
