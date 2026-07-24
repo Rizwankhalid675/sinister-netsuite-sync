@@ -1,9 +1,9 @@
 {
     "version": 1,
     "changeset": {
-        "id": 18229,
+        "id": 18259,
         "username": null,
-        "notes": "Fix standalone V2 shell routes and cart hydration"
+        "notes": "Normalize mobile account touch target"
     },
     "files": {
         "templates\\1000_rp67p11cscp_copy.mvt": {
@@ -364,7 +364,7 @@
         },
         "templates\\acln.mvt": {
             "template_filename": "acln.mvc",
-            "hash": "8594e82b2c154cdd9f86a95b3d2ffb13617225690e4fd23662b9e8b1e91d5c7e"
+            "hash": "7f7b5833c2adb088a0729c314f9ddd72ef815fc2c43bc0c733bf601af41d5ac4"
         },
         "templates\\acln.json": {
             "template_filename": "acln.mvc",
@@ -660,7 +660,7 @@
         },
         "templates\\bask.mvt": {
             "template_filename": "bask.mvc",
-            "hash": "6e892244da925aa7db00d78c7611bf27c93832bcaf36917d58cfa8c08f14a238"
+            "hash": "ea8bd15bf46a52d451352892014d7375542cebd293100c80f1c0a4d2f6044463"
         },
         "templates\\bask.json": {
             "template_filename": "bask.mvc",
@@ -676,7 +676,7 @@
         },
         "templates\\blog-content.mvt": {
             "template_filename": "blog-content.mvc",
-            "hash": "5369fd112e9d96f3b422256ee7a7c5cfdf4a9dcc545ff087f529d3983db4f97d"
+            "hash": "afeedbdd90c345ec9a37d3462de35271688cd10b11031adf6f7f3d08d4c16188"
         },
         "templates\\blog-footer.mvt": {
             "template_filename": "blog-footer.mvc",
@@ -1148,7 +1148,7 @@
         },
         "templates\\cssui-global-head.mvt": {
             "template_filename": "cssui-global-head.mvc",
-            "hash": "df0d448ea26673637af91a3d37281f3dc1a1f5a52b8c92b59d9b228725a8348e"
+            "hash": "0c69e24d5a2f34d984710eba690d1a96689016430b46cb379a1d87a062d73b2d"
         },
         "templates\\cssui-global-head.json": {
             "template_filename": "cssui-global-head.mvc",
@@ -1156,7 +1156,7 @@
         },
         "templates\\cssui-global-header.mvt": {
             "template_filename": "cssui-global-header.mvc",
-            "hash": "8bdadae155c98683fc71e426cddc83fad1f8d83fcca5f40e492dfb8600c4bc3c"
+            "hash": "572ff10ce9ab919ded9fed962cb07338520a796dd5cb5d98b232e187cfc6832e"
         },
         "templates\\cssui-global-header.json": {
             "template_filename": "cssui-global-header.mvc",
@@ -3172,7 +3172,7 @@
         },
         "templates\\global_header.mvt": {
             "template_filename": "global_header.mvc",
-            "hash": "fcfadc82d17f1570df085e1b397e38149761ef7c702db7152c0331cdb02c0d93"
+            "hash": "3b7810688a5eb28552b0a36ded567b0c718e2292004c2112cf9f72e9e16a703a"
         },
         "templates\\global_header.json": {
             "template_filename": "global_header.mvc",
@@ -4164,7 +4164,7 @@
         },
         "templates\\prod-product_display.mvt": {
             "template_filename": "prod-product_display.mvc",
-            "hash": "477f0df11961d737d95ba579880ed91959bd32b5e13f15e7edad96784be9abe0"
+            "hash": "08ab04f42989eda116ad1b711a998d54045dc0c751c45980a77f78f5b7b506fe"
         },
         "templates\\prod-product_display_imagemachine-head.mvt": {
             "template_filename": "prod-product_display_imagemachine-head.mvc",
@@ -4644,7 +4644,7 @@
         },
         "templates\\sfnt.mvt": {
             "template_filename": "sfnt.mvc",
-            "hash": "cce081835084acf69068cef88de07b45bb06437cb9e1139618033f37520fade3"
+            "hash": "8ed178c365c402cf97f7e7f6b9d8069b65e41c5afa5e808f67565922df585543"
         },
         "templates\\sfnt.json": {
             "template_filename": "sfnt.mvc",
@@ -18786,7 +18786,7 @@
         },
         "css\\google-fonts.json": {
             "cssresource_code": "google-fonts",
-            "hash": "e0887942cbc231349ccffe903b69c26e5807133433c0c2ad1c44dd3b667a1955"
+            "hash": "a3149ed5c700323e7616cf1484e04e087ab2a001bb027434d42519ebc7981722"
         },
         "css\\lhn_forms.json": {
             "cssresource_code": "lhn_forms",
@@ -18986,7 +18986,7 @@
         },
         "css\\preconnect-google-fonts.json": {
             "cssresource_code": "preconnect-google-fonts",
-            "hash": "350fcf4d656162d70afea7ff209cfeb9bd79ee50fec3ee47e5edbe697234cccf"
+            "hash": "82aa6eebb7bebcf67b573e577d047b06c8f4c55d87a076a968032f63def39fa8"
         },
         "css\\preconnect-google-tag-manager.json": {
             "cssresource_code": "preconnect-google-tag-manager",
@@ -19050,7 +19050,7 @@
         },
         "css\\theme-styles.css": {
             "cssresource_code": "theme-styles",
-            "hash": "50ced36cd92e592689ebf6565d65e946cdd544b1a370e9e7fc6647266c302854"
+            "hash": "375c261e56d90154ebe976ec1673bf2edd4d98aa8cf3165f50a52103f9d34846"
         },
         "css\\typography.json": {
             "cssresource_code": "typography",
@@ -19498,7 +19498,7 @@
         },
         "css\\sd2-global.css": {
             "cssresource_code": "sd2-global",
-            "hash": "8eec49abe7021814eeaf6c75cc13a1bbb45fe900b7aeef4a0a083715552845d6"
+            "hash": "b008679cdb2160d5f5d44de2ce6e9710bcc5dc41d76a655dfc4e11b5df1bd7b7"
         },
         "js\\sd2-v2-components.json": {
             "jsresource_code": "sd2-v2-components",
@@ -19506,7 +19506,7 @@
         },
         "js\\sd2-v2-components.js": {
             "jsresource_code": "sd2-v2-components",
-            "hash": "4f3b3fb92ce21de56e3118958a8801257f08977036fbe62d3ac3ab80c1bd5707"
+            "hash": "7b2a1b905065931ba33e90f8e42201e353ea12b4b7dad1856455bf9cbd4bfaff"
         },
         "templates\\acctv2.mvt": {
             "template_filename": "acctv2.mvc",
@@ -19710,7 +19710,7 @@
         },
         "templates\\install-hub.mvt": {
             "template_filename": "install-hub.mvc",
-            "hash": "105e1908a9ddaa7ba9a5ec3c8c3396293775c1c56944dbd68c230cf0d930d58a"
+            "hash": "3d4acb02d124867517a8febff65413c431dbf48902724cb9f10921cb3d06fa4e"
         },
         "templates\\install-hub.json": {
             "template_filename": "install-hub.mvc",
@@ -19718,7 +19718,7 @@
         },
         "templates\\install-part-overviews.mvt": {
             "template_filename": "install-part-overviews.mvc",
-            "hash": "6e1507b24f9e96a84a1bd421076d354ee4480d35b0456c844df24835f48e7e85"
+            "hash": "7aee54a1068ff4ebcf934393e54f61517e7776338b4de0c9aae73085916a4a1c"
         },
         "templates\\install-part-overviews.json": {
             "template_filename": "install-part-overviews.mvc",
@@ -19726,7 +19726,7 @@
         },
         "templates\\install-tutorials-cummins.mvt": {
             "template_filename": "install-tutorials-cummins.mvc",
-            "hash": "e7f7b5d01eb4103107186afa76e4959286810766dc9959bbee18fb2a9e77df73"
+            "hash": "94417c6013942ec29279d5e14c19cf0a336b85c76662b3efc5f803a9ea03c114"
         },
         "templates\\install-tutorials-cummins.json": {
             "template_filename": "install-tutorials-cummins.mvc",
@@ -19734,7 +19734,7 @@
         },
         "templates\\install-tutorials-duramax.mvt": {
             "template_filename": "install-tutorials-duramax.mvc",
-            "hash": "9ec0c73bbfdeabb4f266532c7e4515fdae4c29b9fd65110bc036f287a47b8ba8"
+            "hash": "7c35b2adb6e5ca888765b653b4cea73b300f44c1f243a3252ce2cd80ffc4fce9"
         },
         "templates\\install-tutorials-duramax.json": {
             "template_filename": "install-tutorials-duramax.mvc",
@@ -19742,7 +19742,7 @@
         },
         "templates\\install-tutorials-overview.mvt": {
             "template_filename": "install-tutorials-overview.mvc",
-            "hash": "4fb805c6da02dd330a51331263bcb55d403dc11727bf6ea13547e6f6f925cdf6"
+            "hash": "dacd20c049cc0629228842c44758a39a7173164a7c3765d634d39e32b46bae02"
         },
         "templates\\install-tutorials-overview.json": {
             "template_filename": "install-tutorials-overview.mvc",
@@ -19750,7 +19750,7 @@
         },
         "templates\\install-tutorials-powerstroke.mvt": {
             "template_filename": "install-tutorials-powerstroke.mvc",
-            "hash": "10f8e525cd894815298ce5c6c37b019d45c89c724fe013a9195881bcd7a685b7"
+            "hash": "81468aa51d9ed60c88c03d9a4ee69aab029f5c4e79075dda43ac77c4083c70eb"
         },
         "templates\\install-tutorials-powerstroke.json": {
             "template_filename": "install-tutorials-powerstroke.mvc",
@@ -19762,7 +19762,7 @@
         },
         "js\\sd2-motion.js": {
             "jsresource_code": "sd2-motion",
-            "hash": "42ed4db2bda3455dd98156e647a470b334a8e2669e9e473c2579b995b36bf4f9"
+            "hash": "98309db55ad51afedf51109f1d456357a4e43f2d48c96bb10de740d4aad2e470"
         }
     }
 }

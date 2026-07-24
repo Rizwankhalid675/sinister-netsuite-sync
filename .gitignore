@@ -2,6 +2,14 @@
 .env
 **/.env
 
+# DigitalOcean infra / hosting secrets (Enshield clone tooling)
+**/.do_token
+**/do_token.txt
+**/clone_create.json
+**/clone_ip.txt
+**/clone_userdata.yaml
+**/snapshots/
+
 # Node
 node_modules/
 **/node_modules/

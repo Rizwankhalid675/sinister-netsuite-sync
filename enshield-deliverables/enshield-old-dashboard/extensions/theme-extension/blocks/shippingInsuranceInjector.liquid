@@ -1,0 +1,286 @@
+{% comment %}Insurance Link Injector - Simple Version{% endcomment %}
+{% comment %}
+  Shipping Insurance Link Injector Block
+  This block injects a simple link into the cart drawer that directs users to the cart page
+  where they can add shipping insurance.
+
+  NOT USING THESE GLOBALLY -- only cart page
+  {% assign learn_more_url = shop.metafields.enshield.learn_more_url | default: "#" %}
+  {% assign desktop_image_url = shop.metafields.enshield.desktop_image_url | default: "" %}
+  {% assign mobile_image_url = shop.metafields.enshield.mobile_image_url | default: "" %}
+{% endcomment %}
+
+<script type="module">
+  // Block settings from schema
+  const insuranceLabel = {{ block.settings.insurance_label | json }};
+  const insuranceDescription = {{ block.settings.insurance_description | json }};
+
+  let hasInjected = false;
+  let isRemovingInsurance = false;
+
+  // Create the insurance link element
+  function createInsuranceLink() {
+    const container = document.createElement('div');
+    container.className = 'insurance-link-container';
+    container.style.cssText = 'padding: 15px 0; border-top: 1px solid #e5e5e5; margin: 15px 0; text-align: center;';
+
+    // Escape HTML in labels
+    const safeLabel = insuranceLabel.replace(/'/g, "&#39;").replace(/"/g, '&quot;');
+    const safeDescription = insuranceDescription ? insuranceDescription.replace(/'/g, "&#39;").replace(/"/g, '&quot;') : '';
+    
+    container.innerHTML = `
+      <a href="/cart" class="insurance-link-button" style="display: inline-block; padding: 12px 24px; background: #f7f7f7; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; font-weight: 500; transition: all 0.2s; cursor: pointer;">
+        ${safeLabel}
+      </a>
+      ${safeDescription ? `<p style="margin: 8px 0 0 0; font-size: 13px; color: #666; line-height: 1.5;">${safeDescription}</p>` : ''}
+      
+    `;
+
+    // Add hover effect
+    const linkButton = container.querySelector('.insurance-link-button');
+    if (linkButton) {
+      linkButton.addEventListener('mouseenter', () => {
+        linkButton.style.background = '#e8e8e8';
+        linkButton.style.borderColor = '#ccc';
+      });
+      linkButton.addEventListener('mouseleave', () => {
+        linkButton.style.background = '#f7f7f7';
+        linkButton.style.borderColor = '#ddd';
+      });
+    }
+
+    return container;
+  }
+
+  // Helper function to get cart
+  async function getCart() {
+    try {
+      const response = await fetch('/cart.js');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      return null;
+    }
+  }
+
+  // Helper function to find insurance items
+  function findInsuranceItems(cart) {
+    if (!cart || !cart.items) return [];
+    return cart.items.filter(item => 
+      item.properties && item.properties._insurance === 'true'
+    );
+  }
+
+  // Helper function to remove insurance
+  async function removeInsurance(key) {
+    try {
+      await fetch('/cart/change.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: key, quantity: 0 })
+      });
+    } catch (error) {
+      console.error('Error removing insurance:', error);
+    }
+  }
+
+  // Helper function to check if on cart page
+  function isOnCartPage() {
+    return window.location.pathname === '/cart' || window.location.pathname.startsWith('/cart/');
+  }
+
+  // Function to check and remove insurance
+  async function checkAndRemoveInsurance() {
+    // Prevent infinite loops
+    if (isRemovingInsurance) {
+      console.log('[Insurance] Already removing insurance, skipping');
+      return;
+    }
+    
+    // Only remove insurance if NOT on the cart page
+    if (isOnCartPage()) {
+      console.log('[Insurance] On cart page, keeping insurance');
+      return;
+    }
+    
+    console.log('[Insurance] Not on cart page, checking for insurance to remove');
+    
+    const cart = await getCart();
+    if (!cart) return;
+    
+    const insuranceItems = findInsuranceItems(cart);
+    
+    if (insuranceItems.length === 0) {
+      console.log('[Insurance] No insurance items found');
+      return;
+    }
+    
+    isRemovingInsurance = true;
+    
+    for (const item of insuranceItems) {
+      console.log('[Insurance] Removing insurance item:', item.key);
+      await removeInsurance(item.key);
+    }
+    
+    isRemovingInsurance = false;
+    window.location.reload();
+  }
+
+  // Inject the link into the cart drawer
+  function injectLink() {
+    if (hasInjected) return;
+    var Checkout_Selector = {{ block.settings.checkout_selector | json }};
+    // Look for checkout button
+    const checkoutButtonSelectors = [
+      '.cart__checkout-button',
+      '.cart-drawer__checkout',
+      '[name="checkout"]',
+      'button[type="submit"][name="checkout"]',
+      '.drawer__footer button[name="checkout"]',
+      '.mini-cart__checkout',
+      '.cart-footer__checkout',
+      'form[action="/cart"] button[type="submit"]',
+      Checkout_Selector
+    ];
+    
+    let checkoutButton = null;
+    for (const selector of checkoutButtonSelectors) {
+      checkoutButton = document.querySelector(selector);
+      console.log(checkoutButton);
+      if (checkoutButton) break;
+    }
+
+    if (!checkoutButton) return;
+
+    // Check if our link already exists - if it does, just mark as injected
+    const existingLink = document.querySelector('.insurance-link-container');
+    if (existingLink) {
+      hasInjected = true;
+      return;
+    }
+
+    // Create and inject new link
+    const link = createInsuranceLink();
+    if (link && checkoutButton.parentNode) {
+      // Try to find the checkout button's container (footer/actions area)
+      const checkoutContainer = checkoutButton.closest('.cart__footer, .cart-drawer__footer, .drawer__footer, .mini-cart__footer, .cart-footer, [class*="cart-actions"], [class*="checkout-actions"]');
+
+      if (checkoutContainer && checkoutContainer.parentNode) {
+        checkoutContainer.parentNode.insertBefore(link, checkoutContainer);
+      } else {
+        checkoutButton.parentNode.insertBefore(link, checkoutButton);
+      }
+
+      hasInjected = true;
+    }
+  }
+
+
+
+  // Initialize the injector
+  function initialize() {
+    // If we're on the cart page, don't do anything - the checkbox handles everything
+    if (isOnCartPage()) {
+      console.log('[Insurance Injector] On cart page, not initializing removal logic');
+      return;
+    }
+    
+    // Check and remove insurance immediately if not on cart page
+    checkAndRemoveInsurance();
+
+    // Try to inject immediately
+    injectLink();
+
+    // Watch for DOM changes (cart drawer opening) - more aggressive detection
+    const observer = new MutationObserver((mutations) => {
+      // Check if button was removed
+      const buttonExists = document.querySelector('.insurance-link-container');
+      if (!buttonExists) {
+        hasInjected = false;
+      }
+      injectLink();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+
+
+    // Listen for cart events
+    document.addEventListener('cart:open', () => {
+      setTimeout(injectLink, 100);
+    });
+
+    document.addEventListener('cart:refresh', async () => {
+      await checkAndRemoveInsurance();
+      hasInjected = false;
+      setTimeout(injectLink, 100);
+    });
+
+    document.addEventListener('cart:updated', async () => {
+      await checkAndRemoveInsurance();
+      hasInjected = false;
+      setTimeout(injectLink, 100);
+    });
+
+    document.addEventListener('cart:change', async () => {
+      await checkAndRemoveInsurance();
+      hasInjected = false;
+      setTimeout(injectLink, 100);
+    });
+
+    document.addEventListener('cart:item:removed', async () => {
+      await checkAndRemoveInsurance();
+      hasInjected = false;
+      setTimeout(injectLink, 100);
+    });
+
+    document.addEventListener('cart:item:added', async () => {
+      await checkAndRemoveInsurance();
+      hasInjected = false;
+      setTimeout(injectLink, 100);
+    });
+
+    document.addEventListener('cart:item:updated', async () => {
+      await checkAndRemoveInsurance();
+      hasInjected = false;
+      setTimeout(injectLink, 100);
+    });
+  }
+
+  // Start when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Shipping Insurance Link",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "insurance_label",
+      "label": "Button Label",
+      "default": "Add Shipping Insurance"
+    },
+    {
+      "type": "textarea",
+      "id": "insurance_description",
+      "label": "Description",
+      "default": "Protect your order with shipping insurance"
+    },
+    {
+      "type": "text",
+      "id": "checkout_selector",
+      "label": "CSS Checkout Selector",
+      "default": ".cart__checkout-button"
+    }
+  ]
+}
+{% endschema %}

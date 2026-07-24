@@ -1,0 +1,1311 @@
+{% comment %}Cart Insurance Block - v1.0{% endcomment %}
+<style>
+/* Immediately hide any element containing insurance text */
+*:has(*[value="_insurance"]),
+*:has(input[name*="[_insurance]"]) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+/* Aggressively hide insurance line items on load - prevent flash of content */
+[data-cart-item-title*="Shipping Insurance"],
+[data-cart-item-title*="shipping-insurance"],
+.cart-item[data-title*="Insurance"],
+.cart__item[data-title*="Insurance"],
+.cart-item:has([data-cart-item-property-name="_insurance"]),
+.cart__item:has([data-cart-item-property-name="_insurance"]),
+[data-cart-item]:has([data-cart-item-property-name="_insurance"]),
+[class*="line-item"]:has([data-cart-item-property-name="_insurance"]) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Modal overlay - dark gray background */
+.insurance-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(50, 50, 50, 0.85);
+  z-index: 9998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Modal container - centered, half screen size */
+.insurance-modal-container {
+  position: relative;
+  width: 50vw;
+  max-width: 800px;
+  height: 50vh;
+  max-height: 600px;
+  min-width: 300px;
+  min-height: 300px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Modal content */
+.insurance-modal-content {
+  padding: 20px;
+  overflow: auto;
+  flex: 1;
+  display: block;
+}
+
+.insurance-modal-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Close button */
+.insurance-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.insurance-modal-close:hover {
+  background: #f0f0f0;
+}
+
+/* Responsive - on mobile take up more screen */
+@media screen and (max-width: 768px) {
+  .insurance-modal-container {
+    width: 90vw;
+    height: 70vh;
+  }
+}
+
+@media screen and (max-width: 40em) {
+  #shipping_protection_mobile {
+    display: block;
+  }
+  #shipping_protection {
+    display: none;
+  }
+}
+
+@media screen and (min-width: 40em) {
+  #shipping_protection_mobile {
+    display: none;
+  }
+  #shipping_protection {
+    display: block;
+  }
+}
+</style>
+
+
+{% assign learn_more_url = shop.metafields.enshield.learn_more_url | default: "#" %}
+<div class="shipping-insurance-block" style="padding: 1rem; border: 1px solid #e5e5e5; border-radius: 4px; margin: 1rem 0;">
+  <div class="shipping-insurance-checkbox" style="display: flex; align-items: flex-start; gap: 0.75rem;">
+    <input 
+      type="checkbox" 
+      id="shipping-insurance-checkbox" 
+      name="shipping-insurance"
+      {% if block.settings.checked_by_default %}checked{% endif %}
+      data-insurance-cost="0"
+      style="margin-top: 0.8rem; width: 1.25rem; height: 1.25rem; cursor: pointer; flex-shrink: 0;"
+    >
+    <div style="flex: 1;">
+      <label for="shipping-insurance-checkbox" style="font-size: 1.4rem; cursor: pointer; font-weight: 500; display: block; margin-bottom: 0.25rem;">
+        {{ block.settings.insurance_label }}
+        <span id="insurance-cost-display" style="font-size: 1.4rem; font-weight: 400; color: #666;"></span>
+      </label>
+      {% if block.settings.insurance_description != blank %}
+        <p style="margin: 0 0 0rem 0; font-size: 1rem; color: #666; line-height: 1.4;">
+          {{ block.settings.insurance_description }}
+        </p>
+      {% endif %}
+      <a id="learn_more" style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #666; line-height: 1;" aria-label="learn more about shipping insurance" href="{{ learn_more_url }}">Learn More</a>
+      <p id="insurance-error-message" style="display: none; margin: 0.5rem 0 0 0; font-size: 0.75rem; color: #d9534f; font-style: italic;"></p>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://enshield-shipping-protection--development.gadget.app/api/client.js" defer></script>
+
+<script>
+(function() {
+  // Get insurance variant ID and cost from backend
+  async function getInsuranceVariantId(cartSubtotal) {
+    try {
+      const response = await fetch('https://enshield-shipping-protection--development.gadget.app/api/create-insurance-variant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cartTotal: cartSubtotal,
+          shopDomain: window.Shopify.shop
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        console.error('[Shipping Insurance] Backend error:', response.status);
+        return null;
+      }
+    } catch (error) {
+      console.error('[Shipping Insurance] Failed to get variant:', error);
+      return null;
+    }
+  }
+  
+  // Find all insurance line items in cart
+  function findInsuranceLineItems(cart) {
+    const items = [];
+
+    for (let i = 0; i < cart.items.length; i++) {
+      const item = cart.items[i];
+      
+      // Check multiple conditions to identify insurance items
+      const hasInsuranceProperty = item.properties && (
+        item.properties._insurance === 'true' || 
+        item.properties._insurance === true ||
+        item.properties['_insurance'] === 'true' ||
+        item.properties['_insurance'] === true
+      );
+      
+      const hasInsuranceInTitle = item.title && (
+        item.title.toLowerCase().includes('shipping insurance') ||
+        item.product_title && item.product_title.toLowerCase().includes('shipping insurance')
+      );
+      
+      if (hasInsuranceProperty || hasInsuranceInTitle) {
+        console.log('[Shipping Insurance] Found insurance item at index', i + 1, ':', {
+          title: item.title,
+          properties: item.properties,
+          quantity: item.quantity,
+          id: item.id
+        });
+        items.push({ index: i + 1, item });
+      }
+    }
+    return items;
+  }
+  
+  // Find insurance line item in cart (returns first one for backwards compatibility)
+  function findInsuranceLineItem(cart) {
+    const items = findInsuranceLineItems(cart);
+    if (items.length > 0) {
+      return items[0];
+    }
+    return null;
+  }
+  
+  // Remove duplicate insurance items, keeping only the first one, and fix incorrect quantities
+  async function removeDuplicateInsurance() {
+    let cart = await getCartData();
+    let insuranceItems = findInsuranceLineItems(cart);
+    
+    if (insuranceItems.length === 0) {
+      return false; // No insurance items found
+    }
+    
+    let madeChanges = false;
+    
+    // First, check if the first item has incorrect quantity
+    if (insuranceItems[0].item.quantity !== 1) {
+      console.log('[Shipping Insurance] First insurance item has quantity', insuranceItems[0].item.quantity, ', fixing to 1');
+      await fetch('/cart/change.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          line: insuranceItems[0].index, 
+          quantity: 1 
+        })
+      });
+      
+      // Wait and refresh cart
+      await new Promise(resolve => setTimeout(resolve, 200));
+      cart = await getCartData();
+      insuranceItems = findInsuranceLineItems(cart);
+      madeChanges = true;
+    }
+    
+    // Then remove any duplicates (keeping the first one)
+    if (insuranceItems.length > 1) {
+ 
+      // Keep only the first one, remove all others one at a time
+      for (let i = 1; i < insuranceItems.length; i++) {
+        console.log('[Shipping Insurance] Removing duplicate at index', insuranceItems[i].index);
+        await fetch('/cart/change.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            line: insuranceItems[i].index, 
+            quantity: 0 
+          })
+        });
+        
+        // Wait and refresh cart after each removal
+        await new Promise(resolve => setTimeout(resolve, 200));
+        cart = await getCartData();
+        // Recalculate indexes after removal
+        insuranceItems = findInsuranceLineItems(cart);
+      }
+      
+      madeChanges = true;
+    }
+    
+    return madeChanges;
+  }
+  
+
+
+  // State tracking variables
+  let isInitialized = false; // Tracks if the initial setup is complete; prevents polling from running before initialization
+  let isUpdating = false; // Tracks if updateCartAttributes() is currently running; prevents concurrent cart updates
+  let isUpdatingCost = false; // Tracks if validateAndUpdateInsuranceCost() is currently running; prevents concurrent cost validations
+  let isAddingInsurance = false; // Tracks if insurance is being added to cart; prevents race conditions when adding insurance
+  let isExpectingQuantityChange = false; // Tracks if user clicked quantity button; prevents full page reload when updating quantities
+  
+  let quantityChangeStartTime = null; // Timestamp when quantity change was initiated; used for timeout if cart doesn't update
+  let lastCartHash = ''; // Hash of cart state (items + quantities + total); used to detect cart changes in polling
+    
+  const checkbox = document.getElementById('shipping-insurance-checkbox');
+  const costDisplay = document.getElementById('insurance-cost-display');
+  const errorMessage = document.getElementById('insurance-error-message');
+  
+  // Generate cart hash to detect changes
+  function getCartHash(cart) {
+    const itemsHash = cart.items.map(item => `${item.id}-${item.quantity}`).join(',');
+    return `${itemsHash}-${cart.total_price}`;
+  }
+  
+  // Get cart data
+  function getCartData() {
+    return fetch('/cart.js')
+      .then(response => response.json());
+  }
+  
+  // Calculate cart subtotal (excluding insurance product)
+  function calculateCartSubtotal(cart) {
+    let subtotal = 0;
+    
+    cart.items.forEach(item => {
+      // Skip the insurance product itself
+      if (item.properties && item.properties._insurance === 'true') {
+        return;
+      }
+      
+      // Add item price to subtotal
+      subtotal += item.line_price;
+    });
+    
+    // Convert from cents to dollars
+    return subtotal / 100;
+  }
+  
+  // Format currency
+  function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  }
+  
+  // Show error message
+  function showError(message) {
+    errorMessage.textContent = message;
+    errorMessage.style.display = 'block';
+    checkbox.checked = false;
+  }
+  
+  // Hide error message
+  function hideError() {
+    errorMessage.style.display = 'none';
+  }
+  
+  // Checkout button management
+  let checkoutButtons = [];
+  let checkoutButtonStates = new Map(); // Store original states
+  
+  function findCheckoutButtons() {
+    const selectors = [
+      'button[name="checkout"]',
+      'button[type="submit"][name="checkout"]',
+      'input[name="checkout"]',
+      '.cart__checkout',
+      '[data-checkout-button]'
+    ];
+    
+    checkoutButtons = [];
+    selectors.forEach(selector => {
+      document.querySelectorAll(selector).forEach(btn => {
+        if (!checkoutButtons.includes(btn)) {
+          checkoutButtons.push(btn);
+          
+          // Store original state if not already stored
+          if (!checkoutButtonStates.has(btn)) {
+            checkoutButtonStates.set(btn, {
+              text: btn.tagName === 'INPUT' ? btn.value : btn.textContent,
+              disabled: btn.disabled,
+              opacity: btn.style.opacity,
+              cursor: btn.style.cursor
+            });
+          }
+        }
+      });
+    });
+    
+    return checkoutButtons;
+  }
+  
+  function disableCheckout(reason = 'Updating insurance...') {
+    findCheckoutButtons().forEach(btn => {
+      btn.disabled = true;
+      if (btn.tagName === 'INPUT') {
+        btn.value = reason;
+      } else {
+        btn.textContent = reason;
+      }
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    });
+  }
+  
+  function enableCheckout() {
+    checkoutButtons.forEach(btn => {
+      const originalState = checkoutButtonStates.get(btn);
+      if (originalState) {
+        btn.disabled = originalState.disabled;
+        if (btn.tagName === 'INPUT') {
+          btn.value = originalState.text;
+        } else {
+          btn.textContent = originalState.text;
+        }
+        btn.style.opacity = originalState.opacity || '';
+        btn.style.cursor = originalState.cursor || '';
+      } else {
+        // Fallback if state wasn't captured
+        btn.disabled = false;
+        btn.style.opacity = '';
+        btn.style.cursor = '';
+      }
+    });
+  }
+  
+
+  // Hide the entire insurance line item from cart display
+  function hideInsuranceLineItem() {
+    // Run immediately without setTimeout
+   
+    const hideNow = () => {
+      document.querySelectorAll('.cart-item, .cart__item, [data-cart-item], [class*="line-item"], tr, .line-item, [class*="cart-line"]').forEach(item => {
+        if (item.textContent && item.textContent.includes('Shipping Insurance')) {
+          item.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important; height: 0 !important; overflow: hidden !important; position: absolute !important;';
+          // Also hide parent elements that might be wrappers
+          if (item.parentElement) {
+            const parent = item.parentElement;
+            if (parent.children.length === 1 && parent.textContent.includes('Shipping Insurance')) {
+              parent.style.cssText = 'display: none !important; visibility: hidden !important;';
+            }
+          }
+        }
+      });
+    };
+    
+    hideNow();
+    setTimeout(hideNow, 100);
+  }
+
+  
+  // Update insurance cost display
+  async function updateInsuranceCostDisplay() {
+    const cart = await getCartData();
+    const cartSubtotal = calculateCartSubtotal(cart);
+    const response = await getInsuranceVariantId(cartSubtotal);
+    
+    if (response && response.displayPrice) {
+      const displayPrice = parseFloat(response.displayPrice);
+      const formattedCost = formatCurrency(displayPrice);
+      
+      // Store cost in data attribute
+      checkbox.setAttribute('data-insurance-cost', displayPrice.toFixed(2));
+      
+      // Always show the cost in the label
+      if (displayPrice > 0) {
+        costDisplay.textContent = `(+${formattedCost})`;
+      } else {
+        costDisplay.textContent = '';
+      }
+    } else {
+      console.error('[Shipping Insurance] Failed to get insurance cost from backend');
+      costDisplay.textContent = '';
+    }
+  }
+  
+  // Validate and update insurance cost if needed
+  async function validateAndUpdateInsuranceCost(cart, isImmediate = false) {
+    // Refresh cart to ensure we have latest state
+    cart = await getCartData();
+    
+    const insuranceLineItem = findInsuranceLineItem(cart);
+    if (!insuranceLineItem) {
+      return false;
+    }
+    
+    const cartSubtotal = calculateCartSubtotal(cart);
+    const response = await getInsuranceVariantId(cartSubtotal);
+    
+    if (!response) {
+      return false;
+    }
+    
+    const storedCost = parseFloat(cart.attributes?.shippingInsuranceCost || '0');
+    const correctCost = response.insuranceCost;
+    const difference = Math.abs(correctCost - storedCost);
+    const needsUpdate = difference > 0.25; // Use 25 cent threshold
+    
+    if (needsUpdate) {
+      
+      if (isImmediate) {
+        // Block checkout during update
+        disableCheckout('Updating insurance...');
+      }
+      
+     
+      isUpdatingCost = true;
+      
+      try {
+        // Get fresh cart data before modifying
+        const freshCart = await getCartData();
+        const freshInsurance = findInsuranceLineItem(freshCart);
+      
+        if (!freshInsurance) {
+          return false;
+        }
+        
+        // Remove old variant
+        const removeResponse = await fetch('/cart/change.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            line: freshInsurance.index,
+            quantity: 0
+          })
+        });
+      
+        if (!removeResponse.ok) {
+          throw new Error('Failed to remove old insurance variant');
+        }
+      
+        // Wait for the removal to process
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Add correct variant
+        const addResponse = await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: response.variantId,
+            quantity: 1,
+            properties: { _insurance: 'true' }
+          })
+        });
+      
+        if (!addResponse.ok) {
+          throw new Error('Failed to add new insurance variant');
+        }
+      
+        // Wait for the add to process
+        await new Promise(resolve => setTimeout(resolve, 100));
+      
+        // Update attributes
+        const internalNote = `SHIPPING_INSURANCE: true\nSHIPPING_INSURANCE_COST: ${correctCost.toFixed(2)}`;
+        let currentNote = freshCart.note || '';
+        const insuranceNoteRegex = /SHIPPING_INSURANCE: (true|false)\nSHIPPING_INSURANCE_COST: [\d.]+\n?/;
+        currentNote = currentNote.replace(insuranceNoteRegex, '');
+        const fullNote = internalNote + (currentNote ? '\n' + currentNote : '');
+        
+        await fetch('/cart/update.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            attributes: {
+              shippingInsurance: 'true',
+              shippingInsuranceCost: correctCost.toFixed(2)
+            },
+            note: fullNote.trim()
+          })
+        });
+      
+        // Update the cart hash to reflect new state
+        const updatedCart = await getCartData();
+        lastCartHash = getCartHash(updatedCart);
+      
+        updateInsuranceCostDisplay();
+        hideInsuranceLineItem();
+        
+        // Only reload if this is an immediate validation
+        if (isImmediate) {
+          window.location.reload();
+        }
+        
+        return true;
+      } catch (err) {
+        console.error('[Shipping Insurance] Error validating insurance:', err);
+        showError('Failed to validate insurance. Please reload the page or reach out to the store owner if the issue persists');
+        return false;
+      } finally {
+        isUpdatingCost = false;
+        
+        if (isImmediate) {
+          enableCheckout();
+        }
+      }
+    }
+    
+    return false;
+  }
+
+async function UpdateCartSubtotal(){
+  const freshCart = await getCartData();
+  lastCartHash = getCartHash(freshCart);
+  
+  // Manually update subtotal display elements
+  const newSubtotal = freshCart.total_price / 100; // Convert from cents to dollars
+  const formattedSubtotal = formatCurrency(newSubtotal);
+  
+  console.log('[Shipping Insurance] Updating subtotal to:', formattedSubtotal);
+  
+  // Find and update all subtotal elements (different themes use different selectors)
+  const subtotalSelectors = [
+    '.cart__subtotal .cart__subtotal-price',
+    '.cart-subtotal__price',
+    '[data-cart-subtotal]',
+    '.cart-footer__subtotal',
+    '.totals__subtotal-value',
+    '#CartSubtotal',
+    '.cart__price',
+    '[data-subtotal-price]'
+  ];
+  
+  subtotalSelectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(element => {
+      // Only replace the dollar amount, preserve surrounding text like 'USD'
+      const currentText = element.textContent;
+      
+      // Match dollar amounts in various formats: $123.45, $123, 123.45, etc.
+      const dollarAmountRegex = /\$?[\d,]+\.\d{2}/;
+      
+      if (dollarAmountRegex.test(currentText)) {
+        // Replace just the dollar amount, keeping surrounding text
+        element.textContent = currentText.replace(dollarAmountRegex, formattedSubtotal);
+        console.log('[Shipping Insurance] Updated element:', selector, 'from', currentText, 'to', element.textContent);
+      } else {
+        // If no dollar amount found, just set the text (fallback)
+        element.textContent = formattedSubtotal;
+        console.log('[Shipping Insurance] Set element:', selector, 'to', formattedSubtotal);
+      }
+    });
+  });
+ // enableCheckout();
+}
+  
+  // Update cart attributes and add/remove insurance product
+  async function updateCartAttributes(isChecked, shouldReload = true) {
+    hideError();
+    isUpdating = true;
+    
+    try {
+      let cart = await getCartData();
+      const cartSubtotal = calculateCartSubtotal(cart);
+      
+      if (isChecked) {
+        // Adding insurance
+        // Check if already adding insurance to prevent race conditions
+        if (isAddingInsurance) {
+          isUpdating = false;
+          return;
+        }
+        
+        isAddingInsurance = true;
+        
+        
+        // Strengthen duplicate check - run cleanup again
+        await removeDuplicateInsurance();
+        cart = await getCartData();
+        
+        // Check again if insurance is already in cart after cleanup
+        const existingInsuranceAfterCleanup = findInsuranceLineItem(cart);
+        if (existingInsuranceAfterCleanup) {
+          isUpdating = false;
+          
+          // Update display and return
+          updateInsuranceCostDisplay();
+          hideInsuranceLineItem();
+          document.dispatchEvent(new CustomEvent('cart:updated'));
+          return;
+        }
+        
+        // Get the appropriate variant for this price
+        const response = await getInsuranceVariantId(cartSubtotal);
+        
+        if (!response || !response.variantId) {
+          console.error('[Shipping Insurance] Invalid response:', response);
+          throw new Error('Insurance product not configured');
+        }
+        
+        const variantId = String(response.variantId); // Ensure it's a string
+        const insuranceCost = response.insuranceCost;
+        
+        // Double-check right before adding to prevent race conditions
+        const finalCheck = await getCartData();
+        const finalInsuranceCheck = findInsuranceLineItem(finalCheck);
+        
+        if (!finalInsuranceCheck) {
+          
+          // Add insurance product to cart
+          const addResponse = await fetch('/cart/add.js', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: variantId, // Already a string now
+              quantity: 1,
+              properties: {
+                _insurance: 'true'
+              }
+            })
+          });
+          
+          if (!addResponse.ok) {
+            const errorText = await addResponse.text();
+            console.error('[Shipping Insurance] Add to cart failed:', {
+              status: addResponse.status,
+              errorText,
+              variantId
+            });
+            throw new Error('Failed to add insurance product to cart: ' + errorText);
+          }
+          
+          // Wait a moment and clean up any duplicates that may have been created
+          await new Promise(resolve => setTimeout(resolve, 500));
+          await removeDuplicateInsurance();
+          
+        }
+        
+        const isAddingNew = !existingInsuranceAfterCleanup;
+        
+        // Update cart attributes for backend processing
+        // Add internal note for backend processing
+        const internalNote = `SHIPPING_INSURANCE: true\nSHIPPING_INSURANCE_COST: ${insuranceCost.toFixed(2)}`;
+        let currentNote = cart.note || '';
+        
+        const insuranceNoteRegex = /SHIPPING_INSURANCE: (true|false)\nSHIPPING_INSURANCE_COST: [\d.]+\n?/;
+        currentNote = currentNote.replace(insuranceNoteRegex, '');
+        
+        // Add internal data
+        const fullNote = internalNote + (currentNote ? '\n' + currentNote : '');
+        
+        const updateResponse = await fetch('/cart/update.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            attributes: {
+              shippingInsurance: 'true',
+              shippingInsuranceCost: insuranceCost.toFixed(2)
+            },
+            note: fullNote.trim()
+          })
+        });
+        
+        if (!updateResponse.ok) {
+          throw new Error('Failed to update cart attributes');
+        }
+        console.log(isAddingNew +" "+ shouldReload)
+        // Don't reload when adding insurance - just update the UI dynamically
+        if (isAddingNew && shouldReload) {
+         console.log('[Shipping Insurance] Insurance added, reloading page');
+          window.location.reload();
+        }
+        
+      } else {
+        // Removing insurance
+        const existingInsurance = findInsuranceLineItem(cart);
+        
+        if (existingInsurance) {
+          // Remove insurance product from cart
+          const removeResponse = await fetch('/cart/change.js', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              line: existingInsurance.index,
+              quantity: 0
+            })
+          });
+          
+          if (!removeResponse.ok) {
+            throw new Error('Failed to remove insurance product from cart');
+          }
+        }
+        
+        
+        // Clear cart attributes
+        let currentNote = cart.note || '';
+        const insuranceNoteRegex = /SHIPPING_INSURANCE: (true|false)\nSHIPPING_INSURANCE_COST: [\d.]+\n?/;
+        currentNote = currentNote.replace(insuranceNoteRegex, '');
+        
+        const updateResponse = await fetch('/cart/update.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            attributes: {
+              shippingInsurance: 'false',
+              shippingInsuranceCost: ''
+            },
+            note: currentNote.trim()
+          })
+        });
+        
+        if (!updateResponse.ok) {
+          throw new Error('Failed to update cart attributes');
+        }
+        
+        // If there was no insurance to remove, don't reload the page
+        if (!existingInsurance) {
+          isUpdating = false;
+          return;
+        }
+        
+        // Reload page after removing insurance to fix cart form indexes
+        if (existingInsurance) {
+          console.log('[Shipping Insurance] Insurance removed, reloading page to fix cart indexes');
+          
+          // Wait a moment for the cart attributes to propagate
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          window.location.reload();
+          return;
+        }
+      }
+      
+      // Refresh cart data and update display without reload
+      const updatedCart = await getCartData();
+      lastCartHash = getCartHash(updatedCart);
+      
+      console.log('[Shipping Insurance] Cart updated successfully:', {
+        attributes: updatedCart.attributes,
+        note: updatedCart.note,
+        itemCount: updatedCart.items.length
+      });
+      
+      // Update display without reload
+      console.log('[Shipping Insurance] Cart updated, refreshing display');
+      updateInsuranceCostDisplay();
+      hideInsuranceLineItem();
+      await UpdateCartSubtotal();
+    } catch (error) {
+      console.error('[Shipping Insurance] Error updating cart:', error);
+      showError('Failed to update insurance. Please reload the page or reach out to the store owner if the issue persists');
+      isUpdating = false;
+    } finally {
+      isUpdating = false;
+      isAddingInsurance = false;
+    }
+  }
+  
+  // Setup quantity change listeners
+  function setupQuantityChangeListeners() {
+    // Listen for ANY interaction with quantity controls
+    document.addEventListener('change', (e) => {
+      if (e.target.matches('input[name*="updates"]') || 
+          e.target.matches('[name="quantity"]') ||
+          e.target.matches('.quantity__input')) {
+        if (checkbox.checked) {
+          console.log('[Shipping Insurance] Quantity input changed, marking as expecting change');
+          isExpectingQuantityChange = true;
+          quantityChangeStartTime = Date.now();
+          disableCheckout('Updating...');
+        }
+      }
+    });
+    
+    document.addEventListener('click', (e) => {
+      // Check for quantity update buttons
+      if (e.target.matches('[name="update"]') ||
+          e.target.matches('.cart__update-button') ||
+          e.target.closest('[name="update"]') ||
+          e.target.matches('.quantity__button') ||
+          e.target.matches('[data-quantity-increment]') ||
+          e.target.matches('[data-quantity-decrement]')) {
+        if (checkbox.checked) {
+          console.log('[Shipping Insurance] Quantity button clicked, marking as expecting change');
+          isExpectingQuantityChange = true;
+          quantityChangeStartTime = Date.now();
+          disableCheckout('Updating...');
+        }
+      }
+      
+      // Check for delete/remove buttons - comprehensive selectors for different themes
+      if (e.target.matches('.cart__remove') ||
+          e.target.matches('[data-cart-remove]') ||
+          e.target.matches('.cart-item__remove') ||
+          e.target.matches('.cart__item-remove') ||
+          e.target.matches('[href*="/cart/change"]') ||
+          e.target.matches('a[href*="updates"][href*="=0"]') ||
+          e.target.matches('[class*="remove"]') ||
+          e.target.matches('[class*="delete"]') ||
+          e.target.closest('.cart__remove') ||
+          e.target.closest('[data-cart-remove]') ||
+          e.target.closest('.cart-item__remove') ||
+          e.target.closest('.cart__item-remove') ||
+          e.target.closest('a[href*="updates"][href*="=0"]') ||
+          e.target.closest('a[href*="/cart/change"]')) {
+        if (checkbox.checked) {
+          console.log('[Shipping Insurance] Remove button clicked, marking as expecting change');
+          isExpectingQuantityChange = true;
+          quantityChangeStartTime = Date.now();
+          disableCheckout('Updating...');
+        }
+      }
+    });
+  }
+  
+  // Setup form submit validation
+  function setupFormSubmitValidation() {
+    // Find cart form
+    const cartForm = document.querySelector('form[action="/cart"]');
+    if (cartForm) {
+      cartForm.addEventListener('submit', async (e) => {
+        if (checkbox.checked) {
+          // Prevent submission
+          e.preventDefault();
+          e.stopPropagation();
+          
+          console.log('[Shipping Insurance] Validating insurance before checkout');
+          disableCheckout('Validating insurance...');
+          
+          const cart = await getCartData();
+          await validateAndUpdateInsuranceCost(cart, true);
+          
+          enableCheckout();
+          
+          // Submit form after validation
+          setTimeout(() => {
+            cartForm.submit();
+          }, 100);
+        }
+      });
+    }
+  }
+  
+  // Initialize
+  window.addEventListener('DOMContentLoaded', () => {
+    console.log('[Shipping Insurance] Initializing checkbox');
+    
+
+    // Disable checkout immediately until we validate
+    disableCheckout('Loading...');
+    
+    // Check if insurance is already in cart
+    getCartData().then(async cart => {
+      // CRITICAL: Clean up any duplicate insurance items FIRST and wait for it to complete
+      console.log('[Shipping Insurance] Checking for duplicate insurance items');
+      let hadDuplicates = await removeDuplicateInsurance();
+      
+      // If we had duplicates, wait a moment and check again to be absolutely sure
+      if (hadDuplicates) {
+        console.log('[Shipping Insurance] Found duplicates, waiting and checking again');
+        // Reload cart data after all cleanup
+        cart = await getCartData();
+      }
+      
+      lastCartHash = getCartHash(cart);
+      
+      const insuranceLineItem = findInsuranceLineItem(cart);
+      const isInsuranceActive = cart.attributes && cart.attributes.shippingInsurance === 'true';
+      const isInsuranceInCart = insuranceLineItem !== null;
+      
+      console.log('[Shipping Insurance] Initial state:', {
+        isInsuranceActive,
+        isInsuranceInCart,
+        storedCost: cart.attributes?.shippingInsuranceCost,
+        checkboxChecked: checkbox.checked
+      });
+      
+      // Sync checkbox state with cart
+      if (isInsuranceInCart) {
+        // Insurance is in cart - ensure checkbox is checked
+        checkbox.checked = true;
+        
+        console.log('[Shipping Insurance] Insurance in cart on load, validating cost');
+        const needsUpdate = await validateAndUpdateInsuranceCost(cart, false);
+        if (needsUpdate) {
+          console.log('[Shipping Insurance] Cost was updated on page load, reloading');
+          window.location.reload();
+          return; // Stop execution since we're reloading
+        }
+      } else if (cart.attributes?.shippingInsurance === 'false') {
+        // User has explicitly declined insurance (attribute is 'false') - respect their choice
+        console.log('[Shipping Insurance] User has declined insurance, keeping checkbox unchecked');
+        checkbox.checked = false;
+      } else if (checkbox.checked) {
+        // Checkbox is checked by default AND user hasn't declined - add insurance
+        console.log('[Shipping Insurance] Checkbox checked by default, adding insurance');
+        await updateCartAttributes(true, true);
+        return; // Stop execution since we're reloading after adding
+      } else {
+        // Nothing in cart and checkbox not checked - keep it unchecked
+        checkbox.checked = false;
+      }
+      
+      // Re-enable checkout immediately
+      enableCheckout();
+      
+      updateInsuranceCostDisplay();
+      hideInsuranceLineItem();
+      
+      // Setup quantity change listeners
+      setupQuantityChangeListeners();
+      
+      // Setup form submit validation
+      setupFormSubmitValidation();
+      
+      // Mark as initialized after a short delay
+      setTimeout(() => {
+        isInitialized = true;
+        console.log('[Shipping Insurance] Initialization complete');
+      }, 400);
+    });
+  });
+  
+  // Handle checkbox change
+  checkbox.addEventListener('change', function() {
+    // Show loading state immediately
+    disableCheckout('Updating...');
+    
+    updateCartAttributes(this.checked);
+    // Checkout button will be re-enabled after page reload
+  });
+  
+  // Poll cart every ~ second to detect manual removal, quantity changes, or cart updates
+  setInterval(() => {
+    // Don't run polling until initialized or while updating
+    if (!isInitialized || isUpdating || isUpdatingCost) return;
+    
+    getCartData().then(async cart => {
+      // Check if we're expecting a quantity change
+      if (isExpectingQuantityChange) {
+        const currentCartHash = getCartHash(cart);
+        const timeWaiting = Date.now() - quantityChangeStartTime;
+        
+        // If cart changed, update UI without reloading
+        if (currentCartHash !== lastCartHash) {
+          console.log('[Shipping Insurance] Cart changed as expected, updating UI');
+          isExpectingQuantityChange = false;
+          quantityChangeStartTime = null;
+          
+          // Update the UI
+          lastCartHash = currentCartHash;
+          
+          await validateAndUpdateInsuranceCost(cart, false);
+          enableCheckout();
+          updateInsuranceCostDisplay();
+          hideInsuranceLineItem();
+          await UpdateCartSubtotal();
+          return;
+        }
+        
+        // If we've been waiting more than 5 seconds, force reload anyway
+        if (timeWaiting > 5000) {
+          console.log('[Shipping Insurance] Timeout waiting for cart update, forcing reload');
+          isExpectingQuantityChange = false;
+          quantityChangeStartTime = null;
+          window.location.reload();
+          return;
+        }
+        
+        // If cart hasn't changed yet and timeout not reached, keep waiting - don't do any other checks
+        return;
+      }
+      
+      
+      const currentCartHash = getCartHash(cart);
+      
+      // Skip if cart hasn't changed
+      if (currentCartHash === lastCartHash) {
+        return;
+      }
+      
+      lastCartHash = currentCartHash;
+      
+      const insuranceLineItem = findInsuranceLineItem(cart);
+      const cartSubtotal = calculateCartSubtotal(cart);
+      
+      if (checkbox.checked) {
+        if (!insuranceLineItem) {
+          // Insurance was removed from cart - uncheck the checkbox
+          console.log('[Shipping Insurance] Insurance missing from cart, unchecking checkbox');
+          checkbox.checked = false;
+          showError('Shipping insurance was removed. Check the box again to add it back.');
+        } else if (insuranceLineItem.item.quantity > 1) {
+          console.log('[Shipping Insurance] Insurance quantity > 1, resetting to 1'+insuranceLineItem);
+          // Reset quantity to 1
+          fetch('/cart/change.js', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              line: insuranceLineItem.index,
+              quantity: 1
+            })
+          }).then(() => {
+            console.log('[Shipping Insurance] Reset insurance quantity to 1');
+            updateInsuranceCostDisplay();
+            hideInsuranceLineItem();
+            enableCheckout();
+            UpdateCartSubtotal();
+          });
+        } else {
+          // Insurance is present with correct quantity - validate cost
+          if (isUpdatingCost) {
+            console.log('[Shipping Insurance] Already updating cost, skipping');
+            return;
+          }
+          
+          await validateAndUpdateInsuranceCost(cart, false);
+        }
+      } else {
+        // Checkbox is unchecked - just update the display if cost changed
+        updateInsuranceCostDisplay();
+      }
+    });
+  }, 750); // Poll for cart changes
+  
+  // Listen for cart updates from other sources
+  document.addEventListener('cart:updated', async function() {
+    console.log('[Shipping Insurance] Cart updated event');
+    if (checkbox.checked && isInitialized) {
+      disableCheckout('Validating insurance...cart:updated');
+      const cart = await getCartData();
+      await validateAndUpdateInsuranceCost(cart, true);
+      enableCheckout();
+    }
+    updateInsuranceCostDisplay();
+    hideInsuranceLineItem();
+  });
+  
+  document.addEventListener('cart:change', async function() {
+    console.log('[Shipping Insurance] Cart change event');
+    if (checkbox.checked && isInitialized) {
+      disableCheckout('Validating insurance...cart:change');
+      const cart = await getCartData();
+      await validateAndUpdateInsuranceCost(cart, true);
+      enableCheckout();
+    }
+  });
+  
+  // Listen for Shopify's native cart update events
+   console.log(Shopify.onCartUpdate);
+   
+  if (typeof Shopify !== 'undefined' && Shopify.onCartUpdate) {
+    Shopify.onCartUpdate = function() {
+      console.log("CART UPDATEd");
+      updateInsuranceCostDisplay();
+      hideInsuranceLineItem();
+    };
+  }
+  
+})();
+
+
+</script>
+
+<style>
+  /* Hide insurance line items immediately - prevent flash of content */
+  .cart-item:has([data-cart-item-property-name="_insurance"]),
+  .cart__item:has([data-cart-item-property-name="_insurance"]),
+  [data-cart-item]:has([data-cart-item-property-name="_insurance"]),
+  [class*="line-item"]:has([data-cart-item-property-name="_insurance"]) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Alternative selectors for themes that structure items differently */
+  .cart-item:has([value="true"][name*="properties[_insurance]"]),
+  .cart__item:has([value="true"][name*="properties[_insurance]"]),
+  .cart-item:has(input[value="_insurance"]),
+  .cart__item:has(input[value="_insurance"]) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Hide any item with insurance in the title */
+  [data-cart-item-title*="Shipping Insurance"],
+  [data-cart-item-title*="shipping-insurance"],
+  [data-title*="Insurance"],
+  .cart-item[data-product-title*="Insurance"],
+  .cart__item[data-product-title*="Insurance"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Hide price for insurance line items - multiple approaches */
+  [data-cart-item-property-name="_insurance"] ~ *:not([data-cart-item-property-value]) .price,
+  [data-cart-item-property-name="_insurance"] ~ .price:not([data-cart-item-property-value] *),
+  .cart-item:has([data-cart-item-property-name="_insurance"]) > .price:first-of-type,
+  .cart-item:has([data-cart-item-property-name="_insurance"]) .cart-item__price:not([data-cart-item-property-value] *),
+  .cart__item:has([data-cart-item-property-name="_insurance"]) > .price:first-child {
+    display: none !important;
+  }
+
+  @media (max-width: 768px) {
+    .shipping-insurance-block {
+      padding: 0.75rem !important;
+      margin: 0.75rem 0 !important;
+    }
+    
+    .shipping-insurance-checkbox {
+      gap: 0.5rem !important;
+    }
+  }
+</style>
+
+{% assign desktop_image_url = shop.metafields.enshield.desktop_image_url | default: "" %}
+{% assign mobile_image_url = shop.metafields.enshield.mobile_image_url | default: "" %}
+
+<!-- Modal Overlay -->
+<div id="insurance_modal_overlay" class="insurance-modal-overlay">
+  <!-- Modal Container -->
+  <div id="insurance_modal" class="insurance-modal-container">
+    <!-- Close Button -->
+    <button id="learn_more_close" class="insurance-modal-close" aria-label="Close">&times;</button>
+    
+    <!-- Modal Content with Image Link -->
+    <a href="{{ learn_more_url }}" target="_blank" class="insurance-modal-content" aria-label="learn more about shipping policies">
+      <img id="shipping_protection" src="{{ desktop_image_url }}" alt="Shipping Insurance Information">
+      <img id="shipping_protection_mobile" src="{{ mobile_image_url }}" alt="Shipping Insurance Information">
+    </a>
+  </div>
+</div>
+
+<script>
+(function() {
+  const learnMoreLink = document.getElementById('learn_more');
+  const modalOverlay = document.getElementById('insurance_modal_overlay');
+  const closeButton = document.getElementById('learn_more_close');
+  
+  // Open modal
+  if (learnMoreLink) {
+    learnMoreLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      modalOverlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    });
+  }
+  
+  // Close modal on close button click
+  if (closeButton) {
+    closeButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      modalOverlay.style.display = 'none';
+      document.body.style.overflow = '';
+    });
+  }
+  
+  // Close modal on overlay click
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', function(e) {
+      if (e.target === modalOverlay) {
+        modalOverlay.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    });
+  }
+  
+  // Close modal on ESC key press
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modalOverlay.style.display === 'flex') {
+      modalOverlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  });
+})();
+</script>
+
+
+
+
+{% schema %}
+{
+  "name": "Cart Insurance",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "insurance_label",
+      "label": "Insurance Label",
+      "default": "<b>Enhanced</b> Shipping Protection"
+    },
+    {
+      "type": "textarea",
+      "id": "insurance_description",
+      "label": "Insurance Description",
+      "default": "Replaces lost, damaged, or stolen packages"
+    },
+    {
+      "type": "checkbox",
+      "id": "checked_by_default",
+      "label": "Checked by Default",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

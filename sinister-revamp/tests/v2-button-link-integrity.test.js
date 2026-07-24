@@ -66,6 +66,11 @@ assert.match(
 );
 assert.match(
   css,
+  /\.sd2-v2-hdr__account-link,[\s\S]*?\.sd2-v2-hdr__util-item\.t-site-header__basket-link,[\s\S]*?\{(?=[^}]*min-width:\s*44px!important)(?=[^}]*min-height:\s*44px!important)[^}]*\}/i,
+  'the mobile account icon must share the canonical 44px pointer target'
+);
+assert.match(
+  css,
   /\.page-links\.sd2-v2-pagination :is\([^)]*page-links-inactive[^)]*\),[\s\S]*?\.page-links\.sd2-v2-pagination--rollup button\s*\{(?=[^}]*display:\s*inline-flex!important)(?=[^}]*min-width:\s*44px!important)(?=[^}]*min-height:\s*44px!important)[^}]*\}/i,
   'catalog pagination buttons must use valid display syntax and 44px pointer targets'
 );

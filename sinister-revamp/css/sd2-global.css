@@ -8870,6 +8870,7 @@ a.sd-btn, .sd-more-btn { min-height: 2.8rem; display: inline-flex; align-items: 
 
 /* Keep persistent navigation and drawer controls comfortably operable. These
    are icon-sized controls, so their boxes—not their artwork—carry the target. */
+.sd2-v2-hdr__account-link,
 .sd2-v2-hdr__util-item.t-site-header__basket-link,
 .sd2-v2-garage-panel__close,
 .sd2-v2-cart-panel__close,

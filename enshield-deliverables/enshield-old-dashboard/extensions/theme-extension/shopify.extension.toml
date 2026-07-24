@@ -1,0 +1,12 @@
+name = "enshield-shipping-protection"
+type = "theme"
+
+[[metafields]]
+namespace = "enshield"
+key = "learn_more_url"
+name = "Insurance Learn More URL"
+type = "url"
+description = "URL for the 'Learn More' link on shipping insurance checkboxes"
+[[metafields.validations]]
+name = "url"
+value = "https://"

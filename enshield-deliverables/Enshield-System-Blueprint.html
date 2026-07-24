@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enshield System Blueprint</title>
+<style>
+  :root{
+    --bg:#0E141B; --panel:#16202B; --panel2:#1B2833;
+    --teal:#16B8C4; --teal-dk:#0E7C86; --accent:#2ED5E0;
+    --silver:#C7CED6; --white:#F4F7FA; --muted:#8A97A3; --green:#3FB950;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#05080b;font-family:'Segoe UI',system-ui,sans-serif;color:var(--white);}
+  .slide{
+    position:relative;width:1122px;height:631px;margin:22px auto;background:var(--bg);
+    border:1px solid #223140;border-radius:14px;overflow:hidden;padding:44px 52px;
+    box-shadow:0 10px 40px rgba(0,0,0,.5);
+  }
+  .kicker{display:flex;align-items:center;gap:14px;margin-bottom:26px;}
+  .kicker .bar{width:8px;height:34px;background:var(--teal);border-radius:3px;}
+  .kicker h2{font-size:28px;font-weight:700;letter-spacing:.2px;}
+  .lead{font-size:17px;color:var(--silver);line-height:1.55;}
+  .teal{color:var(--teal);font-weight:700;} .acc{color:var(--accent);}
+  .green{color:var(--green);font-weight:700;}
+  .panel{background:var(--panel);border:1px solid var(--teal-dk);border-radius:12px;padding:22px;}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:26px;}
+  .card{background:var(--panel);border:1px solid var(--teal-dk);border-radius:12px;padding:20px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:var(--teal);}
+  .card h3{font-size:16px;margin:6px 0 4px;} .card .sub{color:var(--accent);font-size:12.5px;font-weight:700;margin-bottom:10px;}
+  .card p{color:var(--muted);font-size:13px;line-height:1.5;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .sys h3{color:var(--teal);font-size:18px;margin-bottom:2px;}
+  .sys .sub{color:var(--accent);font-size:12.5px;font-weight:700;margin-bottom:10px;}
+  ul{list-style:none;} li{font-size:13.5px;color:var(--silver);line-height:1.5;padding-left:20px;position:relative;margin-bottom:6px;}
+  li::before{content:'▸';color:var(--teal);position:absolute;left:0;font-weight:700;}
+  li b{color:var(--white);}
+  .title-slide{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+  .hex{width:120px;height:132px;background:var(--panel);border:3px solid var(--teal);
+    clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+    display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:800;color:var(--teal);margin-bottom:28px;}
+  h1{font-size:46px;font-weight:800;letter-spacing:.5px;}
+  .subtitle{font-size:21px;color:var(--accent);margin-top:14px;}
+  .rule{width:340px;height:2px;background:var(--teal-dk);margin:24px auto;}
+  .flow{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px;}
+  .node{background:var(--panel);border:1.5px solid var(--teal-dk);border-radius:12px;padding:12px 22px;text-align:center;min-width:340px;}
+  .node.hi{border-color:var(--teal);} .node .nt{font-size:15px;font-weight:700;} .node.hi .nt{color:var(--teal);}
+  .node .ns{font-size:11px;color:var(--muted);margin-top:3px;}
+  .arrow{color:var(--teal);font-size:22px;line-height:1;}
+  .split{display:flex;gap:60px;justify-content:center;margin-top:6px;}
+  .do-tag{border:1px dashed var(--muted);color:var(--muted);font-size:11px;font-weight:700;
+    padding:6px 14px;border-radius:8px;text-align:center;margin:8px auto 0;width:360px;}
+  table{width:100%;border-collapse:collapse;margin-top:16px;}
+  th{background:var(--teal-dk);color:#fff;text-align:left;padding:11px 14px;font-size:14px;}
+  td{padding:12px 14px;font-size:13.5px;border-bottom:1px solid #223140;}
+  tr:nth-child(even){background:var(--panel);}
+  td.k{color:var(--teal);font-weight:700;} td.ex{color:var(--green);font-weight:700;}
+  .big-li li{font-size:16px;margin-bottom:16px;line-height:1.5;}
+  .phase{border-left:4px solid var(--teal);padding-left:14px;margin-bottom:16px;}
+  .phase h4{font-size:14px;color:var(--white);} .phase p{font-size:12.5px;color:var(--muted);margin-top:3px;}
+  .foot{position:absolute;bottom:16px;left:52px;right:52px;display:flex;justify-content:space-between;
+    color:var(--muted);font-size:10.5px;}
+  .close{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;height:100%;}
+  @media print{
+    body{background:#fff;} .slide{margin:0;border-radius:0;box-shadow:none;page-break-after:always;
+      border:none;width:100%;height:100vh;}
+    @page{size:landscape;margin:0;}
+  }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1 -->
+<section class="slide title-slide">
+  <div class="hex">EN</div>
+  <h1>ENSHIELD SYSTEM BLUEPRINT</h1>
+  <div class="subtitle">How Gadget · DigitalOcean · Shopify · Dashboard fit together</div>
+  <div class="rule"></div>
+  <div style="color:var(--muted);font-size:15px;">Findings &amp; Architecture — prepared for Mike</div>
+</section>
+
+<!-- SLIDE 2 -->
+<section class="slide">
+  <div class="kicker"><div class="bar"></div><h2>The Big Picture (TL;DR)</h2></div>
+  <div class="panel lead">
+    We traced the whole Enshield stack end-to-end. There are <span class="teal">two separate front-end surfaces</span>,
+    one <span class="teal">Gadget backend</span> holding the data &amp; logic, a <span class="teal">DigitalOcean droplet</span>
+    running a parallel dashboard, and <span class="teal">Shopify</span> as the source of truth for stores, orders &amp; checkout.
+  </div>
+  <div class="grid4">
+    <div class="card"><h3>SHOPIFY</h3><div class="sub">Source of truth</div><p>Stores, orders, carts, checkout, protection product</p></div>
+    <div class="card"><h3>GADGET</h3><div class="sub">Backend brain</div><p>Syncs data, holds models, auto-generates the API</p></div>
+    <div class="card"><h3>DIGITALOCEAN</h3><div class="sub">Hosting / legacy</div><p>Droplet running a parallel dashboard</p></div>
+    <div class="card"><h3>DASHBOARD</h3><div class="sub">Two front ends</div><p>Embedded settings page + standalone admin UI</p></div>
+  </div>
+  <div class="foot"><span>ENSHIELD · System Blueprint</span><span>2</span></div>
+</section>
+
+<!-- SLIDE 3 -->
+<section class="slide">
+  <div class="kicker"><div class="bar"></div><h2>The Four Systems</h2></div>
+  <div class="grid2">
+    <div class="panel sys"><h3>1 · SHOPIFY</h3><div class="sub">Source of truth</div>
+      <ul><li>Merchants install the Enshield app on their stores</li>
+      <li>Owns shops, orders, line items, carts, checkout</li>
+      <li>Protection product injected at checkout</li>
+      <li>Enshield <b>reads</b> this — it does not replace Shopify</li></ul></div>
+    <div class="panel sys"><h3>2 · GADGET</h3><div class="sub">Backend / brain</div>
+      <ul><li>App: <b>enshield-shipping-protection</b></li>
+      <li>Continuously syncs Shopify data into its models</li>
+      <li>Models: shopifyShop, shopifyOrder, shopifyCart,</li>
+      <li>shippingInsuranceProduct / Setting, sync, session</li>
+      <li>Auto-generates the access-controlled API</li></ul></div>
+    <div class="panel sys"><h3>3 · FRONT ENDS</h3><div class="sub">Two surfaces (key finding)</div>
+      <ul><li>A) Embedded Shopify app — 1 Polaris settings page</li>
+      <li>B) Standalone admin dashboard — the dark UI with</li>
+      <li>Value in Transit, Clients, Claims, Reports</li>
+      <li><b>B is the real revamp target</b></li></ul></div>
+    <div class="panel sys"><h3>4 · DIGITALOCEAN</h3><div class="sub">Hosting / legacy</div>
+      <ul><li>Droplet runs a version of the dashboard/backend</li>
+      <li>Accessed via SSH to confirm prod setup</li>
+      <li>Decision: keep on DO, move to Gadget, or hybrid</li></ul></div>
+  </div>
+  <div class="foot"><span>ENSHIELD · System Blueprint</span><span>3</span></div>
+</section>
+
+<!-- SLIDE 4 -->
+<section class="slide">
+  <div class="kicker"><div class="bar"></div><h2>How Data Flows</h2></div>
+  <div class="flow">
+    <div class="node"><div class="nt">Merchant's Shopify Store</div><div class="ns">installs app · checkout adds protection</div></div>
+    <div class="arrow">▼</div>
+    <div class="node hi"><div class="nt">SHOPIFY</div><div class="ns">orders · carts · shops · checkout</div></div>
+    <div class="arrow">▼ &nbsp;<span style="font-size:11px;color:var(--accent);">webhooks / sync</span></div>
+    <div class="node hi"><div class="nt">GADGET BACKEND</div><div class="ns">models + auto-generated, access-controlled API</div></div>
+    <div class="arrow">▼</div>
+    <div class="split">
+      <div class="node"><div class="nt">A) Embedded Settings Page</div><div class="ns">Polaris · inside Shopify admin · 1 screen</div></div>
+      <div class="node"><div class="nt">B) Standalone Admin Dashboard</div><div class="ns">Value in Transit · Clients · Claims · Reports</div></div>
+    </div>
+    <div class="do-tag">B hosted on / near DigitalOcean</div>
+  </div>
+  <div class="foot"><span>ENSHIELD · System Blueprint</span><span>4</span></div>
+</section>
+
+<!-- SLIDE 5 -->
+<section class="slide">
+  <div class="kicker"><div class="bar"></div><h2>Dashboard KPIs → Gadget Data</h2></div>
+  <div class="lead">Every number on the dark dashboard maps directly back to a Gadget model:</div>
+  <table>
+    <tr><th>KPI</th><th>Comes from</th><th>Example</th></tr>
+    <tr><td class="k">Clients</td><td>count of connected <b>shopifyShop</b> records</td><td class="ex">5</td></tr>
+    <tr><td class="k">Value in Transit</td><td>Σ active <b>shippingInsuranceProduct</b> across open orders</td><td class="ex">$1,178,054</td></tr>
+    <tr><td class="k">Open Claims</td><td>claims count from the claims workflow</td><td class="ex">0</td></tr>
+    <tr><td class="k">Latest Clients</td><td><b>shopifyShop</b> list w/ per-shop value, claims, status</td><td class="ex">table</td></tr>
+  </table>
+  <div class="foot"><span>ENSHIELD · System Blueprint</span><span>5</span></div>
+</section>
+
+<!-- SLIDE 6 -->
+<section class="slide">
+  <div class="kicker"><div class="bar"></div><h2>What This Means for the Revamp</h2></div>
+  <div class="panel">
+    <ul class="big-li">
+      <li><b>The embedded Shopify app is tiny</b> — basically one settings screen. Easy to modernize.</li>
+      <li><b>The real revamp target is the standalone admin dashboard</b> (the dark UI). Rebuild it against the Gadget API so it always reflects live synced data.</li>
+      <li><b>Gadget is the backend we build on</b> — add aggregation/computed actions for the KPIs and expose clean, access-controlled reads.</li>
+      <li><b>DigitalOcean is a hosting decision</b> — keep, migrate to Gadget hosting, or hybrid.</li>
+    </ul>
+  </div>
+  <div class="foot"><span>ENSHIELD · System Blueprint</span><span>6</span></div>
+</section>
+
+<!-- SLIDE 7 -->
+<section class="slide">
+  <div class="kicker"><div class="bar"></div><h2>Phased Plan &amp; Open Questions</h2></div>
+  <div class="grid2">
+    <div class="panel">
+      <h3 style="color:var(--teal);font-size:18px;margin-bottom:16px;">Phased Plan</h3>
+      <div class="phase"><h4>Phase 1 — Architecture lock-in</h4><p>confirm target surface + hosting; reuse audit report as baseline</p></div>
+      <div class="phase"><h4>Phase 2 — Backend (Gadget)</h4><p>aggregation actions for KPIs; clean access-controlled read API</p></div>
+      <div class="phase"><h4>Phase 3 — Frontend revamp</h4><p>rebuild dashboard on Gadget API; modernize settings page</p></div>
+      <div class="phase"><h4>Phase 4 — New features</h4><p>implement Brain's feature list</p></div>
+    </div>
+    <div class="panel" style="border-color:var(--teal);">
+      <h3 style="color:var(--accent);font-size:18px;margin-bottom:16px;">Need from Brain</h3>
+      <ul class="big-li">
+        <li>Feature list — what to add/change?</li>
+        <li>Target surface — dashboard, embedded app, or both?</li>
+        <li>Hosting — DigitalOcean, Gadget, or hybrid?</li>
+        <li>Where the revamped code lives?</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>ENSHIELD · System Blueprint</span><span>7</span></div>
+</section>
+
+<!-- SLIDE 8 -->
+<section class="slide">
+  <div class="close">
+    <h1 style="font-size:34px;">One system. Four moving parts.</h1>
+    <div class="rule"></div>
+    <div class="subtitle" style="font-size:17px;">Shopify feeds Gadget · Gadget powers the dashboards · DO hosts them.</div>
+    <div style="color:var(--muted);font-size:15px;margin-top:18px;">Answer the four questions and we start building.</div>
+  </div>
+</section>
+
+</body>
+</html>

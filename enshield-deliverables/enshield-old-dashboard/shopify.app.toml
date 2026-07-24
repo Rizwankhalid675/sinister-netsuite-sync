@@ -1,0 +1,28 @@
+# Learn more about working with Shopify TOML files with Gadget at https://docs.gadget.dev/guides/plugins/shopify/advanced-topics/shopify-app-toml
+
+client_id = "0448a292fd4a9b2f9675392592339bbf"
+name = "enshield-shipping-protection"
+application_url = "https://enshield-shipping-protection.gadget.app/api/shopify/install-or-render"
+embedded = true
+
+[auth]
+redirect_urls = [ "https://enshield-shipping-protection.gadget.app/api/connections/auth/shopify/callback" ]
+
+[webhooks]
+api_version = "2025-10"
+
+[[webhooks.subscriptions]]
+topics = ["carts/update"]
+uri = "https://enshield-shipping-protection.gadget.app/webhooks/cart/update" # The relative path in your app to handle the webhook
+
+[[webhooks.subscriptions]]
+topics = ["orders/create", "orders/updated"]
+uri = "https://enshield-shipping-protection.gadget.app/api/webhooks/shopify"
+
+[[webhooks.subscriptions]]
+compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
+uri = "https://enshield-shipping-protection.gadget.app/api/webhooks/shopify"
+ 
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_products, write_products, write_orders, read_orders, write_checkouts, write_order_edits"

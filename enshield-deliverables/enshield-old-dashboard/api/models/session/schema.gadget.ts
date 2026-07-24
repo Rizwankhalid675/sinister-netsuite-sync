@@ -1,0 +1,39 @@
+import type { GadgetModel } from "gadget-server";
+
+// This file describes the schema for the "session" model, go to https://enshield-shipping-protection.gadget.app/edit to view/edit your model in Gadget
+// For more information on how to update this file http://docs.gadget.dev
+
+export const schema: GadgetModel = {
+  type: "gadget/model-schema/v2",
+  storageKey: "nTd6seh0RA1C",
+  fields: {
+    personId: {
+      type: "string",
+      storageKey: "session-personId",
+    },
+    internalAuthState: {
+      type: "string",
+      storageKey: "session-internalAuthState",
+    },
+    internalAuthNonce: {
+      type: "string",
+      storageKey: "session-internalAuthNonce",
+    },
+    internalAuthChallengeAt: {
+      type: "dateTime",
+      includeTime: true,
+      storageKey: "session-internalAuthChallengeAt",
+    },
+    internalAuthenticatedAt: {
+      type: "dateTime",
+      includeTime: true,
+      storageKey: "session-internalAuthenticatedAt",
+    },
+    roles: {
+      type: "roleList",
+      default: ["unauthenticated"],
+      storageKey: "qYol_mkhncPn",
+    },
+  },
+  shopify: { fields: { shop: true, shopifySID: true } },
+};

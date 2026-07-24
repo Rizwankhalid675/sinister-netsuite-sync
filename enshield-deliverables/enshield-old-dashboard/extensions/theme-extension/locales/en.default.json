@@ -1,0 +1,10 @@
+{
+  "name": "Enshield Shipping Protection",
+  "shipping_insurance": {
+    "label": "Protect your shipment",
+    "description": "Add shipping insurance for peace of mind",
+    "checkbox_label": "Add shipping insurance",
+    "price_label": "Insurance cost",
+    "error_message": "Unable to add shipping insurance at this time"
+  }
+}
