@@ -49,3 +49,35 @@ export function requireOwnerProvisioning({ trigger }) {
   error.statusCode = 403;
   throw error;
 }
+
+// DEV/INIT-ONLY ESCAPE HATCH: identical shape to devSeedInProgress above, but
+// its own flag/function pair so it is scoped strictly to appRole.create being
+// invoked from within api/actions/seedAppRoles.js's bootstrap loop. appRole
+// has no create action exposed to normal callers (see
+// api/models/appRole/actions/create.js's header for why), so this is the only
+// legitimate way any appRole record is ever created. Reset in `finally` even
+// on error; fresh module state per request means it can't leak across
+// requests. Production is unaffected: seedAppRoles callers still go through
+// this same NODE_ENV check.
+let appRoleSeedInProgress = false;
+
+export function withAppRoleSeedEscape(fn) {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("withAppRoleSeedEscape must never run in production");
+  }
+  appRoleSeedInProgress = true;
+  return Promise.resolve()
+    .then(fn)
+    .finally(() => {
+      appRoleSeedInProgress = false;
+    });
+}
+
+export function requireAppRoleSeedEscape() {
+  if (process.env.NODE_ENV !== "production" && appRoleSeedInProgress) {
+    return;
+  }
+  const error = new Error("appRole.create can only be invoked from the seedAppRoles bootstrap");
+  error.statusCode = 403;
+  throw error;
+}

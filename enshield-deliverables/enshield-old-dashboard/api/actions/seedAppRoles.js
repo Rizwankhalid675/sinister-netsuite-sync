@@ -9,6 +9,7 @@
  * can link to an appRole.
  */
 import { ROLE_GRANTS, ROLE_NAMES, grantsForRole } from "../lib/permissions.js";
+import { withAppRoleSeedEscape } from "../lib/operatorProvisioning.js";
 
 export const run = async ({ api, logger }) => {
   const results = [];
@@ -26,11 +27,13 @@ export const run = async ({ api, logger }) => {
       continue;
     }
 
-    await api.appRole.create({
-      name,
-      description: `${name} role for the Enshield internal dashboard.`,
-      permissions,
-    });
+    await withAppRoleSeedEscape(() =>
+      api.appRole.create({
+        name,
+        description: `${name} role for the Enshield internal dashboard.`,
+        permissions,
+      })
+    );
     results.push({ name, action: "created" });
   }
 
