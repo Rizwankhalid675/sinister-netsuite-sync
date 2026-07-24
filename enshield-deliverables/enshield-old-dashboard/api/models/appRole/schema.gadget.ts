@@ -2,11 +2,6 @@ import type { GadgetModel } from "gadget-server";
 
 // This file describes the schema for the "appRole" model, go to https://enshield-shipping-protection.gadget.app/edit to view/edit your model in Gadget
 // For more information on how to update this file http://docs.gadget.dev
-//
-// NOTE: Gadget's schema metadata parser requires enum `options` to be a static
-// literal array (it statically parses this file rather than executing it), so
-// we cannot import ROLE_NAMES from ../../lib/permissions here. This list MUST
-// be kept in sync with the keys of ROLE_GRANTS in api/lib/permissions.js.
 
 export const schema: GadgetModel = {
   type: "gadget/model-schema/v2",

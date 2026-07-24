@@ -1,6 +1,5 @@
 import { PERMISSIONS } from "../permissions.js";
-import { requireInternalAccess } from "../internalAccess.js";
-import { shopIdFilter } from "../internalAccess.js";
+import { requireInternalAccess, shopIdFilter } from "../internalAccess.js";
 
 export function relationId(record, field) {
   return record?.[`${field}Id`] ?? record?.[field]?.id ?? record?.[field]?._link ?? null;

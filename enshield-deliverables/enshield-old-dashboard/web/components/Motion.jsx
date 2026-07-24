@@ -71,7 +71,6 @@ function makeMotionComponent(Tag) {
       // next frame -> transition from initial to animate
       raf.current = requestAnimationFrame(() => setCurrent(animateStyle));
       return () => raf.current && cancelAnimationFrame(raf.current);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [reduced]);
 
     const dur = transition?.duration ?? 0.35;

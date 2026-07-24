@@ -5,6 +5,7 @@ import {
 import {
   enqueueDelivery,
   enqueueDeliveryProcessor,
+  createDeliveryKey as createKeyForLookup,
 } from "../lib/integrationDelivery.js";
 
 /**
@@ -58,9 +59,6 @@ export const run = async ({ params, logger, api, session, trigger }) => {
     processorEnqueued,
   };
 };
-
-// Avoid exporting raw delivery-key internals from the action API.
-import { createDeliveryKey as createKeyForLookup } from "../lib/integrationDelivery.js";
 
 export const params = {
   orderId: { type: "string" },

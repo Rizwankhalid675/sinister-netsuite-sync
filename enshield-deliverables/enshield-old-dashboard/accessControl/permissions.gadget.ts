@@ -16,53 +16,27 @@ export const permissions: GadgetPermissions = {
           read: {
             filter: "accessControl/filters/shopify/shopifyCart.gelly",
           },
-          actions: {
-            create: true,
-            update: true,
-          },
         },
         shopifyOrder: {
           read: {
             filter:
               "accessControl/filters/shopify/shopifyOrder.gelly",
           },
-          actions: {
-            create: true,
-            delete: true,
-            update: true,
-          },
         },
         shopifyShop: {
           read: {
             filter: "accessControl/filters/shopify/shopifyShop.gelly",
-          },
-          actions: {
-            install: true,
-            reinstall: true,
-            uninstall: true,
-            update: true,
           },
         },
         shopifySync: {
           read: {
             filter: "accessControl/filters/shopify/shopifySync.gelly",
           },
-          actions: {
-            abort: true,
-            complete: true,
-            error: true,
-            run: true,
-          },
         },
       },
     },
     unauthenticated: {
       storageKey: "unauthenticated",
-      actions: {
-        seedAppRoles: true,
-        seedDevOperator: true,
-        seedDevSuperAdmin: true,
-      },
     },
   },
 };

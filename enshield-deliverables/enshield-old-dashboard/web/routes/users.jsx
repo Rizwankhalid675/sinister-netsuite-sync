@@ -42,10 +42,7 @@ function UsersInner() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const filters = useMemo(() => ({ search, status }), [search, status]);
-  const { rows, loading, error, hasNextPage, hasPreviousPage, next, previous, retry } = usePagedResource(
-    "/api/users",
-    filters
-  );
+  const { rows, loading, error, hasNextPage, hasPreviousPage, next, previous, retry } = usePagedResource("/api/users", filters);
   const { roles } = useRoles();
   const roleLabelById = useMemo(() => {
     const map = new Map();
@@ -54,7 +51,7 @@ function UsersInner() {
   }, [roles]);
 
   return (
-    <section aria-label="Users" aria-live="polite">
+    <section aria-label="Users and roles" aria-live="polite">
       <ListToolbar search={search} onSearch={setSearch} status={status} onStatus={setStatus} statuses={STATUSES} />
       <PageStatus loading={loading} error={error} empty={!loading && !error && rows.length === 0} noun="users" onRetry={retry} />
       {!loading && !error && rows.length > 0 ? (

@@ -234,10 +234,19 @@ test("seeded roles are deeply immutable and share one canonical name catalog", (
     assert.equal(Object.isFrozen(grants), true);
   }
 
+  // Gadget's schema metadata parser requires enum `options` to be a static
+  // literal array (it statically parses this file rather than executing
+  // it), so schema.gadget.ts cannot import ROLE_NAMES. Instead, assert that
+  // the static options list is kept in sync with the ROLE_NAMES catalog.
   const schema = source("api/models/appRole/schema.gadget.ts");
-  assert.match(schema, /import\s+\{\s*ROLE_NAMES\s*\}/);
-  assert.match(schema, /options:\s*\[\.\.\.ROLE_NAMES\]/);
-
+  const optionsMatch = schema.match(/options:\s*\[([\s\S]*?)\]/);
+  assert.ok(optionsMatch, "schema must declare a static options array");
+  const declaredNames = optionsMatch[1]
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => entry.replace(/^["']|["']$/g, ""));
+  assert.deepEqual(declaredNames, [...ROLE_NAMES]);
 });
 
 test("shopify app sessions have no direct Gadget model access to internal data", () => {

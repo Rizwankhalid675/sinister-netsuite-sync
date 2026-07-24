@@ -17,7 +17,9 @@
     "shopify:deploy:development": "yarn shopify:config:use:development && shopify app deploy --allow-updates",
     "shopify:deploy:production": "yarn shopify:config:use:production && shopify app deploy --allow-updates",
     "shopify:deploy": "yarn shopify:deploy:production",
-    "shopify:info": "shopify app info"
+    "shopify:info": "shopify app info",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@gadget-client/enshield-shipping-protection": "link:.gadget/client",

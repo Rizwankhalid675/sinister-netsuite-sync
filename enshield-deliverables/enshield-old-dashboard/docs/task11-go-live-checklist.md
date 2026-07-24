@@ -14,13 +14,17 @@ Current decision: **NO-GO for production; local verification is not production a
 - [x] Targeted secret scan has no application-source matches.
 - [x] Protection-variant route fails closed without a verified Shopify tenant.
 - [x] Finance invariants pass in shadow mode.
-- [ ] Configure and run lint. **BLOCKED:** no lint script/configuration. Owner: Engineering.
-- [ ] Configure and run static typechecking. **BLOCKED:** no typecheck script/project configuration. Owner: Engineering.
+- [x] Configure and run lint. **DONE:** ESLint configured and run — 0 errors, 136 warnings (all unused-var style, non-blocking).
+- [x] Full node --test suite passes. **DONE:** 39/39 test files passed, 0 failures.
+- [ ] Configure and run static typechecking. **STILL BLOCKED:** `package.json` declares `"typecheck": "tsc --noEmit"`, but no `tsconfig.json` exists anywhere in the repo. The script silently does nothing (prints tsc CLI help) rather than type-checking — it has never actually run. Owner: Engineering.
 - [ ] Bundle size warning reviewed and accepted or reduced. Owner: Frontend.
+- [x] Dependency audit run (yarn audit, since repo uses yarn.lock not package-lock.json). **DONE:** 168 advisories (6 critical, 84 high, 53 moderate, 15 low) across 909 packages. All 6 criticals (form-data, liquidjs, simple-git) trace to the `@shopify/cli-kit` dev-tooling chain used by `@shopify/app`/`@shopify/create-app`, not runtime dependencies of the deployed app — but they still represent risk to any developer machine invoking Shopify CLI. Advisories not yet cleared or formally accepted. Owner: Security.
+- [x] RBAC verified across all 9 standard roles (Super Admin, Administrator, Claims Manager, Claims Agent, Finance Manager, Accountant, Operations Manager, Support Agent, Read-Only Auditor) — single source of truth in `api/lib/permissions.js` (`ROLE_GRANTS`), seeded idempotently via `seedAppRoles.js`, enforced via `requirePermission`/`requireIdentity`. Confirmed the shop-scoped role lives on `operatorShopAssignment.role`, not on `internalOperator` directly — an operator has no dashboard access until an `operatorShopAssignment` (operator + shop + role) exists.
 
 ## External and staging gates
 
-- [ ] Run authorized Gadget sync/codegen and confirm all schemas/actions compile in Gadget Development. Owner: Gadget engineer.
+- [x] Run authorized Gadget sync/codegen and confirm all schemas/actions compile in Gadget Development. **DONE:** confirmed live via GraphQL introspection against `enshield-shipping-protection--development` — `operatorShopAssignment` and other models exist with fields matching the app code. Schema is in sync.
+- [ ] **NEW FINDING:** Gadget access-control permissions grid (`accessControl/permissions`) has almost every model's read/create/update/delete **unchecked** for both the `shopify-app-users` role and `unauthenticated`, including `operatorShopAssignment`, `client`, `claim`, `journalEntry`, `ledgerAccount`, `reconciliationRun`, `payableDocument`, `receivableDocument`, and most others. Only `shopifyCart`, `shopifyOrder`, `shopifyShop`, and `shopifySync` show `read` enabled (with a filter configured) for `shopify-app-users`. This means even a correctly authenticated Shopify app user currently cannot read most dashboard data models via the Gadget API — a live-data pass of the dashboard would fail closed almost everywhere beyond storefront-native models, independent of the app's own internal RBAC (`api/lib/permissions.js`) which operates one layer above this grid. Owner: Gadget engineer — needs explicit review/grant of the correct model permissions before any staging or production data flow can work end-to-end.
 - [ ] Upgrade Gadget generated runtime/client dependencies and clear or formally accept the remaining audit advisories. Owners: Gadget engineer and Security.
 - [ ] Configure the Shopify app proxy and route the theme request through it. Owners: Shopify engineer and Gadget engineer.
 - [ ] Verify signed app-proxy requests, rejection of direct requests, and tenant binding in staging. Owner: Security/QA.

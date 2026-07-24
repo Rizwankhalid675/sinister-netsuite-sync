@@ -50,11 +50,12 @@ test("canonical navigation defines all required internal routes once", () => {
       "/errors",
       "/reports",
       "/finance",
+      "/audit-log",
       "/settings",
       "/users",
     ]
   );
-  assert.equal(new Set(INTERNAL_NAV_ITEMS.map(({ path }) => path)).size, 9);
+  assert.equal(new Set(INTERNAL_NAV_ITEMS.map(({ path }) => path)).size, 10);
 });
 
 test("permission-aware navigation hides routes the principal cannot view", () => {

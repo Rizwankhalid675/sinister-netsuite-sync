@@ -220,7 +220,7 @@ export const run = async ({
 
 /** @type { ActionOptions } */
 export const options = {
-  returnType: "record",
+  returnType: true,
 };
 
 export const params = {
