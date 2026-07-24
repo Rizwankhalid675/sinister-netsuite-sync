@@ -1,0 +1,38 @@
+/**
+ * ONE-OFF DEV SEED — NOT FOR PRODUCTION USE.
+ *
+ * Creates a single active internalOperator record so the local/dev
+ * environment has an identity to sign in as via the dev-only bypass in
+ * api/routes/auth/GET-internal-start.js. Runs as a background action so it
+ * legitimately satisfies requireOwnerProvisioning() rather than weakening it.
+ *
+ * Delete this file after running it once.
+ */
+export const run = async ({ api, logger }) => {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("seedDevOperator must never run in production");
+  }
+
+  const existing = await api.internalOperator.findFirst({
+    filter: { status: { equals: "active" } },
+    select: { id: true, personId: true },
+  });
+  if (existing) {
+    logger.info({ id: existing.id }, "Active internalOperator already exists; skipping");
+    return { success: true, skipped: true, id: existing.id, personId: existing.personId };
+  }
+
+  const record = await api.internalOperator.create({
+    personId: "dev-tester-1",
+    name: "Dev Tester",
+    email: "dev@enshield.local",
+    status: "active",
+  });
+
+  logger.info({ id: record.id }, "Seeded dev internalOperator");
+  return { success: true, skipped: false, id: record.id, personId: record.personId };
+};
+
+export const options = {
+  triggers: { api: false },
+};
