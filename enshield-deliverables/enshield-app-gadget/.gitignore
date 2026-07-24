@@ -10,4 +10,6 @@ extensions/**/generated
 shopify.app.*.toml
 .env.*
 .shopify
-Enshield/token.txt
+
+# Local-only credentials/infra artifacts - never commit or sync
+Enshield/

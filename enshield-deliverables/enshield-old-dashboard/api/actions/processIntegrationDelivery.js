@@ -62,5 +62,4 @@ export const params = {
 
 export const options = {
   triggers: { api: true },
-  timeoutMS: 30_000,
 };
