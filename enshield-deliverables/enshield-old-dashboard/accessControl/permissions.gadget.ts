@@ -59,6 +59,7 @@ export const permissions: GadgetPermissions = {
     unauthenticated: {
       storageKey: "unauthenticated",
       actions: {
+        seedAppRoles: true,
         seedDevOperator: true,
         seedDevSuperAdmin: true,
       },
