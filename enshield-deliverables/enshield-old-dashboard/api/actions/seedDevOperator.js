@@ -34,7 +34,9 @@ export const run = async ({ api, logger }) => {
 };
 
 export const options = {
-  // TEMP: enabled to run this one-off seed against dev via API, then
-  // reverted to triggers.api = false immediately after.
-  triggers: { api: true },
+  // Must run as a background action only — internalOperator.create's
+  // requireOwnerProvisioning() guard only allows trigger.type ===
+  // "background-action". Do NOT set triggers.api = true; invoke via
+  // `await api.enqueue(api.seedDevOperator)` from the playground instead.
+  triggers: { api: false },
 };
