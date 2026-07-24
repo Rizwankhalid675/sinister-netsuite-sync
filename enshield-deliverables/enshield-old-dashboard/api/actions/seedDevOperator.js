@@ -13,7 +13,7 @@ export const run = async ({ api, logger }) => {
     throw new Error("seedDevOperator must never run in production");
   }
 
-  const existing = await api.internalOperator.findFirst({
+  const existing = await api.internalOperator.maybeFindFirst({
     filter: { status: { equals: "active" } },
     select: { id: true, personId: true },
   });
