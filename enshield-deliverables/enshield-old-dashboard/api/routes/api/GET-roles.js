@@ -1,11 +1,11 @@
-import { PERMISSIONS } from "../../lib/permissions.js";
-import { requireInternalAccess } from "../../lib/internalAccess.js";
+import { PERMISSIONS, requirePermission } from "../../lib/permissions.js";
 
-// appRole is a global (non shop-scoped) model — any active internal operator
-// with VIEW_USERS may read the role catalog (needed to render role pickers).
+// appRole is a global (non shop-scoped) catalog of role -> permission
+// mappings — any shop admin with VIEW_USERS may read it to render role
+// pickers on the Users page.
 const route = async ({ reply, api, logger, session }) => {
   try {
-    await requireInternalAccess({ api, session }, PERMISSIONS.VIEW_USERS, "all");
+    await requirePermission({ api, session }, PERMISSIONS.VIEW_USERS);
     const records = await api.appRole.findMany({
       first: 100,
       sort: { name: "Ascending" },

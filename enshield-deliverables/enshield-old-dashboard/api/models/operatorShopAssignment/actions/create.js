@@ -12,7 +12,7 @@ export const run = async ({ params, record, api, trigger }) => {
     api.internalOperator.findFirst({ filter: { AND: [{ id: { equals: operatorId } }, { status: { equals: "active" } }] }, select: { id: true } }),
     api.shopifyShop.findFirst({ filter: { id: { equals: shopId } }, select: { id: true } }),
     api.appRole.findFirst({ filter: { id: { equals: roleId } }, select: { id: true, name: true } }),
-    api.operatorShopAssignment.findFirst({ filter: { assignmentKey: { equals: assignmentKey } }, select: { id: true } }),
+    api.operatorShopAssignment.maybeFindFirst({ filter: { assignmentKey: { equals: assignmentKey } }, select: { id: true } }),
   ]);
   if (!operator || !shop || !role || duplicate) {
     const error = new Error(duplicate ? "Duplicate operator shop assignment" : "Invalid provisioning relationship");

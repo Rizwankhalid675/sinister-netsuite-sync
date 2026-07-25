@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useDeferredValue, useState } from "react";
 import { Gate } from "../lib/useRole";
 import { PERMISSIONS } from "../lib/rbac";
 import { usePagedResource } from "../lib/usePagedResource";
@@ -10,11 +10,12 @@ export function ErrorsPage() {
 }
 
 function ErrorsInner() {
+  const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
-  const data = usePagedResource("/api/errors", { status });
+  const data = usePagedResource("/api/errors", { search: useDeferredValue(search).trim(), status });
   return (
     <section aria-label="Integration errors" aria-live="polite">
-      <ListToolbar search="" onSearch={() => {}} status={status} onStatus={setStatus} statuses={["retry", "permanent_failure"]} />
+      <ListToolbar search={search} onSearch={setSearch} status={status} onStatus={setStatus} statuses={["retry", "permanent_failure"]} />
       <PageStatus loading={data.loading} error={data.error} empty={!data.rows.length} noun="integration errors" onRetry={data.retry} />
       {!data.loading && !data.error && data.rows.length ? <div className="esd-table-wrap"><table className="esd-table">
         <thead><tr><th>Client</th><th>Reference</th><th>Operation</th><th>Status</th><th>Attempts</th><th>Error code</th><th>Updated</th></tr></thead>

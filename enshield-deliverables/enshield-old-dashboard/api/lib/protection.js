@@ -143,12 +143,16 @@ export function formatMinorAmount(amountMinor, minorUnit = 2) {
 
 function parseMoneyBag(bag) {
   if (bag == null) return null;
-  const money = bag.shopMoney ?? bag.presentmentMoney;
-  if (!money || typeof money.currencyCode !== "string") return null;
+  // Some legacy/webhook-sourced order records store the raw Shopify REST
+  // snake_case keys (shop_money/currency_code) instead of the GraphQL
+  // camelCase ones (shopMoney/currencyCode) — accept both shapes.
+  const money = bag.shopMoney ?? bag.shop_money ?? bag.presentmentMoney ?? bag.presentment_money;
+  const currencyCode = money?.currencyCode ?? money?.currency_code;
+  if (!money || typeof currencyCode !== "string") return null;
   try {
     return {
-      amountMinor: majorToMinor(money.amount, money.currencyCode),
-      currency: money.currencyCode.toUpperCase(),
+      amountMinor: majorToMinor(money.amount, currencyCode),
+      currency: currencyCode.toUpperCase(),
     };
   } catch {
     return null;
@@ -184,13 +188,37 @@ export function getProtectionPriceSnapshot(order) {
   const version = String(order?.enshieldPricingVersion ?? "").trim();
   const orderCurrency = String(order?.currency ?? currency).toUpperCase();
   if (
-    !Number.isSafeInteger(amountMinor)
-    || amountMinor < 0
-    || !/^[A-Z]{3}$/.test(currency)
-    || !version
-    || orderCurrency !== currency
-  ) return null;
-  return { amountMinor, currency, version };
+    Number.isSafeInteger(amountMinor)
+    && amountMinor >= 0
+    && /^[A-Z]{3}$/.test(currency)
+    && version
+    && orderCurrency === currency
+  ) {
+    return { amountMinor, currency, version };
+  }
+  // Legacy fallback: older/seeded orders never had the canonical
+  // enshieldProtectionAmountMinor/Currency/PricingVersion fields backfilled,
+  // but do carry the pre-canonical `shippingInsuranceCost` note attribute
+  // (a major-unit decimal). Only used when the strict canonical snapshot
+  // above is unavailable — new orders always populate the canonical fields.
+  return legacyProtectionPriceSnapshot(order);
+}
+
+function legacyProtectionPriceSnapshot(order) {
+  let raw;
+  for (const attribute of attributeArray(order?.noteAttributes)) {
+    if (attribute?.name === "shippingInsuranceCost") raw = attribute.value;
+  }
+  if (raw === undefined) return null;
+  const legacyCurrency = String(order?.currency ?? "USD").toUpperCase();
+  if (!/^[A-Z]{3}$/.test(legacyCurrency)) return null;
+  try {
+    const amountMinor = majorToMinor(raw, legacyCurrency);
+    if (!Number.isSafeInteger(amountMinor) || amountMinor < 0) return null;
+    return { amountMinor, currency: legacyCurrency, version: "legacy" };
+  } catch {
+    return null;
+  }
 }
 
 export function selectExactVariant(edges, amountMinor, currency) {

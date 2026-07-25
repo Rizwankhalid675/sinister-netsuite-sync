@@ -1,104 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Gate, useRole } from "../lib/useRole";
 import { PERMISSIONS } from "../lib/rbac";
-import { Stagger, FadeInUp, MotionDiv } from "../components/Motion";
-import { downloadCsv } from "../lib/operationalData";
-import "./dashboard.css";
+import "../dashboard.css";
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-const fmtMoney = (n, currency = "USD") =>
-  new Intl.NumberFormat(undefined, {
-    style: "currency", currency, minimumFractionDigits: 2, maximumFractionDigits: 2,
-  }).format(Number(n || 0));
-
-const fmtDate = (iso) => {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("en-GB");
-};
-
-/**
- * Single-shop analytics dashboard — REVAMPED.
- *
- * - Modern layout + framer-motion animation (all motion isolated in ../components/Motion).
- * - RBAC: nav items, actions and reporting are gated by the current user's role
- *   (see ../lib/rbac + ../lib/useRole). Roles gate PRESENTATION/ACTIONS only;
- *   data tenancy is still enforced at the data layer by shopId .gelly filters.
- * - Real data only: metrics come from GET /api/dashboard-metrics. Claims remain
- *   "not yet tracked" (no claims model exists — never fabricated).
- */
-export function DashboardPage() {
-  return (
-    <Gate permission={PERMISSIONS.VIEW_DASHBOARD} fallback={<div className="esd-empty">You don't have permission to view the dashboard.</div>}>
-      <DashboardInner />
-    </Gate>
-  );
-}
-
-function DashboardInner() {
-  // The role switcher is an admin-only TESTING override (preview another role's
-  // grants locally). Only a user who can MANAGE_USERS sees it; it never widens
-  // access beyond what the backend would grant that role.
-  // Shop display info comes from the authenticated /api/dashboard-metrics route
-  // (server-side, session-scoped) — no client-side unauthenticated shopifyShop read.
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [range, setRange] = useState("30d");
-  const [metrics, setMetrics] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [forbidden, setForbidden] = useState(false);
-  const [reloadKey, setReloadKey] = useState(0);
-  const { selectedShopId } = useRole();
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-    setForbidden(false);
-    fetch(`/api/dashboard-metrics?year=${year}&range=${range}&shopId=${encodeURIComponent(selectedShopId)}`, { credentials: "include" })
-      .then(async (response) => {
-        const body = await response.json();
-        if (response.status === 403) setForbidden(true);
-        if (!response.ok) throw new Error(body.error || "Failed to load metrics");
-        return body;
-      })
-      .then((json) => {
-        if (cancelled) return;
-        if (!json.success) throw new Error(json.error || "Failed to load metrics");
-        setMetrics(json);
-      })
-      .catch((e) => !cancelled && setError(e.message))
-      .finally(() => !cancelled && setLoading(false));
-    return () => {
-      cancelled = true;
-    };
-  }, [year, range, selectedShopId, reloadKey]);
-
-  const activity = metrics?.activity ?? [];
-  const maxValue = useMemo(
-    () => Math.max(1, ...activity.map((a) => a.value || 0)),
-    [activity]
-  );
-
-  const m = metrics?.metrics;
-  const owner = metrics?.shop?.name || metrics?.shop?.domain || "Account";
-
-  return (
-    <>
-      {error && <div className={forbidden ? "esd-empty" : "esd-error"} role="status" aria-live="polite">
-        {forbidden ? "You don’t have permission to view this client." : `Couldn’t load dashboard data: ${error}`}
-        {!forbidden ? <button className="esd-link-button" type="button" onClick={() => setReloadKey((key) => key + 1)}>Try again</button> : null}
-      </div>}
-      <MotionDiv initial={{ opacity: 0 }} animate={{ opacity: 1 }} aria-label={`Dashboard for ${owner}`}>
-        <DashboardTab {...{ activity, maxValue, loading, m, year, setYear, range, setRange, metrics }} />
-      </MotionDiv>
-    </>
-  );
-
-}
-
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const RANGES = [
   { key: "7d", label: "7 days" },
   { key: "30d", label: "30 days" },
@@ -107,299 +13,419 @@ const RANGES = [
   { key: "all", label: "All time" },
 ];
 
-const fmtPct = (n) => (n == null ? "—" : `${Number(n).toFixed(1)}%`);
-const fmtDelta = (n) => {
-  if (n == null) return null;
-  const v = Number(n);
-  const sign = v > 0 ? "▲" : v < 0 ? "▼" : "";
-  const cls = v > 0 ? "esd-delta--up" : v < 0 ? "esd-delta--down" : "esd-delta--flat";
-  return { text: `${sign} ${Math.abs(v).toFixed(1)}%`, cls };
+function fmtMoney(v, currency = "USD") {
+  if (v == null || isNaN(v)) return "—";
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(v);
+  } catch {
+    return `$${Number(v).toFixed(2)}`;
+  }
+}
+function fmtPct(v) {
+  if (v == null || isNaN(v)) return "—";
+  return `${(v * 100).toFixed(1)}%`;
+}
+function fmtDelta(v) {
+  if (v == null || isNaN(v)) return null;
+  const pct = v * 100;
+  const sign = pct > 0 ? "+" : "";
+  return `${sign}${pct.toFixed(1)}%`;
+}
+function fmtDate(d) {
+  if (!d) return "—";
+  try {
+    return new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  } catch {
+    return "—";
+  }
+}
+
+const easeOut = [0.16, 1, 0.3, 1];
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: easeOut } },
+};
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
 };
 
-function DeltaBadge({ value }) {
-  const d = fmtDelta(value);
-  if (!d) return <span className="esd-delta esd-delta--flat" title="No prior-period data">—</span>;
-  return <span className={`esd-delta ${d.cls}`} title="vs previous period">{d.text}</span>;
+// Animated numeric count-up used across the hero KPI tiles.
+function CountUp({ value, format }) {
+  const reduced = useReducedMotion();
+  const [display, setDisplay] = useState(reduced ? value : 0);
+  useEffect(() => {
+    if (value == null || isNaN(value)) {
+      setDisplay(value);
+      return;
+    }
+    if (reduced) {
+      setDisplay(value);
+      return;
+    }
+    let raf;
+    const start = performance.now();
+    const from = 0;
+    const dur = 900;
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(from + (value - from) * eased);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => raf && cancelAnimationFrame(raf);
+  }, [value, reduced]);
+  if (value == null || isNaN(value)) return <>—</>;
+  return <>{format ? format(display) : Math.round(display)}</>;
 }
 
-function DashboardTab({ activity, maxValue, loading, m, year, setYear, range, setRange, metrics }) {
-  const ins = metrics?.insuranceMetrics;
-  const rr = metrics?.refundsReturns;
-  const rt = metrics?.revenueTrend;
-  const fh = metrics?.fulfillmentHealth;
-  const rangeLabel = RANGES.find((r) => r.key === range)?.label ?? "30 days";
-  const currency = metrics?.currency || "USD";
-
+function DeltaBadge({ value }) {
+  const text = fmtDelta(value);
+  if (text == null) return null;
+  const positive = value > 0;
+  const neutral = value === 0;
   return (
-    <>
-      <div className="esd-rangebar" role="group" aria-label="Metric time range">
-        {RANGES.map((r) => (
-          <button
-            key={r.key}
-            className={`esd-rangebtn ${range === r.key ? "esd-rangebtn--active" : ""}`}
-            onClick={() => setRange(r.key)}
-            aria-pressed={range === r.key}
-          >
-            {r.label}
-          </button>
-        ))}
-      </div>
-
-      <Stagger className="esd-metricgroups">
-        <FadeInUp as="section" className="esd-card esd-mgroup">
-          <div className="esd-mgroup-head">Revenue &amp; Orders <span className="esd-mgroup-range">{rangeLabel}</span></div>
-          <div className="esd-mgroup-grid">
-            <div className="esd-metric">
-              <span className="esd-metric-label">Revenue</span>
-              <span className="esd-metric-value">{loading ? "—" : fmtMoney(rt?.revenue, currency)}</span>
-              {!loading && <DeltaBadge value={rt?.revenueDelta} />}
-            </div>
-            <div className="esd-metric">
-              <span className="esd-metric-label">Avg order value</span>
-              <span className="esd-metric-value">{loading ? "—" : fmtMoney(rt?.aov, currency)}</span>
-              {!loading && <DeltaBadge value={rt?.aovDelta} />}
-            </div>
-            <div className="esd-metric">
-              <span className="esd-metric-label">Orders</span>
-              <span className="esd-metric-value">{loading ? "—" : rt?.orders ?? 0}</span>
-              {!loading && <DeltaBadge value={rt?.ordersDelta} />}
-            </div>
-          </div>
-        </FadeInUp>
-
-        <FadeInUp as="section" className="esd-card esd-mgroup">
-          <div className="esd-mgroup-head">Insurance <span className="esd-mgroup-range">{rangeLabel}</span></div>
-          <div className="esd-mgroup-grid">
-            <div className="esd-metric">
-              <span className="esd-metric-label">Insurance revenue</span>
-              <span className="esd-metric-value">{loading ? "—" : fmtMoney(ins?.revenue, currency)}</span>
-            </div>
-            <div className="esd-metric">
-              <span className="esd-metric-label">Attach rate</span>
-              <span className="esd-metric-value">{loading ? "—" : fmtPct(ins?.attachRate)}</span>
-            </div>
-            <div className="esd-metric">
-              <span className="esd-metric-label">Protected orders</span>
-              <span className="esd-metric-value">{loading ? "—" : ins?.protectedOrders ?? 0}</span>
-            </div>
-          </div>
-        </FadeInUp>
-
-        <FadeInUp as="section" className="esd-card esd-mgroup">
-          <div className="esd-mgroup-head">Refunds &amp; Returns <span className="esd-mgroup-range">{rangeLabel}</span></div>
-          <div className="esd-mgroup-grid">
-            <div className="esd-metric">
-              <span className="esd-metric-label">Refunded</span>
-              <span className="esd-metric-value">{loading ? "—" : fmtMoney(rr?.refundedAmount, currency)}</span>
-              <span className="esd-metric-sub">{loading ? "" : `${rr?.refundedOrders ?? 0} orders`}</span>
-            </div>
-            <div className="esd-metric">
-              <span className="esd-metric-label">Refund rate</span>
-              <span className="esd-metric-value">{loading ? "—" : fmtPct(rr?.refundRate)}</span>
-            </div>
-            <div className="esd-metric">
-              <span className="esd-metric-label">Return rate</span>
-              <span className="esd-metric-value">{loading ? "—" : fmtPct(rr?.returnRate)}</span>
-              <span className="esd-metric-sub">{loading ? "" : `${rr?.returnedOrders ?? 0} orders`}</span>
-            </div>
-          </div>
-        </FadeInUp>
-
-        <FadeInUp as="section" className="esd-card esd-mgroup">
-          <div className="esd-mgroup-head">Fulfillment <span className="esd-mgroup-range">{rangeLabel}</span></div>
-          <div className="esd-mgroup-grid">
-            <div className="esd-metric">
-              <span className="esd-metric-label">Fulfillment rate</span>
-              <span className="esd-metric-value">{loading ? "—" : fmtPct(fh?.fulfillmentRate)}</span>
-              <span className="esd-metric-sub">{loading ? "" : `${fh?.fulfilledOrders ?? 0} fulfilled`}</span>
-            </div>
-            <div className="esd-metric">
-              <span className="esd-metric-label">In transit</span>
-              <span className="esd-metric-value">{loading ? "—" : fh?.inTransitOrders ?? 0}</span>
-            </div>
-            <div className="esd-metric">
-              <span className="esd-metric-label">Cancel rate</span>
-              <span className="esd-metric-value">{loading ? "—" : fmtPct(fh?.cancelRate)}</span>
-              <span className="esd-metric-sub">{loading ? "" : `${fh?.cancelledOrders ?? 0} cancelled`}</span>
-            </div>
-          </div>
-        </FadeInUp>
-      </Stagger>
-
-      <Stagger className="esd-grid">
-        <FadeInUp as="section" className="esd-card esd-chartcard">
-          <div className="esd-chart-head">
-            <div className="esd-year">
-              <button className="esd-yearbtn" onClick={() => setYear((y) => y - 1)} aria-label="Previous year">◄</button>
-              <span>{year}</span>
-              <button className="esd-yearbtn" onClick={() => setYear((y) => y + 1)} aria-label="Next year">►</button>
-            </div>
-            <div className="esd-yearly">Yearly ▾</div>
-          </div>
-          <div className="esd-chart" role="img" aria-label={`Order value by month for ${year}`}>
-            {(activity.length ? activity : MONTHS.map((_, i) => ({ month: i, value: 0 }))).map((b, i) => (
-              <div className="esd-bar-col" key={i}>
-                <MotionDiv
-                  className="esd-bar"
-                  initial={{ height: "2%" }}
-                  animate={{ height: loading ? "4%" : `${Math.max(2, ((b.value || 0) / maxValue) * 100)}%` }}
-                  transition={{ duration: 0.6, delay: i * 0.03, ease: [0.22, 1, 0.36, 1] }}
-                  title={fmtMoney(b.value, currency)}
-                />
-                <span className="esd-bar-label">{MONTHS[i]}</span>
-              </div>
-            ))}
-          </div>
-          <table className="esd-visually-hidden">
-            <caption>Order value by month for {year}</caption>
-            <thead><tr><th>Month</th><th>Orders</th><th>Value</th></tr></thead>
-            <tbody>{activity.map((row, index) => (
-              <tr key={MONTHS[index]}><td>{MONTHS[index]}</td><td>{row.orders || 0}</td><td>{fmtMoney(row.value, currency)}</td></tr>
-            ))}</tbody>
-          </table>
-        </FadeInUp>
-
-        <aside className="esd-stats" aria-label="Dashboard summary">
-          <FadeInUp className="esd-card esd-stat esd-stat--outline">
-            <div className="esd-stat-label">PROTECTED ORDERS</div>
-            <div className="esd-stat-value esd-teal">{loading ? "—" : m?.protectedOrders ?? 0}</div>
-          </FadeInUp>
-          <FadeInUp className="esd-card esd-stat esd-stat--dark">
-            <div className="esd-stat-label">VALUE IN TRANSIT</div>
-            <div className="esd-stat-value">{loading ? "—" : fmtMoney(m?.valueInTransit, currency)}</div>
-            {m && m.truncated && (
-              <div className="esd-stat-note" title="Aggregated from the most recent 5,000 orders">most recent 5,000 orders</div>
-            )}
-          </FadeInUp>
-          <FadeInUp className="esd-card esd-stat esd-stat--outline">
-            <div className="esd-stat-label">OPEN CLAIMS</div>
-            <div className="esd-stat-value esd-teal">{loading ? "—" : m?.openClaims ?? 0}</div>
-            {m && m.openClaimsAvailable === false && (
-              <div className="esd-stat-note" title="No claims data model exists yet">not yet tracked</div>
-            )}
-          </FadeInUp>
-        </aside>
-      </Stagger>
-
-      <OrdersTable metrics={metrics} loading={loading} title="Latest Orders" />
-    </>
+    <span
+      className={`esd-delta ${neutral ? "esd-delta--flat" : positive ? "esd-delta--up" : "esd-delta--down"}`}
+      aria-label={`Change ${text}`}
+    >
+      {neutral ? "•" : positive ? "▲" : "▼"} {text}
+    </span>
   );
 }
 
-function ReportsTab({ metrics, m, loading, activity, year }) {
-  const totalValue = useMemo(
-    () => activity.reduce((s, b) => s + (b.value || 0), 0),
+function DashboardTab() {
+  const { can, selectedShopId } = useRole();
+  const [metrics, setMetrics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [forbidden, setForbidden] = useState(false);
+  const [range, setRange] = useState("30d");
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    setForbidden(false);
+    const params = new URLSearchParams({ range, year: String(year) });
+    if (selectedShopId) params.set("shopId", selectedShopId);
+    fetch(`/api/dashboard-metrics?${params}`)
+      .then(async (r) => {
+        if (r.status === 403) {
+          if (!cancelled) setForbidden(true);
+          return null;
+        }
+        const body = await r.json().catch(() => ({}));
+        if (!r.ok || !body.success) {
+          throw new Error(body.error || "Failed to load dashboard data");
+        }
+        return body;
+      })
+      .then((body) => {
+        if (cancelled || !body) return;
+        setMetrics(body);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e.message || "Couldn't load dashboard data");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [range, year, selectedShopId, reloadKey]);
+
+  const currency = metrics?.currency || "USD";
+  const activity = metrics?.activity || [];
+  const maxValue = useMemo(
+    () => Math.max(1, ...activity.map((m) => m.value || 0)),
     [activity]
   );
-  const protectedRate =
-    m && m.totalOrders ? Math.round((m.protectedOrders / m.totalOrders) * 100) : 0;
+  const rangeLabel = RANGES.find((r) => r.key === range)?.label || range;
+
+  if (forbidden) {
+    return (
+      <div className="esd-empty" role="alert">
+        <p>You don&apos;t have permission to view this dashboard.</p>
+      </div>
+    );
+  }
 
   return (
-    <Stagger className="esd-report">
-      <FadeInUp className="esd-card esd-report-summary">
-        <h2 className="esd-table-title">Report — {year}</h2>
-        <div className="esd-report-metrics">
-          <div><span className="esd-stat-label">TOTAL ORDER VALUE</span><strong>{loading ? "—" : fmtMoney(totalValue)}</strong></div>
-          <div><span className="esd-stat-label">TOTAL ORDERS</span><strong>{loading ? "—" : m?.totalOrders ?? 0}</strong></div>
-          <div><span className="esd-stat-label">PROTECTED ORDERS</span><strong>{loading ? "—" : m?.protectedOrders ?? 0}</strong></div>
-          <div><span className="esd-stat-label">PROTECTION RATE</span><strong>{loading ? "—" : `${protectedRate}%`}</strong></div>
+    <section className="esd-section esd-motion-dashboard" aria-label="Dashboard summary">
+      {/* ---- Hero header ---- */}
+      <motion.div
+        className="esd-hero"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: easeOut }}
+      >
+        <div>
+          <p className="esd-hero-eyebrow">{metrics?.shop?.name || "Overview"}</p>
+          <h2 className="esd-hero-title">Shipping protection performance</h2>
+          <p className="esd-hero-sub">
+            {metrics?.metrics?.status === "active" ? "Insurance active" : "Insurance inactive"} · Showing {rangeLabel.toLowerCase()}
+          </p>
         </div>
-        <p className="esd-report-note">
-          Claims-based reporting is <em>not yet tracked</em> — no claims data model exists.
-          These figures are derived from real order data only.
-        </p>
-      </FadeInUp>
-
-      <Gate permission={PERMISSIONS.EXPORT_REPORTS} fallback={
-        <FadeInUp className="esd-card esd-locknote">Export is available to Staff and Admin roles.</FadeInUp>
-      }>
-        <FadeInUp className="esd-card esd-report-actions">
-          <button className="esd-btn" onClick={() => exportCsv(metrics)}>Export CSV</button>
-          <span className="esd-muted">Exports the {year} monthly breakdown (real data).</span>
-        </FadeInUp>
-      </Gate>
-
-      <FadeInUp className="esd-card esd-tablecard">
-        <h2 className="esd-table-title">Monthly breakdown</h2>
-        <table className="esd-table">
-          <thead><tr><th>MONTH</th><th>ORDERS</th><th>VALUE</th></tr></thead>
-          <tbody>
-            {activity.map((b, i) => (
-              <tr key={i}><td>{MONTHS[i]}</td><td>{b.orders || 0}</td><td>{fmtMoney(b.value)}</td></tr>
+        <div className="esd-hero-controls">
+          <div className="esd-range-toggle" role="group" aria-label="Time range">
+            {RANGES.map((r) => (
+              <button
+                key={r.key}
+                type="button"
+                className={`esd-range-btn ${range === r.key ? "is-active" : ""}`}
+                onClick={() => setRange(r.key)}
+                aria-pressed={range === r.key}
+              >
+                {r.label}
+              </button>
             ))}
+          </div>
+          <button
+            type="button"
+            className="esd-btn esd-btn-ghost"
+            onClick={() => setReloadKey((k) => k + 1)}
+          >
+            Refresh
+          </button>
+        </div>
+      </motion.div>
+
+      {error && (
+        <motion.div
+          className="esd-alert esd-alert-error"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          role="alert"
+        >
+          {error}
+        </motion.div>
+      )}
+
+      {metrics?.metrics?.truncated && (
+        <motion.div className="esd-alert esd-alert-warn" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          Showing figures aggregated from the most recent 5,000 orders — some data may not be fully represented.
+        </motion.div>
+      )}
+
+      {/* ---- KPI grid ---- */}
+      <motion.div
+        className="esd-kpi-grid"
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div className="esd-kpi-card" variants={fadeUp}>
+          <span className="esd-kpi-label">Revenue</span>
+          <span className="esd-kpi-value">
+            {loading ? (
+              <span className="esd-skeleton" />
+            ) : (
+              <CountUp value={metrics?.revenueTrend?.current ?? 0} format={(v) => fmtMoney(v, currency)} />
+            )}
+          </span>
+          {!loading && <DeltaBadge value={metrics?.revenueTrend?.delta} />}
+        </motion.div>
+
+        <motion.div className="esd-kpi-card" variants={fadeUp}>
+          <span className="esd-kpi-label">Protected orders</span>
+          <span className="esd-kpi-value">
+            {loading ? (
+              <span className="esd-skeleton" />
+            ) : (
+              <CountUp value={metrics?.metrics?.rangeOrders?.protected ?? metrics?.metrics?.activeProtectedOrders ?? 0} />
+            )}
+          </span>
+          {!loading && (
+            <span className="esd-kpi-sub">
+              {fmtPct(metrics?.insuranceMetrics?.attachRate)} attach rate
+            </span>
+          )}
+        </motion.div>
+
+        <motion.div className="esd-kpi-card" variants={fadeUp}>
+          <span className="esd-kpi-label">Value in transit</span>
+          <span className="esd-kpi-value">
+            {loading ? (
+              <span className="esd-skeleton" />
+            ) : (
+              <CountUp value={metrics?.metrics?.valueInTransit ?? 0} format={(v) => fmtMoney(v, currency)} />
+            )}
+          </span>
+          <span className="esd-kpi-sub">
+            {loading ? "" : `${metrics?.fulfillmentHealth?.inTransitOrders ?? 0} orders`}
+          </span>
+        </motion.div>
+
+        <motion.div className="esd-kpi-card" variants={fadeUp}>
+          <span className="esd-kpi-label">Open claims</span>
+          <span className="esd-kpi-value">
+            {loading ? <span className="esd-skeleton" /> : <CountUp value={metrics?.metrics?.openClaims ?? 0} />}
+          </span>
+          <span className="esd-kpi-sub">
+            {loading ? "" : `Refund rate ${fmtPct(metrics?.refundsReturns?.refundRate)}`}
+          </span>
+        </motion.div>
+      </motion.div>
+
+      {/* ---- Activity chart ---- */}
+      <motion.div
+        className="esd-card esd-chart-card"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: easeOut, delay: 0.15 }}
+      >
+        <div className="esd-card-head">
+          <h3>Monthly activity</h3>
+          <div className="esd-year-nav">
+            <button type="button" className="esd-btn esd-btn-icon" onClick={() => setYear((y) => y - 1)} aria-label="Previous year">
+              ‹
+            </button>
+            <span>{year}</span>
+            <button
+              type="button"
+              className="esd-btn esd-btn-icon"
+              onClick={() => setYear((y) => Math.min(y + 1, new Date().getFullYear()))}
+              disabled={year >= new Date().getFullYear()}
+              aria-label="Next year"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+        <div className="esd-bar-chart" role="img" aria-label={`Order value by month for ${year}`}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={year}
+              className="esd-bar-row"
+              variants={stagger}
+              initial="hidden"
+              animate="show"
+              exit={{ opacity: 0 }}
+            >
+              {MONTHS.map((label, i) => {
+                const bucket = activity[i] || { orders: 0, value: 0 };
+                const pct = loading ? 0 : Math.max(2, (bucket.value / maxValue) * 100);
+                return (
+                  <motion.div className="esd-bar-col" key={label} variants={fadeUp}>
+                    <div className="esd-bar-track">
+                      <motion.div
+                        className="esd-bar-fill"
+                        initial={{ height: 0 }}
+                        animate={{ height: `${pct}%` }}
+                        transition={{ duration: 0.6, ease: easeOut }}
+                        title={`${label}: ${fmtMoney(bucket.value, currency)} (${bucket.orders} orders)`}
+                      />
+                    </div>
+                    <span className="esd-bar-label">{label}</span>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </motion.div>
+
+      {/* ---- Stat strip: fulfillment + refunds ---- */}
+      <div className="esd-stat-strip">
+        <motion.div
+          className="esd-card esd-stat-card"
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.45, ease: easeOut, delay: 0.2 }}
+        >
+          <h4>Fulfillment health</h4>
+          <ul className="esd-stat-list">
+            <li><span>Fulfilled</span><strong>{metrics?.fulfillmentHealth?.fulfilledOrders ?? "—"}</strong></li>
+            <li><span>In transit</span><strong>{metrics?.fulfillmentHealth?.inTransitOrders ?? "—"}</strong></li>
+            <li><span>Cancelled</span><strong>{metrics?.fulfillmentHealth?.cancelledOrders ?? "—"}</strong></li>
+          </ul>
+        </motion.div>
+        <motion.div
+          className="esd-card esd-stat-card"
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.45, ease: easeOut, delay: 0.25 }}
+        >
+          <h4>Refunds &amp; returns</h4>
+          <ul className="esd-stat-list">
+            <li><span>Refunded orders</span><strong>{metrics?.refundsReturns?.refundedOrders ?? "—"}</strong></li>
+            <li><span>Refunded amount</span><strong>{fmtMoney(metrics?.refundsReturns?.refundedAmount, currency)}</strong></li>
+            <li><span>Return rate</span><strong>{fmtPct(metrics?.refundsReturns?.returnRate)}</strong></li>
+          </ul>
+        </motion.div>
+      </div>
+
+      {/* ---- Latest orders ---- */}
+      <motion.div
+        className="esd-card esd-table-card"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: easeOut, delay: 0.3 }}
+      >
+        <div className="esd-card-head">
+          <h3>Latest orders</h3>
+          <Gate permission={PERMISSIONS.EXPORT_REPORTS} fallback={<span className="esd-locknote">Export available to staff and admin roles</span>}>
+            <button type="button" className="esd-btn esd-btn-sm" disabled>
+              Export CSV
+            </button>
+          </Gate>
+        </div>
+        <table className="esd-table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Date</th>
+              <th>Value</th>
+              <th>Protection</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && (
+              <tr><td colSpan={5} className="esd-empty">Loading…</td></tr>
+            )}
+            {!loading && (metrics?.latestOrders || []).length === 0 && (
+              <tr><td colSpan={5} className="esd-empty">No recent orders</td></tr>
+            )}
+            {!loading &&
+              (metrics?.latestOrders || []).map((o) => (
+                <tr key={o.id}>
+                  <td data-label="Order">{o.name}</td>
+                  <td data-label="Date">{fmtDate(o.createdAt)}</td>
+                  <td data-label="Value">{fmtMoney(o.value, currency)}</td>
+                  <td data-label="Protection">
+                    <span className={`esd-badge ${o.activeProtection ? "esd-badge-active" : "esd-badge-muted"}`}>
+                      {o.activeProtection ? "Protected" : o.protected ? "Requested" : "None"}
+                    </span>
+                  </td>
+                  <td data-label="Status">{o.fulfillmentStatus || o.financialStatus || "—"}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
-      </FadeInUp>
-    </Stagger>
+      </motion.div>
+    </section>
   );
 }
 
-function OrdersTab({ metrics, loading }) {
-  return <OrdersTable metrics={metrics} loading={loading} title="Orders" />;
-}
-
-function SettingsTab({ m }) {
+export default function DashboardPage() {
   return (
-    <Stagger className="esd-report">
-      <FadeInUp className="esd-card">
-        <h2 className="esd-table-title">Protection settings</h2>
-        <div className="esd-report-metrics">
-          <div><span className="esd-stat-label">STATUS</span><strong>{m?.status ?? "—"}</strong></div>
-          <div><span className="esd-stat-label">INSURANCE RATE</span><strong>{m?.insuranceRate ?? "—"}</strong></div>
-        </div>
-        <Gate
-          permission={PERMISSIONS.MANAGE_STOREFRONT_CONFIGURATION}
-          fallback={<p className="esd-locknote">You have read-only access. Editing settings requires an Admin role.</p>}
-        >
-          <div className="esd-report-actions">
-            <button className="esd-btn" disabled title="Wired to the real settings action">Edit protection config</button>
-            <span className="esd-muted">Admin-only. Enabled once wired to the settings action.</span>
-          </div>
-        </Gate>
-      </FadeInUp>
-    </Stagger>
+    <Gate permission={PERMISSIONS.VIEW_DASHBOARD} fallback={
+      <div className="esd-empty" role="alert">
+        <p>You don&apos;t have permission to view this dashboard.</p>
+      </div>
+    }>
+      <DashboardTab />
+    </Gate>
   );
-}
-
-function OrdersTable({ metrics, loading, title }) {
-  return (
-    <FadeInUp as="section" className="esd-card esd-tablecard">
-      <h2 className="esd-table-title">{title}</h2>
-      <table className="esd-table">
-        <thead>
-          <tr><th>ORDER</th><th>VALUE</th><th>PROTECTED</th><th>STATUS</th><th>CREATED</th></tr>
-        </thead>
-        <tbody>
-          {loading && <tr><td colSpan={5} className="esd-empty">Loading…</td></tr>}
-          {!loading && (metrics?.latestOrders?.length ? metrics.latestOrders : []).map((o) => (
-            <tr key={o.id}>
-              <td data-label="Order" className="esd-teal esd-order-name">{o.name}</td>
-              <td data-label="Value">{fmtMoney(o.value, metrics?.currency || "USD")}</td>
-              <td data-label="Protected">{o.protected ? "Yes" : "—"}</td>
-              <td data-label="Status">
-                <span
-                  className={`esd-dot ${o.fulfillmentStatus === "fulfilled" ? "esd-dot--green" : "esd-dot--amber"}`}
-                  title={o.fulfillmentStatus || o.financialStatus || "unknown"}
-                />
-                <span className="esd-status-text">
-                  <span className="esd-visually-hidden">Status: </span>
-                  {o.fulfillmentStatus || o.financialStatus || "unknown"}
-                </span>
-              </td>
-              <td data-label="Created">{fmtDate(o.createdAt)}</td>
-            </tr>
-          ))}
-          {!loading && !(metrics?.latestOrders?.length) && (
-            <tr><td colSpan={5} className="esd-empty">No orders yet.</td></tr>
-          )}
-        </tbody>
-      </table>
-    </FadeInUp>
-  );
-}
-
-function exportCsv(metrics) {
-  const rows = [["Month", "Orders", "Value"]];
-  (metrics?.activity ?? []).forEach((b, i) => rows.push([MONTHS[i], b.orders || 0, b.value || 0]));
-  downloadCsv(`enshield-report-${metrics?.year ?? ""}.csv`, rows);
 }

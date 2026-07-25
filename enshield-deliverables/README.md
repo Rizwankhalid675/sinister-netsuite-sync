@@ -42,11 +42,11 @@ This folder was consolidated from files that were previously scattered across `W
 ### 💻 Code folders
 | Folder | What it is |
 |--------|-----------|
-| `enshield-app-gadget/` | **Gadget + Shopify** backend app (`enshield-shipping-protection`). Contains `api/`, `accessControl/`, `extensions/`, `settings.gadget.ts`, `shopify.app.toml`. |
-| `enshield-app/` | **Vite frontend** build (`index.html`, `src/`, `public/`, `vite.config.js`). The marketing/mockup front end. |
-| `enshield-old-dashboard/` | The **old dashboard** codebase (Gadget + Shopify) — reference for the revamp. |
+| `enshield-old-dashboard/` | ✅ **CANONICAL.** The **only** actively-maintained Gadget + Shopify app (`enshield-shipping-protection`). Contains `api/`, `accessControl/`, `web/`, `extensions/`, `settings.gadget.ts`, `shopify.app.toml`, `docs/`, `tests/`. All dashboard/RBAC/users/reports/claims/errors/settings work happens **only** here. |
+| `enshield-app/` | Bare **Vite frontend** scaffold (`index.html`, `src/`, `public/`, `vite.config.js`). Not a Gadget app — unrelated to the dashboard work, kept as-is. |
+| `_archived-enshield-app-gadget-superseded-jul17/` | ⚠️ **ARCHIVED — do not edit.** Earlier (Jul 17) snapshot of the Gadget app, fully superseded by `enshield-old-dashboard/` (verified via diff: every differing file is either identical or older here). Kept only for historical reference. |
 
-> ⚠️ `enshield-app-gadget/` was renamed from `enshield-app/` during consolidation to avoid a name collision with the Vite frontend build.
+> **If you're picking this project back up:** always work inside `enshield-old-dashboard/`. The other two folders are not part of the active codebase — do not copy files from them or merge changes back into them.
 
 ---
 

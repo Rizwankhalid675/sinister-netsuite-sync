@@ -1,5 +1,6 @@
 import { PERMISSIONS } from "../../lib/permissions.js";
 import { requireInternalAccess, shopIdFilter } from "../../lib/internalAccess.js";
+import { pageInfoFor, parsePageSize, parseSearch } from "../../lib/listQuery.js";
 
 const ALLOWED_STATUSES = new Set([
   "retry",
@@ -13,7 +14,6 @@ const route = async ({ reply, api, logger, session, query = {} }) => {
       PERMISSIONS.VIEW_ERRORS,
       query.shopId
     );
-    const first = Math.min(100, Math.max(1, Number.parseInt(query.first, 10) || 50));
     const clauses = [shopIdFilter(access.shopIds)];
     if (query.status) {
       if (!ALLOWED_STATUSES.has(query.status)) {
@@ -38,9 +38,19 @@ const route = async ({ reply, api, logger, session, query = {} }) => {
       }
       clauses.push({ operation: { equals: query.operation } });
     }
+    const search = parseSearch(query.search);
+    if (search) {
+      clauses.push({
+        OR: [
+          { deliveryKey: { contains: search } },
+          { operation: { contains: search } },
+          { lastErrorCode: { contains: search } },
+        ],
+      });
+    }
     const records = await api.integrationDelivery.findMany({
       filter: clauses.length === 1 ? clauses[0] : { AND: clauses },
-      first,
+      first: parsePageSize(query.first, 50),
       after: query.after || undefined,
       sort: { updatedAt: "Descending" },
       select: {
@@ -78,10 +88,7 @@ const route = async ({ reply, api, logger, session, query = {} }) => {
     await reply.send({
       success: true,
       errors,
-      pageInfo: {
-        hasNextPage: Boolean(records.hasNextPage),
-        endCursor: records.endCursor || null,
-      },
+      pageInfo: pageInfoFor(records),
     });
   } catch (error) {
     logger.error(

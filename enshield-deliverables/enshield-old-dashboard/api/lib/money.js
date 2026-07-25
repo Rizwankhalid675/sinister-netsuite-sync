@@ -16,18 +16,24 @@
  * @returns {number} finite amount, 0 on missing/invalid
  */
 export function money(set) {
-  const amt = set?.shopMoney?.amount ?? set?.presentmentMoney?.amount ?? 0;
+  const bag = set?.shopMoney ?? set?.shop_money ?? set?.presentmentMoney ?? set?.presentment_money;
+  const amt = bag?.amount ?? 0;
   const n = Number(amt);
   return Number.isFinite(n) ? n : 0;
 }
 
 /**
  * The currency code for a money-bag set, preferring shopMoney. Null if absent.
+ * Handles both camelCase (shopMoney/currencyCode) and snake_case
+ * (shop_money/currency_code) shapes — some legacy/webhook-sourced order
+ * records store the raw Shopify REST snake_case keys instead of the
+ * GraphQL camelCase ones.
  * @param {any} set
  * @returns {string|null}
  */
 export function currencyOf(set) {
-  return set?.shopMoney?.currencyCode ?? set?.presentmentMoney?.currencyCode ?? null;
+  const bag = set?.shopMoney ?? set?.shop_money ?? set?.presentmentMoney ?? set?.presentment_money;
+  return bag?.currencyCode ?? bag?.currency_code ?? null;
 }
 
 /**
