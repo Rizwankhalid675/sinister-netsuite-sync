@@ -81,3 +81,33 @@ export function requireAppRoleSeedEscape() {
   error.statusCode = 403;
   throw error;
 }
+
+// DEV/INIT-ONLY ESCAPE HATCH: identical shape/rationale to devSeedInProgress
+// above, but scoped strictly to appUser.create being invoked from within
+// api/actions/seedDevAppUser.js. appUser.create normally requires an
+// authenticated identity via requireIdentity()/requirePermission() — but the
+// very first appUser (Super Admin) can never be created that way, since no
+// identity exists yet (chicken-and-egg). This flag lets seedDevAppUser.js
+// bypass that guard for the single nested api.appUser.create() call it
+// makes, and only in non-production. Reset in `finally` even on error; fresh
+// module state per request means it can't leak across requests. Production
+// is unaffected: seedDevAppUser itself throws immediately when
+// NODE_ENV === "production", before this flag is ever set, and create.js
+// re-checks NODE_ENV independently before honoring the escape.
+let appUserSeedInProgress = false;
+
+export function withAppUserSeedEscape(fn) {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("withAppUserSeedEscape must never run in production");
+  }
+  appUserSeedInProgress = true;
+  return Promise.resolve()
+    .then(fn)
+    .finally(() => {
+      appUserSeedInProgress = false;
+    });
+}
+
+export function isAppUserSeedInProgress() {
+  return process.env.NODE_ENV !== "production" && appUserSeedInProgress;
+}
