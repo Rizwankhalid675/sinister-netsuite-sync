@@ -1,14 +1,16 @@
 // Create a shop-scoped admin user. Super Admin (MANAGE_USERS) picks name,
-// email, personId, and role; shop + status("invited") + createdByEmail are
-// stamped server-side by appUser/actions/create.js. See appUserPolicy.js for
-// field/role validation and the MANAGE_USERS gate.
+// email, and role; shop + status("invited") + createdByEmail + personId are
+// all stamped server-side by appUser/actions/create.js. See appUserPolicy.js
+// for field/role validation and the MANAGE_USERS gate. IMPORTANT: personId
+// must NEVER be accepted from the caller here — appUser/create.js always
+// mints it server-side and rejects any caller-supplied personId as an
+// "immutable or unsupported" field (see appUserPolicy.js CREATE_FIELDS).
 const route = async ({ request, body, reply, api, logger }) => {
   const input = body || request?.body || {};
   try {
     const result = await api.appUser.create({
       name: input.name,
       email: input.email,
-      personId: input.personId,
       role: input.role ? { _link: String(input.role) } : undefined,
     });
     await reply.code(201).send({ success: true, user: result });
