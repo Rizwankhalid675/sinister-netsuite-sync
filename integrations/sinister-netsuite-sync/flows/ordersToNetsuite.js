@@ -42,6 +42,62 @@ const SKU_OVERRIDES = {
   'SD-6_0CF03-01-20': '8210'
 };
 
+// Placeholder / non-part-defining option values that must NOT be appended to the
+// NetSuite SKU lookup. These represent "nothing selected" or purely logistical
+// choices (e.g. how the order ships), not a physical product variant.
+const NON_PART_OPTION_VALUES = new Set(['no-thanks', 'none', 'n/a', 'na']);
+const NON_PART_ATTRIBUTE_CODES = new Set([
+  'shipping_preference',
+  'shippingpreference',
+  'ship_preference'
+]);
+
+// Normalize a raw Miva option value into the suffix style used by NetSuite
+// item ids (e.g. "Dry" -> "DRY", "sd-ck-filter" -> not applicable — codes that
+// look like they're already full product codes are handled separately).
+function normalizeOptionSuffix(value) {
+  return String(value || '')
+    .trim()
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toUpperCase();
+}
+
+// Given the base Miva SKU and the line item's raw `options` array, build an
+// ordered list of candidate NetSuite item SKUs to try, from most-specific
+// (base + all meaningful attribute suffixes) to least-specific (base alone).
+// This replaces blind trailing-suffix stripping, which breaks whenever the
+// distinguishing attribute isn't the last stripped segment (e.g. junk/test
+// options embedded earlier in a synthesized sku, or multi-attribute items).
+function buildSkuCandidates(baseSku, options) {
+  const meaningfulSuffixes = (options || [])
+    .filter(o => {
+      const attrCode = String(o.attribute || o.attr_code || '').toLowerCase();
+      const optCode = String(o.value || o.opt_code || '').toLowerCase();
+      if (NON_PART_ATTRIBUTE_CODES.has(attrCode)) return false;
+      if (NON_PART_OPTION_VALUES.has(optCode)) return false;
+      return true;
+    })
+    .map(o => normalizeOptionSuffix(o.value || o.opt_code))
+    .filter(Boolean);
+
+  const candidates = [];
+  // Most specific: base + every meaningful suffix in order encountered.
+  if (meaningfulSuffixes.length > 0) {
+    candidates.push([baseSku, ...meaningfulSuffixes].join('-'));
+    // If there are multiple meaningful attributes, also try each one alone
+    // appended to the base, in case NetSuite only varies by a single attribute.
+    if (meaningfulSuffixes.length > 1) {
+      for (const suffix of meaningfulSuffixes) {
+        candidates.push(`${baseSku}-${suffix}`);
+      }
+    }
+  }
+  // Least specific: the bare base sku (covers products with no real variants).
+  candidates.push(baseSku);
+  return [...new Set(candidates)];
+}
+
 function mapOrderToNetsuite(order, customerId, itemIdMap = {}) {
   const items = (order.items || [])
     .filter(item => {
@@ -197,21 +253,46 @@ async function syncOrdersToNetsuite() {
           continue;
         }
 
+        // Base sku may already be an exact NetSuite item id (most common case).
         let id = await getItemIdBySku(sku);
+
         if (!id) {
-          // Strip trailing suffixes one at a time until we find a match
+          // Strip trailing "_something" suffixes one at a time (handles
+          // Miva-side blem/annotation suffixes like SD-COOLFIL-6_0-W).
           let attempt = sku;
           while (!id && attempt.includes('_')) {
             attempt = attempt.replace(/_[^_]+$/, '');
             id = await getItemIdBySku(attempt);
           }
         }
+
         if (!id) {
-          // Auto-create the item in NetSuite so the order isn't missing lines
-          id = await createInventoryItem(sku, item.name, item.price);
-          if (id) log(`✅ Auto-created NS item for SKU ${sku} → ID ${id}`);
+          // Attribute-driven resolution: derive candidate NetSuite SKUs from
+          // the base code + the line's real (non-placeholder) option values,
+          // e.g. SD-CAI-5.9-94 + cai_filter="Dry" -> SD-CAI-5.9-94-DRY.
+          // Tried from most- to least-specific until a real NS item matches.
+          const candidates = buildSkuCandidates(sku, item.options).filter(c => c !== sku);
+          for (const candidate of candidates) {
+            id = await getItemIdBySku(candidate);
+            if (id) {
+              log(`ℹ️ Resolved SKU ${sku} → NetSuite item ${candidate} (ID ${id}) via attribute match`);
+              break;
+            }
+          }
+        }
+
+        if (!id) {
+          // Last resort: auto-create the item in NetSuite so the order isn't
+          // missing lines, but use the most attribute-specific candidate name
+          // (not the raw, possibly-garbled sku) and flag loudly for review —
+          // this should be rare once attribute resolution above is populated.
+          const [bestCandidate] = buildSkuCandidates(sku, item.options);
+          const createName = bestCandidate || sku;
+          id = await createInventoryItem(createName, item.name, item.price);
+          if (id) log(`⚠️ No existing NetSuite item matched SKU ${sku} (tried "${createName}") — auto-created new item ID ${id}. Please review in NetSuite.`, 'error');
           else log(`⚠️ Could not auto-create NS item for SKU ${sku}`, 'error');
         }
+
         itemIdMap[sku] = id || null;
       }
 
@@ -255,4 +336,4 @@ async function syncOrdersToNetsuite() {
   }
 }
 
-module.exports = { syncOrdersToNetsuite };
+module.exports = { syncOrdersToNetsuite, buildSkuCandidates, normalizeOptionSuffix };

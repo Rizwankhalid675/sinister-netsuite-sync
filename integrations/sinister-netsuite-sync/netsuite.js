@@ -137,6 +137,12 @@ async function getItemIdBySku(sku) {
 }
 
 async function createInventoryItem(sku, name, price) {
+  // Safety net: never blind-create — if an item with this itemid already
+  // exists (e.g. a previous order already auto-created it, or it was added
+  // to NetSuite between sync runs), reuse it instead of creating a duplicate.
+  const existingId = await getItemIdBySku(sku);
+  if (existingId) return existingId;
+
   const result = await nsRequest('POST', 'inventoryitem', {
     itemid: sku,
     displayname: name || sku,
