@@ -3,8 +3,10 @@ const {
   createSalesOrder,
   getCustomerByEmail,
   getItemsBySku,
+  getItemsByInternalId,
   getItemMetadata,
   getSalesOrderFinancialSummary,
+  getTransactionsByMivaOrderId,
 } = require('../netsuite');
 const { upsertNSCustomer } = require('./customersToNetsuite');
 const { log } = require('../logger');
@@ -15,6 +17,7 @@ const {
   buildNetsuiteLines,
   assertProtectionItemTaxable,
   assertTotalsMatch,
+  moneyToCents,
 } = require('../lib/orderMapping');
 const fs = require('fs');
 const path = require('path');
@@ -157,15 +160,78 @@ async function ensureCustomer(order) {
   return customerId;
 }
 
-async function prepareOrder(order) {
+async function prepareOrder(order, dependencies = {}) {
+  const itemLookup = dependencies.getItemsBySku || getItemsBySku;
+  const itemIdLookup = dependencies.getItemsByInternalId || getItemsByInternalId;
+  const metadataLookup = dependencies.getItemMetadata || getItemMetadata;
   const expanded = expandMivaItems(order);
   const reconciliation = validateMivaOrderTotals(order, expanded);
   const protection = (order.charges || []).find((charge) => charge.type === 'enshield_charge');
   if (protection && Number(protection.tax || 0) > 0) {
-    assertProtectionItemTaxable(order, await getItemMetadata('10322'));
+    assertProtectionItemTaxable(order, await metadataLookup('10322'));
   }
-  const resolved = await resolveExpandedLines(expanded, getItemsBySku, SKU_OVERRIDES);
+  const resolved = await resolveExpandedLines(expanded, itemLookup, SKU_OVERRIDES, itemIdLookup);
   return { expanded, resolved, reconciliation };
+}
+
+async function syncSingleOrder(order, dependencies = {}) {
+  const syncedOrders = dependencies.syncedOrders || {};
+  const tracked = syncedOrders[order.id];
+  if (tracked) {
+    return {
+      status: 'skipped',
+      netsuiteId: tracked.netsuiteId || null,
+      reconciled: tracked.reconciled === true,
+    };
+  }
+
+  const prepared = await prepareOrder(order, dependencies);
+  const findExisting = dependencies.getTransactionsByMivaOrderId || getTransactionsByMivaOrderId;
+  const existingOrders = await findExisting(order.id);
+  if (existingOrders.length > 1) {
+    throw new Error(`Multiple NetSuite sales orders match Miva order ${order.id}`);
+  }
+
+  const persist = dependencies.saveSyncState || saveSyncState;
+  const getSummary = dependencies.getSalesOrderFinancialSummary || getSalesOrderFinancialSummary;
+  let netsuiteId;
+  let status;
+
+  if (existingOrders.length === 1) {
+    netsuiteId = String(existingOrders[0].id);
+    status = 'adopted';
+  } else {
+    const resolveCustomer = dependencies.ensureCustomer || ensureCustomer;
+    const customerId = await resolveCustomer(order);
+    const { payload } = mapOrderToNetsuite(order, customerId, prepared.resolved);
+    const createOrder = dependencies.createSalesOrder || createSalesOrder;
+    const result = await createOrder(payload);
+    netsuiteId = String(result?.id || result?.internalId || '');
+    if (!netsuiteId) throw new Error('NetSuite did not return a sales order ID');
+    status = 'created';
+  }
+
+  const state = {
+    netsuiteId,
+    reconciled: false,
+    reconciliation: {
+      mivaTotalCents: moneyToCents(order.total),
+      netsuiteTotalCents: null,
+      productCents: prepared.reconciliation.productCents,
+    },
+  };
+  persist(order.id, state);
+
+  const summary = await getSummary(netsuiteId);
+  state.reconciliation.netsuiteTotalCents = moneyToCents(summary.total);
+  try {
+    assertTotalsMatch(order.total, summary.total);
+    state.reconciled = true;
+  } finally {
+    persist(order.id, state);
+  }
+
+  return { status, netsuiteId, reconciled: state.reconciled };
 }
 
 async function syncOrdersToNetsuite() {
@@ -175,36 +241,13 @@ async function syncOrdersToNetsuite() {
   log(`Found ${orders.length} orders to check`);
 
   for (const order of orders) {
-    if (synced[order.id]) {
-      log(`Order ${order.id} already synced - skipping`);
-      continue;
-    }
     try {
-      const { resolved, reconciliation } = await prepareOrder(order);
-      const customerId = await ensureCustomer(order);
-      const { payload } = mapOrderToNetsuite(order, customerId, resolved);
-      const result = await createSalesOrder(payload);
-      const nsId = result?.id || result?.internalId;
-      if (!nsId) throw new Error('NetSuite did not return a sales order ID');
-      const summary = await getSalesOrderFinancialSummary(nsId);
-      const state = {
-        netsuiteId: nsId,
-        reconciled: false,
-        reconciliation: {
-          mivaTotal: Number(order.total),
-          netsuiteTotal: summary.total,
-          productCents: reconciliation.productCents,
-        },
-      };
-      try {
-        assertTotalsMatch(order.total, summary.total);
-        state.reconciled = true;
-      } finally {
-        // Persist the NetSuite ID even on mismatch so the next cycle cannot
-        // create a duplicate order. Downstream accounting requires reconciled=true.
-        saveSyncState(order.id, state);
+      const result = await syncSingleOrder(order, { syncedOrders: synced });
+      if (result.status === 'skipped') {
+        log(`Order ${order.id} already synced - skipping`);
+      } else {
+        log(`Order ${order.id} -> NetSuite Sales Order ${result.netsuiteId}; total reconciled`);
       }
-      log(`Order ${order.id} -> NetSuite Sales Order ${nsId}; total reconciled at ${summary.total}`);
     } catch (error) {
       log(`Order ${order.id} blocked: ${error.message}`, 'error');
     }
@@ -213,6 +256,7 @@ async function syncOrdersToNetsuite() {
 
 module.exports = {
   syncOrdersToNetsuite,
+  syncSingleOrder,
   prepareOrder,
   mapOrderToNetsuite,
   buildSkuCandidates,
