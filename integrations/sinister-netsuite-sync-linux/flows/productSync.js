@@ -114,7 +114,16 @@ async function syncNewMivaSkus() {
       }
 
       const name = p.name || p.descrip || sku;
-      const price = p.price || p.cost || 0;
+      // Price must come from Miva's own `price` field (the real Miva selling price).
+      // Do NOT hardcode or fall back to a default — if Miva has no price on the
+      // product, skip creation rather than push a $0 item into NetSuite.
+      if (p.price === undefined || p.price === null || p.price === '') {
+        log(`⚠️ Skipping new NetSuite item for Miva SKU "${sku}" — no price set in Miva`, 'error');
+        skipped++;
+        failures.push(sku);
+        continue;
+      }
+      const price = Number(p.price);
 
       const newId = await createInventoryItem(sku, name, price);
       log(`✅ Created NetSuite item for new Miva SKU "${sku}" (NetSuite id ${newId})`);
