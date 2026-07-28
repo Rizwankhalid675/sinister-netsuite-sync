@@ -9,4 +9,15 @@ extensions/**/node_modules
 extensions/**/generated
 shopify.app.*.toml
 .env.*
-.shopify/
+.shopify/.env
+
+# Local visual brainstorming sessions
+.superpowers/
+
+# Local authenticated browser state and diagnostics
+auth_state.json
+esd_cookies.txt
+_check_counts.mjs
+check_shops.js
+refresh_login.js
+.scratch/

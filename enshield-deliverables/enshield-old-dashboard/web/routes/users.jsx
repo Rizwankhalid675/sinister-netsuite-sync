@@ -6,6 +6,36 @@ import { ListToolbar, PageNavigation, PageStatus } from "../components/Operation
 import "./dashboard.css";
 
 const STATUSES = ["active", "invited", "deactivated"];
+const ACCESS_SCOPES = [
+  { value: "all_stores", label: "All stores (super user)" },
+  { value: "specific_stores", label: "Specific stores" },
+  { value: "department", label: "Department (current store only)" },
+];
+const DEPARTMENTS = [
+  { value: "none", label: "None" },
+  { value: "finance", label: "Finance" },
+  { value: "claims", label: "Claims" },
+  { value: "operations", label: "Operations" },
+  { value: "support", label: "Support" },
+  { value: "administration", label: "Administration" },
+];
+
+function useShops() {
+  const [shops, setShops] = useState([]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/shops", { credentials: "include", signal: controller.signal })
+      .then(async (response) => {
+        const body = await response.json();
+        if (!response.ok || !body.success) throw new Error(body.error || "Request failed");
+        return body;
+      })
+      .then((body) => setShops(body.shops || []))
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
+  return shops;
+}
 
 export function UsersPage() {
   return (
@@ -162,10 +192,13 @@ function UserFormModal({ mode, user, roles, onClose, onSaved }) {
   const isEdit = mode === "edit";
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
-  const [personId, setPersonId] = useState("");
   const [roleId, setRoleId] = useState(user?.role?.id || "");
+  const [accessScope, setAccessScope] = useState(user?.accessScope || "department");
+  const [department, setDepartment] = useState(user?.department || "none");
+  const [allowedShopIds, setAllowedShopIds] = useState(user?.allowedShopIds || []);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
+  const shops = useShops();
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -180,16 +213,23 @@ function UserFormModal({ mode, user, roles, onClose, onSaved }) {
     setFormError("");
     if (!name.trim()) return setFormError("Name is required.");
     if (!isEdit && !email.trim()) return setFormError("Email is required.");
-    if (!isEdit && !personId.trim()) return setFormError("Person ID is required.");
     if (!roleId) return setFormError("Role is required.");
+    if (accessScope === "specific_stores" && allowedShopIds.length === 0) {
+      return setFormError("Select at least one store for a specific-stores user.");
+    }
 
     setSubmitting(true);
     try {
       const url = isEdit ? `/api/users/${encodeURIComponent(user.id)}` : "/api/users";
       const method = isEdit ? "PATCH" : "POST";
+      const scoped = {
+        accessScope,
+        department: accessScope === "department" ? department : "none",
+        allowedShopIds: accessScope === "specific_stores" ? allowedShopIds : [],
+      };
       const payload = isEdit
-        ? { name: name.trim(), role: roleId }
-        : { name: name.trim(), email: email.trim(), personId: personId.trim(), role: roleId };
+        ? { name: name.trim(), role: roleId, ...scoped }
+        : { name: name.trim(), email: email.trim(), role: roleId, ...scoped };
       const response = await fetch(url, {
         method,
         credentials: "include",
@@ -236,17 +276,10 @@ function UserFormModal({ mode, user, roles, onClose, onSaved }) {
                   required
                 />
               </div>
-              <div className="esd-field">
-                <label htmlFor="esd-user-personid">Person ID</label>
-                <input
-                  id="esd-user-personid"
-                  type="text"
-                  value={personId}
-                  onChange={(event) => setPersonId(event.target.value)}
-                  placeholder="Shopify staff / person identifier"
-                  required
-                />
-              </div>
+              <p className="esd-field-hint">
+                A unique person ID is generated automatically. A temporary password
+                will be emailed to the user; they must change it on first login.
+              </p>
             </>
           ) : (
             <div className="esd-field">
@@ -257,7 +290,9 @@ function UserFormModal({ mode, user, roles, onClose, onSaved }) {
           <div className="esd-field">
             <label htmlFor="esd-user-role">Role</label>
             <select id="esd-user-role" value={roleId} onChange={(event) => setRoleId(event.target.value)} required>
-              <option value="">Select a role</option>
+              <option value="" disabled hidden={roleId !== ""}>
+                Select a role
+              </option>
               {roles.map((role) => (
                 <option key={role.id} value={role.id}>
                   {role.name}
@@ -265,6 +300,58 @@ function UserFormModal({ mode, user, roles, onClose, onSaved }) {
               ))}
             </select>
           </div>
+          <div className="esd-field">
+            <label htmlFor="esd-user-scope">Access scope</label>
+            <select
+              id="esd-user-scope"
+              value={accessScope}
+              onChange={(event) => setAccessScope(event.target.value)}
+            >
+              {ACCESS_SCOPES.map((scope) => (
+                <option key={scope.value} value={scope.value}>
+                  {scope.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          {accessScope === "department" ? (
+            <div className="esd-field">
+              <label htmlFor="esd-user-department">Department</label>
+              <select
+                id="esd-user-department"
+                value={department}
+                onChange={(event) => setDepartment(event.target.value)}
+              >
+                {DEPARTMENTS.map((dept) => (
+                  <option key={dept.value} value={dept.value}>
+                    {dept.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
+          {accessScope === "specific_stores" ? (
+            <div className="esd-field">
+              <label htmlFor="esd-user-shops">Allowed stores</label>
+              <select
+                id="esd-user-shops"
+                multiple
+                value={allowedShopIds}
+                onChange={(event) =>
+                  setAllowedShopIds(
+                    Array.from(event.target.selectedOptions, (option) => option.value)
+                  )
+                }
+                size={Math.min(6, Math.max(3, shops.length))}
+              >
+                {shops.map((shop) => (
+                  <option key={shop.id} value={shop.id}>
+                    {shop.domain}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
           <div className="esd-modal-actions">
             <button className="esd-btn esd-btn-secondary" type="button" onClick={onClose} disabled={submitting}>
               Cancel

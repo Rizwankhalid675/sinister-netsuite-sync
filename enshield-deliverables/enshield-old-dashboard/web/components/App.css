@@ -31,6 +31,28 @@
   min-width: 0;
 }
 
+.esd-sidebar {
+  width: 224px;
+  align-items: stretch;
+  padding-inline: 14px;
+  transition: width 180ms ease, transform 180ms ease;
+}
+
+.esd-root--nav-collapsed .esd-sidebar { width: 80px; align-items: center; padding-inline: 0; }
+.esd-sidebar .esd-logo { align-self: center; }
+.esd-sidebar-toggle {
+  align-self: flex-end;
+  width: 30px;
+  height: 30px;
+  margin: -8px 2px 2px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  background: rgba(255,255,255,.06);
+  color: #c6d2df;
+  cursor: pointer;
+}
+.esd-root--nav-collapsed .esd-sidebar-toggle { align-self: center; }
+
 .esd-shell-header {
   position: relative;
   min-height: 74px;
@@ -71,21 +93,26 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 12px;
+  align-items: stretch;
+  gap: 7px;
 }
 
 .esd-nav-label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+  position: static;
+  width: auto;
+  height: auto;
   padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  margin: 0;
+  overflow: visible;
+  clip: auto;
   white-space: nowrap;
-  border: 0;
+  font-size: 13px;
+  font-weight: 650;
 }
+.esd-root--nav-collapsed .esd-nav-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.esd-nav-icon { width: 19px; height: 19px; flex: 0 0 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.esd-navitem { width: 100%; height: 42px; justify-content: flex-start; gap: 12px; padding: 0 13px; box-sizing: border-box; background: transparent; }
+.esd-root--nav-collapsed .esd-navitem { width: 44px; padding: 0; justify-content: center; }
 
 .esd-logo {
   display: grid;
@@ -177,7 +204,15 @@
     transform: translateX(-105%);
     visibility: hidden;
     transition: transform 180ms ease;
+    width: 270px;
+    align-items: stretch;
+    padding-inline: 14px;
   }
+
+  .esd-sidebar-toggle { display: none; }
+  .esd-root--nav-collapsed .esd-sidebar { width: 270px; align-items: stretch; padding-inline: 14px; }
+  .esd-root--nav-collapsed .esd-navitem { width: 100%; padding: 0 13px; justify-content: flex-start; }
+  .esd-root--nav-collapsed .esd-nav-label { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
 
   .esd-sidebar--open {
     transform: translateX(0);
@@ -294,4 +329,57 @@
   .esd-loading-spinner {
     animation: none;
   }
+}
+
+/* 2026 Enshield operations workspace */
+.esd-root {
+  background: #f4f7f9;
+  color: #10233c;
+}
+.esd-sidebar {
+  background: linear-gradient(180deg, #071b31 0%, #0b2239 100%);
+  border-right: 1px solid rgba(105, 230, 218, .08);
+  box-shadow: 12px 0 36px rgba(7, 27, 49, .08);
+}
+.esd-logo {
+  box-shadow: 0 0 0 5px rgba(22, 184, 166, .09);
+}
+.esd-navitem {
+  border-radius: 9px;
+  min-height: 42px;
+  font-weight: 590;
+  letter-spacing: -.01em;
+}
+.esd-navitem:hover { background: rgba(255,255,255,.065); }
+.esd-navitem--active {
+  background: linear-gradient(90deg, rgba(17, 155, 151, .27), rgba(255,255,255,.07));
+  box-shadow: inset 3px 0 #20c5b5;
+}
+.esd-shell-header {
+  min-height: 82px;
+  background: rgba(255,255,255,.96);
+  border-bottom: 1px solid #dfe7ec;
+  backdrop-filter: blur(14px);
+}
+.esd-page-heading { min-width: 0; margin-right: auto; }
+.esd-page-heading .esd-title { margin: 0; letter-spacing: -.035em; }
+.esd-page-heading p {
+  margin: 4px 0 0;
+  color: #627086;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.esd-shell-actions select,
+.esd-client-picker select {
+  border-color: #ccd8e1;
+  border-radius: 9px;
+  background-color: #fff;
+  font: 600 12.5px/1.2 inherit;
+}
+.esd-account { font-weight: 650; color: #23364d; }
+.esd-main { max-width: 1680px; width: 100%; margin: 0 auto; }
+
+@media (max-width: 760px) {
+  .esd-page-heading p { display: none; }
+  .esd-shell-header { min-height: 116px; }
 }

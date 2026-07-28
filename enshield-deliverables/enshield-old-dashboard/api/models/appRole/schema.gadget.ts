@@ -7,7 +7,7 @@ export const schema: GadgetModel = {
   type: "gadget/model-schema/v2",
   storageKey: "appRole-model",
   comment:
-    "An administration role for the Enshield internal dashboard. Defines a named role and its permission grants (JSON list). Global definitions, not shop-scoped. Seeded with the 9 standard roles.",
+    "An administration role for the Enshield internal dashboard. Defines a named role and its permission grants (JSON list). Global definitions, not shop-scoped. Seeded with the 10 standard roles.",
   fields: {
     description: {
       type: "string",
@@ -27,6 +27,7 @@ export const schema: GadgetModel = {
         "Operations Manager",
         "Support Agent",
         "Read-Only Auditor",
+        "Staff",
       ],
       validations: { required: true, unique: true },
       storageKey: "appRole-name",

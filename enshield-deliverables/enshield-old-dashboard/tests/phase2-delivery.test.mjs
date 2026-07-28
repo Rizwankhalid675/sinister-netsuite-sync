@@ -805,6 +805,67 @@ test("protected order deletion persists delete delivery before processor enqueue
   assert.deepEqual(events, ["persist", "enqueue"]);
 });
 
+test("delivery transport fails closed without a configured HTTPS Enshield base URL", async () => {
+  let fetches = 0;
+  const input = {
+    delivery: {
+      deliveryKey: "delivery-key-1",
+      operation: "tracking.submit",
+      sourceId: "101",
+    },
+    shopifyClient: {
+      async graphql() {
+        return { order: { fulfillments: [{ trackingInfo: [{ number: "TRACK" }] }] } };
+      },
+    },
+    apiKey: "secret",
+    logger: { info() {}, error() {} },
+    fetchImpl: async () => {
+      fetches += 1;
+      return { ok: true, status: 200, async text() { return "{}"; } };
+    },
+  };
+
+  assert.deepEqual(await deliverToEnshield(input), {
+    ok: false,
+    retryable: false,
+    errorCode: "CONFIGURATION_MISSING",
+  });
+  assert.deepEqual(
+    await deliverToEnshield({ ...input, apiBaseUrl: "http://manage.enshield.com" }),
+    { ok: false, retryable: false, errorCode: "CONFIGURATION_INVALID" }
+  );
+  assert.equal(fetches, 0);
+});
+
+test("delivery transport derives order paths from the configured environment origin", async () => {
+  const urls = [];
+  const result = await deliverToEnshield({
+    delivery: {
+      deliveryKey: "delivery-key-1",
+      operation: "tracking.submit",
+      sourceId: "101",
+    },
+    shopifyClient: {
+      async graphql() {
+        return { order: { fulfillments: [{ trackingInfo: [{ number: "TRACK" }] }] } };
+      },
+    },
+    apiKey: "secret",
+    apiBaseUrl: "https://manage.enshield.com/",
+    logger: { info() {}, error() {} },
+    fetchImpl: async (url) => {
+      urls.push(url);
+      return { ok: true, status: 200, async text() { return "{}"; } };
+    },
+  });
+
+  assert.deepEqual(result, { ok: true, statusCode: 200 });
+  assert.deepEqual(urls, [
+    "https://manage.enshield.com/api/orders/miva/101/store-tracking-number",
+  ]);
+});
+
 test("delivery transport rebuilds tracking from Shopify and sends no credential in logs", async () => {
   const requests = [];
   const logs = [];
@@ -825,6 +886,7 @@ test("delivery transport rebuilds tracking from Shopify and sends no credential 
     },
     shopifyClient,
     apiKey: "top-secret",
+    apiBaseUrl: "https://staging.manage.enshield.com",
     logger: { info(value) { logs.push(value); }, error(value) { logs.push(value); } },
     fetchImpl: async (url, options) => {
       requests.push({ url, options });
@@ -858,6 +920,7 @@ test("retry after a crash uses the same downstream idempotency key", async () =>
       async graphql() { return { order: { fulfillments: [{ trackingInfo: [{ number: "TRACK" }] }] } }; },
     },
     apiKey: "secret",
+    apiBaseUrl: "https://staging.manage.enshield.com",
     logger: { info() {}, error() {} },
     fetchImpl: async (_url, options) => {
       keys.push(options.headers["Idempotency-Key"]);
@@ -880,6 +943,7 @@ test("delivery transport classifies rate limits/server errors as retryable and c
       delivery: { operation: "tracking.submit", sourceId: "101" },
       shopifyClient,
       apiKey: "secret",
+      apiBaseUrl: "https://staging.manage.enshield.com",
       logger: { info() {}, error() {} },
       fetchImpl: async () => ({
         ok: false,
@@ -907,6 +971,7 @@ test("Shopify reconstruction failures become retryable metadata-only outcomes", 
       },
     },
     apiKey: "secret",
+    apiBaseUrl: "https://staging.manage.enshield.com",
     logger: { info() {}, error() {} },
     fetchImpl: async () => {
       throw new Error("network must not run");

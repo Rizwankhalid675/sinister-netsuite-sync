@@ -56,6 +56,8 @@ export const PERMISSIONS = {
   // Orders / operations
   VIEW_ORDERS: "view_orders",
   MANAGE_ORDERS: "manage_orders",
+  VIEW_ERRORS: "view_errors",
+  REPLAY_DELIVERIES: "replay_deliveries",
 
   // Finance
   VIEW_FINANCE: "view_finance",

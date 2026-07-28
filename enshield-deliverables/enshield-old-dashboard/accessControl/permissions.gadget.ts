@@ -37,6 +37,251 @@ export const permissions: GadgetPermissions = {
     },
     unauthenticated: {
       storageKey: "unauthenticated",
+      actions: {
+        backfillClients: true,
+        seedDevAppUser: true,
+        seedDevOperator: true,
+      },
+    },
+    "Role A": {
+      storageKey: "lymQO_VChbME",
+      default: {
+        read: true,
+        action: true,
+      },
+      models: {
+        accountingEntity: {
+          read: true,
+        },
+        accountingPeriod: {
+          read: true,
+        },
+        appRole: {
+          read: true,
+          actions: {
+            create: true,
+            update: true,
+          },
+        },
+        appUser: {
+          read: true,
+          actions: {
+            create: true,
+            delete: true,
+            update: true,
+          },
+        },
+        auditLog: {
+          read: true,
+        },
+        claim: {
+          read: true,
+          actions: {
+            create: true,
+            update: true,
+          },
+        },
+        claimEvent: {
+          read: true,
+        },
+        claimPayment: {
+          read: true,
+          actions: {
+            create: true,
+            verify: true,
+          },
+        },
+        claimReserve: {
+          read: true,
+          actions: {
+            adjust: true,
+            create: true,
+            release: true,
+          },
+        },
+        claimReserveMovement: {
+          read: true,
+        },
+        client: {
+          read: true,
+          actions: {
+            create: true,
+            update: true,
+          },
+        },
+        financeOperationReceipt: {
+          read: true,
+        },
+        financeProfile: {
+          read: true,
+        },
+        financialEvent: {
+          read: true,
+          actions: {
+            create: true,
+          },
+        },
+        integrationDelivery: {
+          read: true,
+        },
+        integrationDeliveryAttempt: {
+          read: true,
+        },
+        internalAuthReceipt: {
+          read: true,
+        },
+        internalOperator: {
+          read: true,
+          actions: {
+            create: true,
+            delete: true,
+            update: true,
+          },
+        },
+        journalEntry: {
+          read: true,
+          actions: {
+            approve: true,
+            create: true,
+            post: true,
+            reverse: true,
+            submit: true,
+            update: true,
+          },
+        },
+        journalLine: {
+          read: true,
+          actions: {
+            create: true,
+          },
+        },
+        ledgerAccount: {
+          read: true,
+          actions: {
+            create: true,
+          },
+        },
+        operatorShopAssignment: {
+          read: true,
+          actions: {
+            create: true,
+            delete: true,
+            update: true,
+          },
+        },
+        payableAllocation: {
+          read: true,
+        },
+        payableDocument: {
+          read: true,
+          actions: {
+            allocate: true,
+            approve: true,
+            create: true,
+          },
+        },
+        receivableAllocation: {
+          read: true,
+        },
+        receivableDocument: {
+          read: true,
+          actions: {
+            allocate: true,
+            approve: true,
+            create: true,
+          },
+        },
+        reconciliationItem: {
+          read: true,
+          actions: {
+            resolve: true,
+          },
+        },
+        reconciliationRun: {
+          read: true,
+          actions: {
+            complete: true,
+            create: true,
+          },
+        },
+        reportRun: {
+          read: true,
+        },
+        session: {
+          read: true,
+        },
+        shippingInsuranceProduct: {
+          read: true,
+          actions: {
+            create: true,
+            delete: true,
+            update: true,
+          },
+        },
+        shippingInsuranceSetting: {
+          read: true,
+          actions: {
+            create: true,
+            delete: true,
+            update: true,
+          },
+        },
+        shopifyCart: {
+          read: true,
+          actions: {
+            create: true,
+            update: true,
+          },
+        },
+        shopifyOrder: {
+          read: true,
+          actions: {
+            create: true,
+            delete: true,
+            update: true,
+          },
+        },
+        shopifyShop: {
+          read: true,
+          actions: {
+            install: true,
+            reinstall: true,
+            uninstall: true,
+            update: true,
+          },
+        },
+        shopifySync: {
+          read: true,
+          actions: {
+            abort: true,
+            complete: true,
+            error: true,
+            run: true,
+          },
+        },
+        webhookAttempt: {
+          read: true,
+        },
+        webhookReceipt: {
+          read: true,
+        },
+      },
+      actions: {
+        backfillClients: true,
+        createInsuranceVariants: true,
+        processIntegrationDelivery: true,
+        reconcileClients: true,
+        replayIntegrationDelivery: true,
+        seedAppRoles: true,
+        seedDevAppUser: true,
+        seedDevOperator: true,
+        seedDevSuperAdmin: true,
+        sendOrderToEnshield: true,
+        sendTrackingToEnshield: true,
+        setupInsuranceProduct: true,
+        setupShippingInsuranceProduct: true,
+        sweepIntegrationDeliveries: true,
+      },
     },
   },
 };

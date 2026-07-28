@@ -35,6 +35,7 @@ export const run = async ({
     delivery,
     shopifyClient,
     apiKey: config.ENSHIELD_API_KEY,
+    apiBaseUrl: config.ENSHIELD_API_BASE_URL,
     logger,
   });
   const completed = await completeDeliveryAttempt({ api, delivery, outcome });

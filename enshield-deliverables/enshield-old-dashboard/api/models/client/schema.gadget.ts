@@ -7,8 +7,13 @@ export const schema: GadgetModel = {
   type: "gadget/model-schema/v2",
   storageKey: "client-model",
   comment:
-    "A Shopify store represented as a first-class Enshield admin record (one client per shop). Backfilled from shopifyShop. Derived fields (valueInTransit, claimCount) are cached, not sources of truth.",
+    "An Enshield merchant from Shopify, Miva, or a linked Gadget shop. Derived fields are cached, not sources of truth.",
   fields: {
+    apiEnabled: {
+      type: "boolean",
+      default: false,
+      storageKey: "client-apiEnabled",
+    },
     claimCount: {
       type: "number",
       decimals: 0,
@@ -23,10 +28,35 @@ export const schema: GadgetModel = {
       type: "string",
       storageKey: "client-createdByEmail",
     },
+    customerSince: {
+      type: "dateTime",
+      includeTime: false,
+      storageKey: "client-customerSince",
+    },
+    legacyClaims: {
+      type: "hasMany",
+      children: { model: "legacyClaim", belongsToField: "client" },
+      storageKey: "client-legacyClaims",
+    },
+    legacyOrders: {
+      type: "hasMany",
+      children: { model: "legacyOrder", belongsToField: "client" },
+      storageKey: "client-legacyOrders",
+    },
+    legacySourceKey: {
+      type: "string",
+      validations: { unique: true },
+      storageKey: "client-legacySourceKey",
+    },
+    legacyStoreId: {
+      type: "string",
+      storageKey: "client-legacyStoreId",
+    },
     plan: { type: "string", storageKey: "client-plan" },
+    platform: { type: "string", storageKey: "client-platform" },
     shop: {
       type: "belongsTo",
-      validations: { required: true, unique: true },
+      validations: { unique: true },
       parent: { model: "shopifyShop" },
       storageKey: "client-shop",
     },
@@ -54,14 +84,14 @@ export const schema: GadgetModel = {
       decimals: 2,
       storageKey: "client-valueInTransit",
     },
+    valueInTransitCurrency: {
+      type: "string",
+      storageKey: "client-valueInTransitCurrency",
+    },
     valueInTransitMinor: {
       type: "number",
       decimals: 0,
       storageKey: "client-valueInTransitMinor",
-    },
-    valueInTransitCurrency: {
-      type: "string",
-      storageKey: "client-valueInTransitCurrency",
     },
   },
 };

@@ -18,8 +18,19 @@ import {
 const source = (relativePath) =>
   readFileSync(new URL(`../${relativePath}`, import.meta.url), "utf8");
 
-test("all nine roles resolve to explicit permission arrays", () => {
-  assert.equal(ROLE_NAMES.length, 9);
+const tomlValue = (text, key) =>
+  text.match(new RegExp(`^${key}\\s*=\\s*"([^"]+)"`, "m"))?.[1];
+
+const tomlScopes = (text) =>
+  (tomlValue(text, "scopes") || "").split(/,\s*/).filter(Boolean).sort();
+
+const settingsScopes = (text) =>
+  [...(text.match(/scopes:\s*\[([\s\S]*?)\]/)?.[1] || "").matchAll(/"([^"]+)"/g)]
+    .map((match) => match[1])
+    .sort();
+
+test("all ten roles resolve to explicit permission arrays", () => {
+  assert.equal(ROLE_NAMES.length, 10);
   for (const role of ROLE_NAMES) {
     assert.ok(Array.isArray(grantsForRole(role)));
     assert.ok(grantsForRole(role).length > 0);
@@ -92,6 +103,7 @@ test("metrics aggregate a bounded order window without NaN values", () => {
   assert.equal(result.protectedOrders, 1);
   assert.equal(result.activeProtectedOrders, 1);
   assert.equal(result.insuranceRevenue, 2);
+  assert.equal(result.valueInTransit, 0);
   assert.equal(normalizeRange("nonsense"), "30d");
 });
 
@@ -123,4 +135,37 @@ test("users page is permission-gated and reads the session-scoped endpoint", () 
   assert.match(users, /usePagedResource\("\/api\/users"/);
   assert.match(source("web/lib/usePagedResource.jsx"), /credentials:\s*"include"/);
   assert.match(users, /Users and roles/);
+});
+
+test("Shopify managed-install configuration is consistent across environments", () => {
+  const development = source("shopify.app.development.toml");
+  const production = source("shopify.app.toml");
+  const settings = source("settings.gadget.ts");
+  const expectedScopes = [
+    "read_checkouts",
+    "read_metafields",
+    "read_order_edits",
+    "read_orders",
+    "read_products",
+    "write_checkouts",
+    "write_metafields",
+    "write_order_edits",
+    "write_orders",
+    "write_products",
+  ];
+
+  assert.equal(
+    tomlValue(development, "application_url"),
+    "https://enshield-shipping-protection--development.gadget.app/"
+  );
+  assert.equal(
+    tomlValue(production, "application_url"),
+    "https://enshield-shipping-protection.gadget.app/"
+  );
+  assert.equal(tomlValue(development, "api_version"), "2026-01");
+  assert.equal(tomlValue(production, "api_version"), "2026-01");
+  assert.match(settings, /apiVersion:\s*"2026-01"/);
+  assert.deepEqual(tomlScopes(development), expectedScopes);
+  assert.deepEqual(tomlScopes(production), expectedScopes);
+  assert.deepEqual(settingsScopes(settings), expectedScopes);
 });

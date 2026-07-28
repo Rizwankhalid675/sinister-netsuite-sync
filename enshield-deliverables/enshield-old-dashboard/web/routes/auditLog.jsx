@@ -28,6 +28,29 @@ function formatSnapshot(value) {
   }
 }
 
+function toCsv(rows) {
+  const header = ["When", "Actor", "Action", "Entity", "Before", "After"];
+  const lines = rows.map((entry) => [
+    entry.createdAt ? new Date(entry.createdAt).toISOString() : "",
+    entry.actorEmail || "",
+    entry.action || "",
+    `${entry.entityType || ""}${entry.entityId ? ` #${entry.entityId}` : ""}`,
+    formatSnapshot(entry.before),
+    formatSnapshot(entry.after),
+  ].map((value) => `"${String(value).replace(/"/g, '""')}"`).join(","));
+  return [header.join(","), ...lines].join("\n");
+}
+
+function downloadCsv(rows) {
+  const blob = new Blob([toCsv(rows)], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `audit-log-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 function AuditLogInner() {
   const [search, setSearch] = useState("");
   const [action, setAction] = useState("");
@@ -39,6 +62,12 @@ function AuditLogInner() {
 
   return (
     <section aria-label="Audit log" aria-live="polite">
+      <div className="esd-row-actions" style={{ marginBottom: 12 }}>
+        <span className="esd-chip">Entries on page: {rows.length}</span>
+        <Gate permission={PERMISSIONS.VIEW_AUDIT}>
+          <button type="button" className="esd-btn esd-btn-sm" disabled={!rows.length} onClick={() => downloadCsv(rows)}>Export CSV</button>
+        </Gate>
+      </div>
       <ListToolbar search={search} onSearch={setSearch} status={action} onStatus={setAction} statuses={ACTIONS} />
       <PageStatus loading={loading} error={error} empty={!loading && !error && rows.length === 0} noun="audit log entries" onRetry={retry} />
       {!loading && !error && rows.length > 0 ? (

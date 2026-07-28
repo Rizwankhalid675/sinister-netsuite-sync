@@ -1,6 +1,6 @@
 import { applyParams, save } from "gadget-server";
 import { preventCrossShopDataAccess } from "gadget-server/shopify";
-import { isProtectionEligible } from "../../../lib/protection.js";
+import { isProtectionEligible, getProtectionPriceSnapshot, assertProtectionSnapshotImmutable } from "../../../lib/protection.js";
 import {
   createTrackingDeliverySourceId,
   enqueueDelivery,
@@ -18,6 +18,31 @@ export const run = async ({ params, record, logger, api, connections }) => {
   }
   applyParams(params, record);
   await preventCrossShopDataAccess(params, record);
+
+  // Backfill/compute the protection snapshot on update too: orders can be
+  // re-synced from Shopify (e.g. edited, or bulk re-ingested) and may not
+  // have had a snapshot computed yet, or line items/attributes may have
+  // changed since creation. Once a real (non-null) snapshot exists it is
+  // treated as immutable going forward to avoid clobbering a charged price.
+  try {
+    const existing = {
+      amountMinor: record.enshieldProtectionAmountMinor,
+      currency: record.enshieldProtectionCurrency,
+      pricingVersion: record.enshieldPricingVersion,
+    };
+    if (isProtectionEligible(record) && existing.amountMinor == null) {
+      const snapshot = getProtectionPriceSnapshot(record);
+      if (snapshot) {
+        assertProtectionSnapshotImmutable(existing, snapshot);
+        record.enshieldProtectionAmountMinor = snapshot.amountMinor;
+        record.enshieldProtectionCurrency = snapshot.currency;
+        record.enshieldPricingVersion = snapshot.pricingVersion ?? null;
+      }
+    }
+  } catch (error) {
+    logger.error({ errorName: error?.name, orderId: record.id }, "Failed to compute protection snapshot on update");
+  }
+
   await save(record);
 };
 

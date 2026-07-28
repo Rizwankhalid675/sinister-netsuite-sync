@@ -3,7 +3,7 @@ import { writeAudit } from "../../../lib/audit.js";
 import { PERMISSIONS, requirePermission } from "../../../lib/permissions.js";
 
 /**
- * Update an admin role. The 9 roles are seeded globals fixed by the name enum
+ * Update an admin role. The 10 roles are seeded globals fixed by the name enum
  * (acceptUnlistedOptions: false), so there is deliberately NO create or delete
  * action — a role can't be invented and deleting one would orphan every
  * appUser that belongs to it. The only legitimate edit is retuning a role's

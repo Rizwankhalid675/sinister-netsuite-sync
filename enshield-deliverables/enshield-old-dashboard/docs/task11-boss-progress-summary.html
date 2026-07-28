@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Enshield Internal Dashboard — Progress Summary</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    color: #1f2937;
+    margin: 0;
+    background: #ffffff;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .cover {
+    height: 297mm;
+    padding: 60px 56px;
+    background: linear-gradient(160deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    page-break-after: always;
+  }
+  .cover .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 12px;
+    opacity: 0.8;
+    font-weight: 600;
+  }
+  .cover h1 {
+    font-size: 40px;
+    line-height: 1.15;
+    margin: 18px 0 10px;
+    font-weight: 700;
+    max-width: 560px;
+  }
+  .cover .subtitle {
+    font-size: 16px;
+    opacity: 0.9;
+    max-width: 520px;
+  }
+  .cover .meta {
+    display: flex;
+    gap: 40px;
+    margin-top: 40px;
+  }
+  .cover .meta div .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.7;
+    margin-bottom: 4px;
+  }
+  .cover .meta div .value {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .cover .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    width: fit-content;
+  }
+  .cover .stat-row {
+    display: flex;
+    gap: 18px;
+    margin-top: 30px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 14px;
+    padding: 18px 20px;
+    flex: 1;
+  }
+  .stat-card .num { font-size: 26px; font-weight: 700; }
+  .stat-card .cap { font-size: 11px; opacity: 0.85; margin-top: 4px; }
+
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 46px 56px 60px;
+  }
+  .page.first { padding-top: 44px; }
+
+  h2.section {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #2563eb;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2.section .num-chip {
+    background: #2563eb;
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .section-block { margin-bottom: 30px; page-break-inside: avoid; }
+
+  .callout {
+    background: #eff6ff;
+    border-left: 4px solid #2563eb;
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin: 18px 0;
+    font-size: 13px;
+  }
+  .callout.good { background: #ecfdf5; border-left-color: #10b981; }
+  .callout.good .title { color: #047857; }
+  .callout .title { font-weight: 700; color: #1d4ed8; margin-bottom: 4px; }
+
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 16px 0 6px;
+  }
+  .status-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+  }
+  .status-item .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #10b981; margin-top: 5px; flex-shrink: 0;
+  }
+
+  .issue-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+  .issue-card .issue-head {
+    background: #0f172a;
+    color: #fff;
+    padding: 12px 18px;
+    font-size: 13.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .issue-card .issue-head .chip {
+    background: #2563eb;
+    font-size: 11px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+  .issue-card .issue-body { padding: 14px 18px; }
+  .issue-card .row { margin-bottom: 8px; }
+  .issue-card .row:last-child { margin-bottom: 0; }
+  .issue-card .row .k {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 3px;
+  }
+  .issue-card .row.found .k { color: #b91c1c; }
+  .issue-card .row.fixed .k { color: #047857; }
+  .issue-card .row .v { font-size: 12.5px; color: #1f2937; }
+
+  table.results {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 12px;
+  }
+  table.results th {
+    background: #0f172a;
+    color: #fff;
+    text-align: left;
+    padding: 9px 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  table.results td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  table.results tr:nth-child(even) td { background: #f8fafc; }
+  .pass-pill {
+    background: #d1fae5; color: #065f46;
+    padding: 2px 9px; border-radius: 999px;
+    font-weight: 700; font-size: 11px;
+    display: inline-block;
+  }
+
+  ul.clean { margin: 8px 0 0; padding-left: 20px; }
+  ul.clean li { margin-bottom: 7px; font-size: 12.5px; }
+
+  .todo-list { list-style: none; margin: 10px 0 0; padding: 0; }
+  .todo-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 12px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 12.5px;
+  }
+  .todo-list li .box {
+    width: 14px; height: 14px; border: 2px solid #d97706;
+    border-radius: 3px; margin-top: 2px; flex-shrink: 0;
+  }
+
+  .recommend {
+    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    color: white;
+    border-radius: 14px;
+    padding: 24px 26px;
+    margin-top: 10px;
+  }
+  .recommend .title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .recommend p { font-size: 12.5px; opacity: 0.95; margin: 0; }
+
+  .footer-note {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 10.5px;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div>
+    <div class="eyebrow">Enshield · Internal Engineering Report</div>
+    <h1>Internal Dashboard<br/>Progress &amp; Readiness Summary</h1>
+    <div class="subtitle">A plain-language rundown of what was reviewed, what we found, what we fixed, and what's still needed before this can go live.</div>
+    <div class="badge" style="margin-top:22px;">✅ Engineering work complete — pending staging approvals</div>
+  </div>
+  <div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="num">241/241</div><div class="cap">Automated tests passing</div></div>
+      <div class="stat-card"><div class="num">10</div><div class="cap">Issues found &amp; fixed</div></div>
+      <div class="stat-card"><div class="num">0</div><div class="cap">Open application defects</div></div>
+    </div>
+    <div class="meta">
+      <div><div class="label">Prepared</div><div class="value">2026-07-25</div></div>
+      <div><div class="label">Project</div><div class="value">enshield-old-dashboard</div></div>
+      <div><div class="label">Prepared for</div><div class="value">Management review</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 1: BOTTOM LINE + STATUS -->
+<section class="page first">
+  <h2 class="section"><span class="num-chip">1</span>Bottom Line</h2>
+  <div class="section-block">
+    <div class="callout good">
+      <div class="title">Where we stand</div>
+      All local automated checks now pass — 241 out of 241 backend tests, UI tests, browser tests, production build, lint, syntax checks, and a full pass of every API route file. Every issue found during this review has an applied code fix.
+    </div>
+    <div class="callout">
+      <div class="title">What's not done yet</div>
+      The application is <strong>not yet authorized for production</strong>. The remaining blockers are external staging configuration and organizational sign-offs — not application bugs.
+    </div>
+
+    <h2 class="section" style="margin-top:26px;"><span class="num-chip">✓</span>Current Verified State</h2>
+    <table class="results">
+      <tr><th>Check</th><th>Result</th></tr>
+      <tr><td>Full backend test suite (node --test)</td><td><span class="pass-pill">241 / 241 passed</span></td></tr>
+      <tr><td>UI unit / component tests</td><td><span class="pass-pill">Passed</span></td></tr>
+      <tr><td>Browser tests (desktop + mobile)</td><td><span class="pass-pill">Passed</span></td></tr>
+      <tr><td>Production build</td><td><span class="pass-pill">Passed</span></td></tr>
+      <tr><td>Lint</td><td><span class="pass-pill">0 errors</span></td></tr>
+      <tr><td>Every API route reviewed for permission gating</td><td><span class="pass-pill">No gaps found</span></td></tr>
+      <tr><td>Webhook handlers verified</td><td><span class="pass-pill">All present &amp; verified</span></td></tr>
+      <tr><td>Secret scan (application source)</td><td><span class="pass-pill">0 matches</span></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- PAGE 2: ISSUES 1-4 -->
+<section class="page">
+  <h2 class="section"><span class="num-chip">2</span>Issues Found &amp; Solutions Applied</h2>
+
+  <div class="issue-card">
+    <div class="issue-head"><span class="chip">01</span>Authentication built on the wrong model</div>
+    <div class="issue-body">
+      <div class="row found"><div class="k">Found</div><div class="v">Internal password login and the Shopify embedded-app session could share state, risking a stale internal session leaking into a Shopify context or vice versa.</div></div>
+      <div class="row fixed"><div class="k">Fixed</div><div class="v">Rebuilt internal auth as a fully separate flow with its own scoped session, secure cookie, and confirmation on every dashboard route. Never conflated with the Shopify embedded session.</div></div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-head"><span class="chip">02</span>Password handling wasn't production-grade</div>
+    <div class="issue-body">
+      <div class="row found"><div class="k">Found</div><div class="v">No password hashing, no forced first-login change, no reset-token flow, no email confirmation on invite.</div></div>
+      <div class="row fixed"><div class="k">Fixed</div><div class="v">Added scrypt-based hashing/verification, temp-password + forced change on first login, token-based reset with expiry, and email confirmation via SendGrid.</div></div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-head"><span class="chip">03</span>Permissions (RBAC) incomplete and inconsistent</div>
+    <div class="issue-body">
+      <div class="row found"><div class="k">Found</div><div class="v">Roles existed only informally; several routes had no permission checks at all.</div></div>
+      <div class="row fixed"><div class="k">Fixed</div><div class="v">Built one canonical permissions module defining 9 standard roles. Every route now goes through shared permission-checking helpers. Confirmed users have zero access until an explicit shop-scoped role assignment exists.</div></div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-head"><span class="chip">04</span>Cross-tenant (cross-shop) data leaks possible</div>
+    <div class="issue-body">
+      <div class="row found"><div class="k">Found</div><div class="v">Some endpoints resolved "the current shop" from client-supplied values, which could let one merchant see another merchant's data.</div></div>
+      <div class="row fixed"><div class="k">Fixed</div><div class="v">All shop-scoped routes now resolve the shop strictly from the verified session. Added tests specifically asserting cross-shop access is rejected.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 3: ISSUES 5-10 -->
+<section class="page">
+  <h2 class="section"><span class="num-chip">2</span>Issues Found &amp; Solutions Applied <span style="font-size:12px;color:#94a3b8;font-weight:400;">(continued)</span></h2>
+
+  <div class="issue-card">
+    <div class="issue-head"><span class="chip">05</span>Protection-price endpoint trusted a supplied shop domain</div>
+    <div class="issue-body">
+      <div class="row found"><div class="k">Found</div><div class="v">A caller could pass an arbitrary shop domain, potentially probing another tenant's pricing.</div></div>
+      <div class="row fixed"><div class="k">Fixed</div><div class="v">Route now fails closed unless Shopify supplies a verified app-proxy + shop context. Will work correctly once the app proxy is configured in staging.</div></div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-head"><span class="chip">06</span>Finance module had no safety rails</div>
+    <div class="issue-body">
+      <div class="row found"><div class="k">Found</div><div class="v">No duplicate-protection, no state machine, no currency validation, no separation of duties.</div></div>
+      <div class="row fixed"><div class="k">Fixed</div><div class="v">Added a full shadow ledger: append-only journal entries, draft→submitted claim workflow, currency validation, duplicate-write protection. Finance remains shadow-only, no real postings yet.</div></div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-head"><span class="chip">07</span>Some API modules could not load</div>
+    <div class="issue-body">
+      <div class="row found"><div class="k">Found</div><div class="v">16 of 115 API files failed to load under plain Node.</div></div>
+      <div class="row fixed"><div class="k">Fixed</div><div class="v">Corrected imports and added a permanent regression test that loads every API module. All now load cleanly.</div></div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-head"><span class="chip">08</span>Logs contained sensitive data</div>
+    <div class="issue-body">
+      <div class="row found"><div class="k">Found</div><div class="v">Logs captured raw request/response bodies, domains, prices, product identifiers.</div></div>
+      <div class="row fixed"><div class="k">Fixed</div><div class="v">Scrubbed logging to allowlisted event codes, error names, status codes, and correlation IDs only.</div></div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-head"><span class="chip">09</span>Webhooks &amp; Shopify sync verification</div>
+    <div class="issue-body">
+      <div class="row found"><div class="k">Checked</div><div class="v">Confirmed order/customer/compliance webhooks and the custom cart webhook were both present and correctly signature-verified.</div></div>
+      <div class="row fixed"><div class="k">Result</div><div class="v">Standard topics handled automatically by Shopify's connection. Custom cart webhook has a dedicated, verified route. Sync config reviewed and matches usage.</div></div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-head"><span class="chip">10</span>Dependency vulnerabilities</div>
+    <div class="issue-body">
+      <div class="row found"><div class="k">Found</div><div class="v">Audit reported numerous advisories including some critical ones.</div></div>
+      <div class="row fixed"><div class="k">Fixed / remaining</div><div class="v">Upgraded direct React Router and Vite to patched versions. Remaining criticals trace to Shopify's own CLI dev-tooling chain — needs Security sign-off or a Gadget-side refresh.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 4: WHAT'S LEFT + RECOMMENDATION -->
+<section class="page">
+  <h2 class="section"><span class="num-chip">3</span>What's Left Before Go-Live</h2>
+  <p style="font-size:12.5px;color:#475569;margin-top:0;">These are approvals and staging configuration — not code fixes.</p>
+  <ul class="todo-list">
+    <li><div class="box"></div><div><strong>Shopify app proxy</strong> — configure in staging so the storefront price widget can be tested end-to-end.</div></li>
+    <li><div class="box"></div><div><strong>Gadget access-control grid</strong> — needs an explicit review/grant pass by a Gadget engineer so authenticated app users can read dashboard data models in staging.</div></li>
+    <li><div class="box"></div><div><strong>Staging reconciliation</strong> — compare a live Shopify/Gadget data snapshot against the dashboard/export at one fixed cutoff time.</div></li>
+    <li><div class="box"></div><div><strong>Finance sign-off</strong> — written approval from Finance/CPA on chart of accounts, claims reserve treatment, and payment authority before finance leaves shadow mode.</div></li>
+    <li><div class="box"></div><div><strong>Security sign-off</strong> on remaining dependency advisories.</div></li>
+    <li><div class="box"></div><div><strong>Final release approvals</strong> — Product, Security, Finance, Operations, and a named release/rollback owner.</div></li>
+  </ul>
+
+  <h2 class="section" style="margin-top:32px;"><span class="num-chip">4</span>Recommendation</h2>
+  <div class="recommend">
+    <div class="title">Engineering work for this phase is complete and verified locally.</div>
+    <p>The remaining items are staging configuration and organizational sign-offs, not application defects. Once the Shopify app proxy and Gadget permissions grid are configured in staging, we can run the end-to-end reconciliation and move to final approvals.</p>
+  </div>
+
+  <div class="footer-note">Enshield Internal Dashboard · Progress Summary · 2026-07-25</div>
+</section>
+
+</body>
+</html>

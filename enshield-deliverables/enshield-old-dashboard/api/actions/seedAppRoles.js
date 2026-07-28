@@ -1,7 +1,7 @@
 /**
  * ONE-OFF DEV/INIT SEED.
  *
- * Creates (or updates) the 9 standard appRole records from the single
+ * Creates (or updates) the 10 standard appRole records from the single
  * source of truth in api/lib/permissions.js (ROLE_GRANTS). Idempotent —
  * safe to run multiple times; existing roles get their permissions synced.
  *

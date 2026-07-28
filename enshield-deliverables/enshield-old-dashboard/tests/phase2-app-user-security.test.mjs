@@ -28,14 +28,13 @@ test("appUser create/update allowlists reject tenant and identity reassignment",
     validateAppUserCreateInput({
       name: "Person",
       email: "person@example.test",
-      personId: "subject-1",
       role: { _link: "role-1" },
     })
   );
-  for (const field of ["shop", "shopId", "shopPersonKey", "createdByEmail"]) {
+  for (const field of ["shop", "shopId", "shopPersonKey", "createdByEmail", "personId"]) {
     assert.throws(
       () => validateAppUserCreateInput({ [field]: "foreign" }),
-      new RegExp(field, "i")
+      new RegExp(field.replace("Id", ""), "i")
     );
   }
   assert.doesNotThrow(() =>
@@ -146,6 +145,10 @@ test("appUser actions reject foreign reassignment and duplicate membership befor
         }
         return Object.assign([{ id: "duplicate" }], { hasNextPage: false });
       },
+      async findFirst() {
+        // No collision on the server-generated personId candidate.
+        return null;
+      },
     },
     internal: {
       appUser: {
@@ -161,7 +164,6 @@ test("appUser actions reject foreign reassignment and duplicate membership befor
         appUser: {
           name: "Malicious",
           email: "x@example.test",
-          personId: "new-subject",
           role: { _link: "role-claims" },
           shop: { _link: "shop-2" },
         },
@@ -189,7 +191,6 @@ test("appUser actions reject foreign reassignment and duplicate membership befor
         appUser: {
           name: "Duplicate",
           email: "d@example.test",
-          personId: "new-subject",
           role: { _link: "role-claims" },
         },
       },

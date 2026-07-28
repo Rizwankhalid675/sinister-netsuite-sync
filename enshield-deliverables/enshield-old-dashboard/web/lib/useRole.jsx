@@ -30,6 +30,7 @@ const SAFE_IDENTITY = {
   permissions: [],
   user: null,
   clients: [],
+  mustChangePassword: false,
 };
 
 export function RoleProvider({ children }) {
@@ -39,29 +40,32 @@ export function RoleProvider({ children }) {
   const [override, setOverride] = useState(null);
   const [selectedShopId, setSelectedShopId] = useState("all");
 
+  const fetchIdentity = async ({ isMounted } = {}) => {
+    try {
+      const res = await fetch("/api/me", { credentials: "include" });
+      const data = await res.json();
+      if (isMounted && !isMounted()) return;
+      if (res.ok && Array.isArray(data.permissions)) {
+        setIdentity({
+          roleKey: data.roleKey ?? DEFAULT_ROLE,
+          permissions: data.permissions,
+          user: data.user ?? null,
+          clients: Array.isArray(data.clients) ? data.clients : [],
+          mustChangePassword: Boolean(data.mustChangePassword),
+        });
+      } else {
+        setIdentity(SAFE_IDENTITY); // fail closed
+      }
+    } catch {
+      if (!isMounted || isMounted()) setIdentity(SAFE_IDENTITY); // fail closed
+    } finally {
+      if (!isMounted || isMounted()) setLoading(false);
+    }
+  };
+
   useEffect(() => {
     let alive = true;
-    (async () => {
-      try {
-        const res = await fetch("/api/me", { credentials: "include" });
-        const data = await res.json();
-        if (!alive) return;
-        if (res.ok && Array.isArray(data.permissions)) {
-          setIdentity({
-            roleKey: data.roleKey ?? DEFAULT_ROLE,
-            permissions: data.permissions,
-            user: data.user ?? null,
-            clients: Array.isArray(data.clients) ? data.clients : [],
-          });
-        } else {
-          setIdentity(SAFE_IDENTITY); // fail closed
-        }
-      } catch {
-        if (alive) setIdentity(SAFE_IDENTITY); // fail closed
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
+    fetchIdentity({ isMounted: () => alive });
     return () => {
       alive = false;
     };
@@ -84,6 +88,7 @@ export function RoleProvider({ children }) {
       permissions: effective.permissions,
       user: identity.user,
       clients: identity.clients,
+      mustChangePassword: identity.mustChangePassword,
       selectedShopId,
       setSelectedShopId: (shopId) => {
         if (shopId === "all" || identity.clients.some((client) => String(client.shopId) === String(shopId))) {
@@ -96,6 +101,7 @@ export function RoleProvider({ children }) {
       setOverride,
       isOverriding: Boolean(override),
       can: (permission) => rbacCan(effective.permissions, permission),
+      refreshIdentity: () => fetchIdentity(),
     };
   }, [identity, override, loading, selectedShopId]);
 
@@ -112,12 +118,14 @@ export function useRole() {
       permissions: [],
       user: null,
       clients: [],
+      mustChangePassword: false,
       selectedShopId: "all",
       setSelectedShopId: () => {},
       loading: false,
       setOverride: () => {},
       isOverriding: false,
       can: () => false,
+      refreshIdentity: () => {},
     };
   }
   return ctx;

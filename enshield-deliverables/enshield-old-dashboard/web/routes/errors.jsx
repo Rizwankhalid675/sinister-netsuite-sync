@@ -6,7 +6,7 @@ import { ListToolbar, PageNavigation, PageStatus } from "../components/Operation
 import "./dashboard.css";
 
 export function ErrorsPage() {
-  return <Gate permission={PERMISSIONS.VIEW_AUDIT} fallback={<div role="status" className="esd-empty">You don’t have permission to view errors.</div>}><ErrorsInner /></Gate>;
+  return <Gate permission={PERMISSIONS.VIEW_ERRORS} fallback={<div role="status" className="esd-empty">You don’t have permission to view errors.</div>}><ErrorsInner /></Gate>;
 }
 
 function ErrorsInner() {

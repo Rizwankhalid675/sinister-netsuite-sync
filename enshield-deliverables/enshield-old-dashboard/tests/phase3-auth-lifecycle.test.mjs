@@ -113,14 +113,14 @@ test("assignment keys are derived and provisioning rejects API callers", () => {
   assert.doesNotThrow(() => requireOwnerProvisioning({ trigger: { type: "background-action" } }));
 });
 
-test("frontend has explicit internal login and callback paths outside Shopify authentication", () => {
+test("frontend has explicit credential login and callback paths outside Shopify authentication", () => {
   const app = source("web/components/App.jsx");
   const login = source("web/routes/internalLogin.jsx");
   assert.match(app, /path="internal-login"/);
   assert.match(app, /path="internal-auth\/callback"/);
   assert.match(app, /isInternalAuthPath/);
-  assert.match(login, /\/auth\/internal-start/);
-  assert.match(login, /window\.location\.assign/);
+  assert.match(login, /\/auth\/login/);
+  assert.match(login, /navigate\([^)]*\/dashboard/);
 });
 
 test("StrictMode setup-cleanup-setup shares one non-aborted callback exchange", async () => {

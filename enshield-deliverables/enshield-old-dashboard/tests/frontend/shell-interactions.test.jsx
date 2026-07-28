@@ -35,6 +35,17 @@ function renderShell() {
 }
 
 describe("internal shell keyboard and focus", () => {
+  it("exposes full navigation names and a collapsible desktop rail", async () => {
+    const user = userEvent.setup();
+    renderShell();
+    expect(screen.getByRole("link", { name: "Dashboard" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Clients" })).toBeVisible();
+    const toggle = screen.getByRole("button", { name: "Collapse navigation" });
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+  });
+
   it("opens and closes the navigation drawer with Escape and restores focus", async () => {
     const user = userEvent.setup();
     renderShell();

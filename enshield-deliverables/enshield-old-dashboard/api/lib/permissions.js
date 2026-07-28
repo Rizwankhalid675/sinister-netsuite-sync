@@ -113,9 +113,17 @@ export const ROLE_GRANTS = Object.freeze({
     PERMISSIONS.VIEW_FINANCE,
     PERMISSIONS.VIEW_AUDIT,
   ]),
+  // General low-privilege internal staff account: basic day-to-day
+  // visibility without edit/approve/finance/admin capabilities.
+  Staff: Object.freeze([
+    PERMISSIONS.VIEW_DASHBOARD,
+    PERMISSIONS.VIEW_CLIENTS,
+    PERMISSIONS.VIEW_CLAIMS,
+    PERMISSIONS.VIEW_ORDERS,
+  ]),
 });
 
-/** The 9 role names, in display order. */
+/** The 10 role names, in display order. */
 export const ROLE_NAMES = Object.freeze(Object.keys(ROLE_GRANTS));
 const NO_GRANTS = Object.freeze([]);
 const SHOPIFY_APP_SESSION_ROLE = "shopify-app-users";
@@ -148,14 +156,66 @@ export function can(permissionList, permission) {
  * Missing/malformed/stale roles, a missing shop, or an unknown shop fail closed.
  */
 export async function requireIdentity({ api, session }) {
-  const shopId = session?.get("shopId");
+  const sessionShop = session?.get("shop");
+  const shopId = session?.get("shopId") ??
+    sessionShop?.id ??
+    sessionShop?._link ??
+    sessionShop;
   const roles = session?.get("roles");
   const personId = session?.get("personId");
+  const hasShopifyAppRole = Array.isArray(roles) &&
+    roles.length === 1 &&
+    roles[0] === SHOPIFY_APP_SESSION_ROLE;
+
+  // Standalone dashboard logins have a verified person session but do not
+  // receive Shopify's derived shopId field in the route context. Resolve the
+  // one active membership by personId and derive its tenant from that record.
+  if ((!shopId || !hasShopifyAppRole) && personId && session?.get("internalAuthenticatedAt")) {
+    const authenticatedAt = new Date(session.get("internalAuthenticatedAt")).getTime();
+    const sessionIsFresh = Number.isFinite(authenticatedAt) &&
+      Date.now() - authenticatedAt >= 0 &&
+      Date.now() - authenticatedAt <= 12 * 60 * 60 * 1000;
+    if (sessionIsFresh) {
+      const memberships = await api.appUser.findMany({
+        filter: {
+          AND: [
+            { personId: { equals: personId } },
+            { status: { equals: "active" } },
+          ],
+        },
+        first: 2,
+        select: {
+          id: true, name: true, email: true, personId: true, shopId: true,
+          status: true, accessScope: true, allowedShopIds: true,
+          department: true, mustChangePassword: true, role: { name: true },
+        },
+      });
+      const appUser = memberships.length === 1 && !memberships.hasNextPage
+        ? memberships[0]
+        : null;
+      const roleKey = appUser?.role?.name;
+      if (appUser?.shopId && ROLE_GRANTS[roleKey]) {
+        return {
+          user: {
+            id: appUser.id, name: appUser.name, email: appUser.email,
+            personId: appUser.personId, principalType: "person", role: roleKey,
+          },
+          mustChangePassword: Boolean(appUser.mustChangePassword),
+          shopId: appUser.shopId,
+          roleKey,
+          permissions: grantsForRole(roleKey),
+          accessScope: appUser.accessScope || "department",
+          allowedShopIds: Array.isArray(appUser.allowedShopIds)
+            ? appUser.allowedShopIds.map(String)
+            : [],
+          department: appUser.department || "none",
+        };
+      }
+    }
+  }
   if (
     !shopId ||
-    !Array.isArray(roles) ||
-    roles.length !== 1 ||
-    roles[0] !== SHOPIFY_APP_SESSION_ROLE
+    !hasShopifyAppRole
   ) {
     const error = new Error("Authentication required");
     error.statusCode = 401;
@@ -200,6 +260,10 @@ export async function requireIdentity({ api, session }) {
         email: true,
         personId: true,
         status: true,
+        accessScope: true,
+        allowedShopIds: true,
+        department: true,
+        mustChangePassword: true,
         role: { name: true },
       },
     });
@@ -222,9 +286,15 @@ export async function requireIdentity({ api, session }) {
         principalType: "person",
         role: roleKey,
       },
+      mustChangePassword: Boolean(appUser.mustChangePassword),
       shopId,
       roleKey,
       permissions: grantsForRole(roleKey),
+      accessScope: appUser.accessScope || "department",
+      allowedShopIds: Array.isArray(appUser.allowedShopIds)
+        ? appUser.allowedShopIds.map(String)
+        : [],
+      department: appUser.department || "none",
     };
   }
 
@@ -241,7 +311,41 @@ export async function requireIdentity({ api, session }) {
     shopId,
     roleKey: SHOP_PRINCIPAL_KEY,
     permissions: SHOP_PRINCIPAL_GRANTS,
+    // Shop-only sessions are inherently scoped to their single shop.
+    accessScope: "specific_stores",
+    allowedShopIds: [String(shopId)],
+    department: "none",
   };
+}
+
+/**
+ * Return the list of shop IDs an identity is allowed to see, or `null` to
+ * mean "all stores" (Super Admin / all_stores scope — caller should apply
+ * no shop filter in that case). Department-scoped users are treated as
+ * "all stores" for the purpose of shop filtering; the department itself is
+ * used elsewhere to filter by record type/department, not by shop.
+ */
+export function allowedShopIdsForIdentity(identity) {
+  const scope = identity?.accessScope || "department";
+  if (scope === "all_stores") return null;
+  if (scope === "department") return null;
+  return Array.isArray(identity?.allowedShopIds)
+    ? identity.allowedShopIds.map(String)
+    : [];
+}
+
+/**
+ * Assert that a specific shop ID is visible to this identity. Throws 403 if
+ * the identity's accessScope excludes it (only relevant for specific_stores).
+ */
+export function assertShopVisible(identity, shopId) {
+  const allowed = allowedShopIdsForIdentity(identity);
+  if (allowed === null) return; // all_stores or department scope: unrestricted by shop
+  if (!allowed.includes(String(shopId))) {
+    const error = new Error("Forbidden: shop is outside your access scope");
+    error.statusCode = 403;
+    throw error;
+  }
 }
 
 export async function requirePermission({ api, session }, permission) {
@@ -267,7 +371,8 @@ export async function requireShopPermission(
   permission,
   requestedShopId
 ) {
-  const { shopId, permissions } = await requireIdentity({ api, session });
+  const identity = await requireIdentity({ api, session });
+  const { shopId, permissions } = identity;
   if (!permissions.includes(permission)) {
     const error = new Error(
       "Forbidden: person identity required for internal capability"
@@ -276,16 +381,18 @@ export async function requireShopPermission(
     throw error;
   }
 
-  if (
-    requestedShopId != null &&
-    String(requestedShopId) !== String(shopId)
-  ) {
-    const error = new Error("Forbidden");
-    error.statusCode = 403;
-    throw error;
+  const targetShopId = requestedShopId != null ? requestedShopId : shopId;
+
+  // Session shop must always be within the identity's allowed scope.
+  assertShopVisible(identity, shopId);
+
+  if (requestedShopId != null) {
+    // Explicit cross-shop request (e.g. Super Admin/Admin querying another
+    // store's data): must be within the identity's access scope.
+    assertShopVisible(identity, requestedShopId);
   }
 
-  return shopId;
+  return targetShopId;
 }
 
 /**

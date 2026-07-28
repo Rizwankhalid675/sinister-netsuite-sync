@@ -6,8 +6,8 @@ export const settings: GadgetSettings = {
   plugins: {
     connections: {
       shopify: {
-        apiVersion: "2025-10",
-        enabledModels: ["shopifyCart", "shopifyOrder"],
+        apiVersion: "2026-01",
+        enabledModels: ["shopifyCart", "shopifyOrder", "shopifySync"],
         type: "partner",
         scopes: [
           "write_checkouts",
@@ -18,6 +18,8 @@ export const settings: GadgetSettings = {
           "read_products",
           "write_metafields",
           "read_metafields",
+          "write_order_edits",
+          "read_order_edits",
         ],
         customerAuthenticationEnabled: false,
       },

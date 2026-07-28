@@ -253,10 +253,15 @@ test("storefront configuration reads remain tenant-filtered for a shop principal
 });
 
 test("client, claim, and user data fail closed before reads for a shop-only session", async () => {
-  for (const [route, modelName, payloadKey] of [
-    [clientsRoute, "client", "clients"],
-    [claimsRoute, "claim", "claims"],
-    [usersRoute, "operatorShopAssignment", "users"],
+  // clients/claims use requireInternalAccess, which rejects any non-internal-
+  // operator session with 401 regardless of authentication state. users uses
+  // requirePermission, which is a two-stage check: 401 if unauthenticated,
+  // but 403 if authenticated (valid shop session) yet lacking VIEW_USERS —
+  // which is exactly the shop-only session case here, so 403 is correct.
+  for (const [route, modelName, payloadKey, expectedFilter, expectedStatus] of [
+    [clientsRoute, "client", "clients", { shopId: { equals: SHOP_ID } }, 401],
+    [claimsRoute, "claim", "claims", { shopId: { equals: SHOP_ID } }, 401],
+    [usersRoute, "appUser", "users", { shop: { id: { equals: SHOP_ID } } }, 403],
   ]) {
     const page = Object.assign([], { hasNextPage: false });
     const api = bootstrapApi();
@@ -264,7 +269,7 @@ test("client, claim, and user data fail closed before reads for a shop-only sess
     api[modelName] = {
       async findMany(options) {
         internalReads += 1;
-        assert.deepEqual(options.filter, { shopId: { equals: SHOP_ID } });
+        assert.deepEqual(options.filter, expectedFilter);
         return page;
       },
     };
@@ -275,7 +280,7 @@ test("client, claim, and user data fail closed before reads for a shop-only sess
       logger,
       session: sessionFor(),
     });
-    assert.equal(reply.statusCode, 401, modelName);
+    assert.equal(reply.statusCode, expectedStatus, modelName);
     assert.equal(internalReads, 0, modelName);
     assert.equal(reply.payload[payloadKey], undefined, modelName);
   }

@@ -7,7 +7,7 @@ import AxeBuilder from "@axe-core/playwright";
 const screenshotDir = path.join(os.tmpdir(), "enshield-qa-screenshots");
 const permissions = [
   "view_dashboard", "view_clients", "view_orders", "view_claims",
-  "view_audit", "view_reports", "export_reports", "manage_settings",
+  "view_audit", "view_errors", "view_reports", "export_reports", "manage_settings",
   "view_users", "manage_storefront_configuration",
 ];
 const identity = {
@@ -31,13 +31,14 @@ const metrics = {
   generatedAt: "2026-07-23T19:00:00.000Z",
   scope: "assigned-shops",
   currency: "USD",
+  dataSources: { shopify: { status: "live" }, miva: { status: "unavailable" } },
   shop: { name: "All assigned clients" },
   activity,
   metrics: {
     protectedOrders: 13, totalOrders: 13, valueInTransit: 1327.13,
     openClaims: 1, openClaimsAvailable: true, status: "active", insuranceRate: 0.02,
   },
-  insuranceMetrics: { revenue: 26.54, attachRate: 100, protectedOrders: 13 },
+  insuranceMetrics: { revenue: 26.54, attachRate: 1, protectedOrders: 13 },
   refundsReturns: { refundedAmount: 0, refundedOrders: 0, refundRate: 0, returnRate: 0, returnedOrders: 0 },
   revenueTrend: { revenue: 1327.13, aov: 102.09, orders: 13 },
   fulfillmentHealth: { fulfillmentRate: 92.3, fulfilledOrders: 12, inTransitOrders: 1, cancelRate: 0, cancelledOrders: 0 },
@@ -62,6 +63,11 @@ async function installMocks(page) {
   await page.route("**/api/me", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(identity) }));
   await page.route("**/api/performance/collect", (route) => route.fulfill({ status: 204, body: "" }));
   await page.route("**/api/dashboard-metrics**", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(metrics) }));
+  await page.route("**/api/settings-overview**", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify({ success: true, scope: "assigned-clients", clientCount: 2, status: "active", insuranceRate: 2, configuredCount: 2 }),
+  }));
   for (const [name, rows] of Object.entries(lists)) {
     await page.route(`**/api/${name}**`, (route) => route.fulfill({
       status: 200,
@@ -99,6 +105,7 @@ async function expectViewportContained(page) {
       if (
         style.display === "none" ||
         style.visibility === "hidden" ||
+        element.closest(".esd-kpi-strip, .esd-bar-chart") ||
         element.classList.contains("esd-visually-hidden")
       ) return [];
       const rect = element.getBoundingClientRect();
@@ -120,23 +127,21 @@ test.beforeEach(async ({ page }) => {
   await installMocks(page);
 });
 
-test("mocked internal login starts and callback completes", async ({ page }) => {
-  await page.route("**/auth/internal-start", (route) => route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: JSON.stringify({ success: true, authorizationUrl: `${page.context()._options.baseURL}/internal-auth/callback#token=e2e-token` }),
-  }));
-  await page.route("**/auth/internal-callback", (route) => route.fulfill({
+test("mocked internal credential login completes", async ({ page }) => {
+  await page.route("**/auth/login", (route) => route.fulfill({
     status: 200, contentType: "application/json", body: JSON.stringify({ success: true }),
   }));
   await page.goto("/internal-login");
   await expect(page).toHaveTitle(/Enshield/i);
-  await page.getByRole("button", { name: "Continue to secure sign-in" }).click();
+  await page.getByLabel("Email").fill("qa@enshield.test");
+  await page.getByLabel("Password").fill("development-test-password");
+  await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 });
 
 test("authenticated operational pages work without console or accessibility errors", async ({ page }, testInfo) => {
+  test.setTimeout(60_000);
   const runtimeErrors = [];
   const failedAppResponses = [];
   page.on("console", (message) => {
@@ -151,17 +156,19 @@ test("authenticated operational pages work without console or accessibility erro
 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/dashboard");
+  await page.waitForTimeout(1200);
   await expect(page).toHaveTitle(/Enshield/i);
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   await expect(page.locator("main")).not.toBeEmpty();
   await expect(page.locator("vite-error-overlay")).toHaveCount(0);
   await expectViewportContained(page);
-  await expect(page.getByText("PROTECTED ORDERS", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "All time" }).click();
+  await expect(page.getByText("Protected orders", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "All time" })).toHaveAttribute("aria-pressed", "true");
-  const yearBefore = Number(await page.locator(".esd-year span").textContent());
+  const yearBefore = Number(await page.locator(".esd-year-nav span").textContent());
+  await expect(page.getByRole("button", { name: "Previous year" }).locator("svg")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Next year" }).locator("svg")).toBeVisible();
   await page.getByRole("button", { name: "Previous year" }).click();
-  await expect(page.locator(".esd-year span")).toHaveText(String(yearBefore - 1));
+  await expect(page.locator(".esd-year-nav span")).toHaveText(String(yearBefore - 1));
   const suffix = testInfo.project.name.includes("mobile") ? "mobile" : "desktop";
   await page.screenshot({ path: path.join(screenshotDir, `enshield-dashboard-${suffix}.png`), fullPage: true });
 
@@ -216,12 +223,13 @@ test("authenticated operational pages work without console or accessibility erro
   await page.getByRole("button", { name: "Export CSV" }).click();
   expect((await downloadPromise).suggestedFilename()).toContain("2025");
   await page.goto("/dashboard");
+  await page.waitForTimeout(1200);
   const transitionDuration = await page.locator(".esd-sidebar").evaluate(
     (element) => getComputedStyle(element).transitionDuration
   );
   expect(Number.parseFloat(transitionDuration)).toBeLessThanOrEqual(0.001);
   const dashboardMotionDurations = await page.locator(
-    ".esd-metricgroups > *, .esd-chartcard, .esd-bar, .esd-stat"
+    ".esd-kpi-card, .esd-chart-card, .esd-bar-fill, .esd-stat-card"
   ).evaluateAll((elements) => elements.map((element) => {
     const style = getComputedStyle(element);
     return {

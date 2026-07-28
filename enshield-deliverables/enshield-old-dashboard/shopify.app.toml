@@ -2,14 +2,14 @@
 
 client_id = "0448a292fd4a9b2f9675392592339bbf"
 name = "enshield-shipping-protection"
-application_url = "https://enshield-shipping-protection.gadget.app/api/shopify/install-or-render"
+application_url = "https://enshield-shipping-protection.gadget.app/"
 embedded = true
 
 [auth]
 redirect_urls = [ "https://enshield-shipping-protection.gadget.app/api/connections/auth/shopify/callback" ]
 
 [webhooks]
-api_version = "2025-10"
+api_version = "2026-01"
 
 [[webhooks.subscriptions]]
 topics = ["carts/update"]
@@ -25,4 +25,4 @@ uri = "https://enshield-shipping-protection.gadget.app/api/webhooks/shopify"
  
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_products, write_products, write_orders, read_orders, write_checkouts, write_order_edits"
+scopes = "read_checkouts, read_metafields, read_order_edits, read_orders, read_products, write_checkouts, write_metafields, write_order_edits, write_orders, write_products"

@@ -91,8 +91,8 @@ test("assigned shop selection never accepts an unassigned requested tenant", () 
     { shopId: "s1", status: "active", role: { name: "Operations Manager" } },
     { shopId: "s2", status: "active", role: { name: "Claims Agent" } },
   ];
-  assert.deepEqual(selectAssignedShops(assignments, "view_orders"), ["s1", "s2"]);
-  assert.deepEqual(selectAssignedShops(assignments, "view_errors"), ["s1"]);
+  assert.deepEqual(selectAssignedShops(assignments, "view_orders"), { shopIds: ["s1", "s2"], includesLegacy: false });
+  assert.deepEqual(selectAssignedShops(assignments, "view_errors"), { shopIds: ["s1"], includesLegacy: false });
   assert.throws(
     () => selectAssignedShops(assignments, "view_orders", "s3"),
     /Forbidden/
@@ -106,16 +106,16 @@ test("permission is evaluated independently per assignment, never unioned across
   ];
   assert.deepEqual(
     selectAssignedShops(assignments, "manage_settings", "admin-shop"),
-    ["admin-shop"]
+    { shopIds: ["admin-shop"], includesLegacy: false }
   );
   assert.throws(
     () => selectAssignedShops(assignments, "manage_settings", "audit-shop"),
     /Forbidden/
   );
-  assert.deepEqual(selectAssignedShops(assignments, "view_reports"), [
-    "admin-shop",
-    "audit-shop",
-  ]);
+  assert.deepEqual(selectAssignedShops(assignments, "view_reports"), {
+    shopIds: ["admin-shop", "audit-shop"],
+    includesLegacy: true,
+  });
 });
 
 test("internal resolver loads active operator assignments and fails closed", async () => {

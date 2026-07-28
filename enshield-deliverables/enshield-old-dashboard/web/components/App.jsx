@@ -25,6 +25,7 @@ import { ErrorsPage } from "../routes/errors";
 import { ReportsPage } from "../routes/reports";
 import { InternalSettingsPage } from "../routes/internalSettings";
 import { InternalAuthCallbackPage, InternalLoginPage } from "../routes/internalLogin";
+import { ChangePasswordPage } from "../routes/changePassword";
 import { UsersPage } from "../routes/users";
 import { FinancePage } from "../routes/finance";
 import { AuditLogPage } from "../routes/auditLog";
@@ -67,6 +68,7 @@ function App() {
           <Route path="users" element={<UsersPage />} />
           <Route path="finance" element={<FinancePage />} />
           <Route path="audit-log" element={<AuditLogPage />} />
+          <Route path="change-password" element={<ChangePasswordPage />} />
         </Route>
         <Route path="*" element={<Error404 />} />
       </Route>

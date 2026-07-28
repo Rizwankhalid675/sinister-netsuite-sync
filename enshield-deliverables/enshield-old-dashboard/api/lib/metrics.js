@@ -154,6 +154,7 @@ export function aggregateWindow(orders, start, opts = {}) {
     returnedOrders: 0,
     fulfilledOrders: 0,
     inTransitOrders: 0,
+    valueInTransit: 0,
     cancelledOrders: 0,
   };
   for (const o of orders) {
@@ -177,7 +178,10 @@ export function aggregateWindow(orders, start, opts = {}) {
     }
     if (isReturned(o)) acc.returnedOrders += 1;
     if (isFulfilled(o)) acc.fulfilledOrders += 1;
-    if (inTransit(o)) acc.inTransitOrders += 1;
+    if (inTransit(o)) {
+      acc.inTransitOrders += 1;
+      acc.valueInTransit += total;
+    }
     if (isCancelled(o)) acc.cancelledOrders += 1;
   }
   return acc;

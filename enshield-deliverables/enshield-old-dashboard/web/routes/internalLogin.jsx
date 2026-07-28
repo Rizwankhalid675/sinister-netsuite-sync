@@ -14,29 +14,46 @@ function readAndClearCallbackToken() {
 }
 
 export function InternalLoginPage() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const begin = async () => {
+
+  const begin = async (event) => {
+    event.preventDefault();
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("/auth/internal-start", { credentials: "include" });
+      const response = await fetch("/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
       const body = await response.json();
-      if (!response.ok || !body.success) throw new Error("Internal login is unavailable.");
-      window.location.assign(body.authorizationUrl);
-    } catch {
-      setError("Internal login is unavailable. Contact an Enshield administrator.");
+      if (!response.ok || !body.success) throw new Error(body.error || "Sign-in failed.");
+      navigate(body.mustChangePassword ? "/change-password" : "/dashboard", { replace: true });
+    } catch (loginError) {
+      setError(loginError.message || "Sign-in failed. Contact an Enshield administrator.");
       setLoading(false);
     }
   };
+
   return <main className="esd-auth-page">
     <section className="esd-card esd-auth-card" aria-labelledby="internal-login-title">
       <h1 id="internal-login-title">Enshield internal dashboard</h1>
-      <p>Sign in with your organization identity to access assigned clients.</p>
+      <p>Sign in with your Enshield account to access assigned clients.</p>
       {error ? <p className="esd-error" role="status" aria-live="polite">{error}</p> : null}
-      <button className="esd-btn" type="button" disabled={loading} onClick={begin}>
-        {loading ? "Starting secure sign-in…" : "Continue to secure sign-in"}
-      </button>
+      <form onSubmit={begin}>
+        <label htmlFor="internal-email">Email</label>
+        <input id="internal-email" type="email" autoComplete="username" required value={email} onChange={(event) => setEmail(event.target.value)} />
+        <label htmlFor="internal-password">Password</label>
+        <input id="internal-password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} />
+        <button className="esd-btn" type="submit" disabled={loading}>
+          {loading ? "Signing in..." : "Sign in"}
+        </button>
+      </form>
     </section>
   </main>;
 }
@@ -56,9 +73,7 @@ export function InternalAuthCallbackPage() {
         if (mounted) navigate("/dashboard", { replace: true });
       })
       .catch(() => {
-        if (mounted) {
-          setError("Sign-in could not be completed. Start again.");
-        }
+        if (mounted) setError("Sign-in could not be completed. Start again.");
       });
     callbackToken = null;
     return () => {
@@ -67,7 +82,7 @@ export function InternalAuthCallbackPage() {
   }, [navigate, token]);
   return <main className="esd-auth-page">
     <section className="esd-card esd-auth-card" role="status" aria-live="polite">
-      {error || "Completing secure sign-in…"}
+      {error || "Completing secure sign-in..."}
       {error ? <a className="esd-btn" href="/internal-login">Return to sign in</a> : null}
     </section>
   </main>;

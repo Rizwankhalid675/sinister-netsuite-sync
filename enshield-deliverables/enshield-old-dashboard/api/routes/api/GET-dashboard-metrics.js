@@ -20,6 +20,8 @@ import {
 } from "../../lib/metrics.js";
 import { hasEnshieldProtection } from "../../lib/protection.js";
 import { loadOpenClaimCount } from "../../lib/claimMetrics.js";
+import { legacyOrderSelect, projectLegacyOrder } from "../../lib/unifiedOrders.js";
+import { buildOperationalReport } from "../../lib/operationalReport.js";
 
 /**
  * Route handler that aggregates real dashboard metrics for the CURRENT shop.
@@ -76,7 +78,7 @@ const route = async ({ request, reply, api, logger, session }) => {
       select: { id: true, status: true, insuranceRate: true },
     }).catch(() => []);
     const setting = shopIds.length === 1 ? settings[0] : null;
-    const shop = shops.length === 1 ? shops[0] : {
+    const shop = shops.length === 1 && !access.includesLegacy ? shops[0] : {
       id: "all",
       name: "All assigned clients",
       domain: null,
@@ -87,7 +89,7 @@ const route = async ({ request, reply, api, logger, session }) => {
     // NOTE: shopifyCreatedAt has filterIndex/searchIndex disabled on this model,
     // so it is NOT sortable at the DB layer — sorting on it 500s. We fetch
     // unsorted and order in memory below.
-    const ORDER_CAP = 5000;
+    const ORDER_LIMIT = 15000;
     const orders = [];
     let records = await api.shopifyOrder.findMany({
       filter: tenantFilter,
@@ -113,13 +115,29 @@ const route = async ({ request, reply, api, logger, session }) => {
       },
     });
     orders.push(...records);
-    while (records.hasNextPage && orders.length < ORDER_CAP) {
+    while (records.hasNextPage && orders.length < ORDER_LIMIT) {
       records = await records.nextPage();
       orders.push(...records);
     }
+    const shopifyManagedOrderCount = orders.length;
+    let mivaOrderCount = 0;
+    if (access.includesLegacy) {
+      let legacyRecords = await api.legacyOrder.findMany({
+        first: 250,
+        select: legacyOrderSelect(),
+      });
+      const legacyOrders = [...legacyRecords];
+      while (legacyRecords.hasNextPage && legacyOrders.length < ORDER_LIMIT) {
+        legacyRecords = await legacyRecords.nextPage();
+        legacyOrders.push(...legacyRecords);
+      }
+      const projectedLegacyOrders = legacyOrders.map(projectLegacyOrder);
+      mivaOrderCount = projectedLegacyOrders.filter((order) => order.source === "miva").length;
+      orders.push(...projectedLegacyOrders);
+    }
     // If we hit the cap there are still more orders we didn't aggregate — flag
     // it so the UI can tell the merchant the totals are partial (not a bug).
-    const truncated = orders.length >= ORDER_CAP && records.hasNextPage;
+    const truncated = orders.length >= ORDER_LIMIT && records.hasNextPage;
     const currencies = [...new Set(
       orders.map((order) => currencyOf(order.currentTotalPriceSet)).filter(Boolean)
     )];
@@ -146,13 +164,6 @@ const route = async ({ request, reply, api, logger, session }) => {
     const prior = priorWindowFor(rangeStart, now);
     const priorStart = prior?.start ?? null;
 
-    // All-time (unbounded) totals + the year-scoped activity chart are route
-    // concerns, computed in a single pass here. Range-scoped headline metrics
-    // are delegated to aggregateWindow/deriveMetrics (api/lib/metrics.js).
-    let valueInTransit = 0;
-    let protectedOrders = 0;
-    let activeProtectedOrders = 0;
-
     const rate = Number(setting?.insuranceRate) || 0;
 
     const activity = Array.from({ length: 12 }, (_, m) => ({
@@ -163,10 +174,6 @@ const route = async ({ request, reply, api, logger, session }) => {
 
     for (const o of orders) {
       const total = money(o.currentTotalPriceSet);
-      if (hasEnshieldProtection(o)) protectedOrders += 1;
-      if (isProtected(o)) activeProtectedOrders += 1;
-      if (inTransit(o)) valueInTransit += total;
-
       const d = o.shopifyCreatedAt ? new Date(o.shopifyCreatedAt) : null;
       if (d && d.getFullYear() === year) {
         const b = activity[d.getMonth()];
@@ -200,13 +207,33 @@ const route = async ({ request, reply, api, logger, session }) => {
       fulfillmentStatus: o.fulfillmentStatus || null,
       createdAt: o.shopifyCreatedAt || null,
     }));
-    const openClaims = (await Promise.all(
+    let openClaims = (await Promise.all(
       shopIds.map((shopId) => loadOpenClaimCount(api, shopId))
     )).reduce((sum, count) => sum + count, 0);
+    if (access.includesLegacy) {
+      const terminalLegacyStatuses = new Set(["closed", "cancelled", "denied", "paid"]);
+      let legacyClaims = await api.legacyClaim.findMany({
+        first: 250,
+        select: { id: true, status: true },
+      });
+      const legacyClaimRows = [...legacyClaims];
+      while (legacyClaims.hasNextPage) {
+        legacyClaims = await legacyClaims.nextPage();
+        legacyClaimRows.push(...legacyClaims);
+      }
+      openClaims += legacyClaimRows.filter(
+        (claim) => !terminalLegacyStatuses.has(String(claim.status || "").toLowerCase())
+      ).length;
+    }
+    const operationalReport = buildOperationalReport(
+      orders,
+      Array.from({ length: openClaims }, () => ({ status: "open" })),
+      { range, year, now, rate }
+    );
 
     await reply.send({
       success: true,
-      scope: shopIds.length === 1 ? "single-shop" : "assigned-shops",
+      scope: shopIds.length === 1 && !access.includesLegacy ? "single-shop" : "assigned-shops",
       shopIds,
       shop: {
         id: shop.id,
@@ -218,10 +245,17 @@ const route = async ({ request, reply, api, logger, session }) => {
       range,
       generatedAt: now.toISOString(),
       currency: currencies[0] || null,
+      dataSources: {
+        shopify: {
+          status: "live",
+          orderCount: shopifyManagedOrderCount,
+        },
+        miva: { status: mivaOrderCount > 0 ? "live" : "unavailable", orderCount: mivaOrderCount },
+      },
       metrics: {
-        valueInTransit,
-        protectedOrders,
-        activeProtectedOrders,
+        valueInTransit: operationalReport.summary.valueInTransit,
+        protectedOrders: operationalReport.summary.protectedOrders,
+        activeProtectedOrders: operationalReport.summary.activeProtectedOrders,
         totalOrders: orders.length,
         // Range-scoped order count (headline metrics reflect the window).
         rangeOrders,
@@ -233,11 +267,12 @@ const route = async ({ request, reply, api, logger, session }) => {
         // above are aggregated from the most recent ORDER_CAP only.
         truncated,
       },
-      insuranceMetrics,
-      refundsReturns,
-      revenueTrend,
-      fulfillmentHealth,
-      activity,
+      insuranceMetrics: operationalReport.insuranceMetrics,
+      refundsReturns: operationalReport.refundsReturns,
+      revenueTrend: operationalReport.revenueTrend,
+      fulfillmentHealth: operationalReport.fulfillmentHealth,
+      activity: operationalReport.activity,
+      sourceSplits: operationalReport.sourceSplits,
       latestOrders,
     });
   } catch (error) {

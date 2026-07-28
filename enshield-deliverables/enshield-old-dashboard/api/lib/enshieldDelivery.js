@@ -5,6 +5,19 @@ function numericOrderId(sourceId) {
   return String(sourceId).split("/").pop();
 }
 
+function normalizeApiBaseUrl(value) {
+  if (!value) return { errorCode: "CONFIGURATION_MISSING" };
+  try {
+    const url = new URL(String(value));
+    if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash) {
+      return { errorCode: "CONFIGURATION_INVALID" };
+    }
+    return { baseUrl: url.origin };
+  } catch {
+    return { errorCode: "CONFIGURATION_INVALID" };
+  }
+}
+
 async function send({ url, body, apiKey, deliveryKey, method = "POST", fetchImpl }) {
   try {
     const response = await fetchImpl(url, {
@@ -41,6 +54,7 @@ async function deliverTracking({
   delivery,
   shopifyClient,
   apiKey,
+  apiBaseUrl,
   fetchImpl,
 }) {
   const resourceId = delivery.metadata?.resourceId || delivery.sourceId;
@@ -63,7 +77,7 @@ async function deliverTracking({
     return { ok: false, retryable: false, errorCode: "TRACKING_NOT_FOUND" };
   }
   return send({
-    url: `https://staging.manage.enshield.com/api/orders/miva/${numericOrderId(resourceId)}/store-tracking-number`,
+    url: `${apiBaseUrl}/api/orders/miva/${numericOrderId(resourceId)}/store-tracking-number`,
     body: { tracking_number: trackingNumber },
     apiKey,
     deliveryKey: delivery.deliveryKey,
@@ -71,7 +85,7 @@ async function deliverTracking({
   });
 }
 
-async function deliverOrder({ delivery, shopifyClient, apiKey, fetchImpl }) {
+async function deliverOrder({ delivery, shopifyClient, apiKey, apiBaseUrl, fetchImpl }) {
   const orderId = String(delivery.sourceId).startsWith("gid://")
     ? delivery.sourceId
     : `gid://shopify/Order/${delivery.sourceId}`;
@@ -128,7 +142,7 @@ async function deliverOrder({ delivery, shopifyClient, apiKey, fetchImpl }) {
     })),
   };
   return send({
-    url: `https://staging.manage.enshield.com/api/orders/miva/${numericOrderId(delivery.sourceId)}`,
+    url: `${apiBaseUrl}/api/orders/miva/${numericOrderId(delivery.sourceId)}`,
     body,
     apiKey,
     deliveryKey: delivery.deliveryKey,
@@ -136,9 +150,9 @@ async function deliverOrder({ delivery, shopifyClient, apiKey, fetchImpl }) {
   });
 }
 
-async function deliverDelete({ delivery, apiKey, fetchImpl }) {
+async function deliverDelete({ delivery, apiKey, apiBaseUrl, fetchImpl }) {
   return send({
-    url: `https://staging.manage.enshield.com/api/orders/miva/${numericOrderId(delivery.sourceId)}`,
+    url: `${apiBaseUrl}/api/orders/miva/${numericOrderId(delivery.sourceId)}`,
     body: undefined,
     apiKey,
     deliveryKey: delivery.deliveryKey,
@@ -151,11 +165,16 @@ export async function deliverToEnshield({
   delivery,
   shopifyClient,
   apiKey,
+  apiBaseUrl,
   logger,
   fetchImpl = fetch,
 }) {
   if (!apiKey) {
     return { ok: false, retryable: false, errorCode: "CONFIGURATION_MISSING" };
+  }
+  const normalized = normalizeApiBaseUrl(apiBaseUrl);
+  if (!normalized.baseUrl) {
+    return { ok: false, retryable: false, errorCode: normalized.errorCode };
   }
   logger.info(
     { operation: delivery.operation },
@@ -167,6 +186,7 @@ export async function deliverToEnshield({
         delivery,
         shopifyClient,
         apiKey,
+        apiBaseUrl: normalized.baseUrl,
         fetchImpl,
       });
     }
@@ -175,11 +195,17 @@ export async function deliverToEnshield({
         delivery,
         shopifyClient,
         apiKey,
+        apiBaseUrl: normalized.baseUrl,
         fetchImpl,
       });
     }
     if (delivery.operation === "order.delete") {
-      return await deliverDelete({ delivery, apiKey, fetchImpl });
+      return await deliverDelete({
+        delivery,
+        apiKey,
+        apiBaseUrl: normalized.baseUrl,
+        fetchImpl,
+      });
     }
   } catch (error) {
     return {

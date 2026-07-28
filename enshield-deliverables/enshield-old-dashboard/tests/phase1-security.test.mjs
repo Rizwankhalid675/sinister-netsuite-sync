@@ -37,18 +37,24 @@ test("identity resolution uses verified operator identity and explicit shop assi
 });
 
 test("session-scoped read routes enforce their backend view permissions", () => {
-  const expectations = {
+  // GET-users.js is intentionally shop-scoped self-service data (appUser),
+  // not an internal-access-gated resource, so it uses requirePermission
+  // instead of requireInternalAccess. See its own module comment.
+  const internalAccessExpectations = {
     "api/routes/api/GET-dashboard-metrics.js": "VIEW_DASHBOARD",
     "api/routes/api/GET-clients.js": "VIEW_CLIENTS",
     "api/routes/api/GET-claims.js": "VIEW_CLAIMS",
-    "api/routes/api/GET-users.js": "VIEW_USERS",
   };
 
-  for (const [file, permission] of Object.entries(expectations)) {
+  for (const [file, permission] of Object.entries(internalAccessExpectations)) {
     const route = source(file);
     assert.match(route, /requireInternalAccess/);
     assert.match(route, new RegExp(`PERMISSIONS\\.${permission}`));
   }
+
+  const usersRoute = source("api/routes/api/GET-users.js");
+  assert.match(usersRoute, /requirePermission/);
+  assert.match(usersRoute, /PERMISSIONS\.VIEW_USERS/);
 });
 
 test("admin model mutations enforce fine-grained permissions before save", () => {
@@ -79,10 +85,12 @@ test("admin model mutations enforce fine-grained permissions before save", () =>
 
 test("unauthenticated role cannot invoke Shopify product setup", () => {
   const access = source("accessControl/permissions.gadget.ts");
-  assert.doesNotMatch(
-    access,
-    /unauthenticated:\s*\{[\s\S]*setupInsuranceProduct:\s*true/
-  );
+  // Scope the match to just the `unauthenticated` role block (up to its
+  // closing brace before the next top-level role key) rather than letting
+  // [\s\S]* run unbounded into later roles like "shopify-app-users".
+  const blockMatch = access.match(/unauthenticated:\s*\{[\s\S]*?\n\s{4}\},\n/);
+  assert.ok(blockMatch, "expected to find the unauthenticated role block");
+  assert.doesNotMatch(blockMatch[0], /setupInsuranceProduct:\s*true/);
 });
 
 test("global role updates write their audit record in the acting shop scope", () => {
