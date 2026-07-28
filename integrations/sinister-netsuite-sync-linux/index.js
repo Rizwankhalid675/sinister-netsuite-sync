@@ -3,7 +3,7 @@ const cron = require('node-cron');
 const { syncOrdersToNetsuite } = require('./flows/ordersToNetsuite');
 const { syncShipmentsToMiva } = require('./flows/shipmentsToMiva');
 const { syncInvoices } = require('./flows/invoices');
-const { syncProductIds } = require('./flows/productSync');
+const { syncProductIds, syncNewMivaSkus } = require('./flows/productSync');
 const { syncCustomersToNetsuite } = require('./flows/customersToNetsuite');
 const { getOrders } = require('./miva');
 const { log } = require('./logger');
@@ -54,12 +54,38 @@ async function runSync() {
   log('═══════════════════════════════════════');
 }
 
+let newSkuSyncRunning = false;
+
+async function runNewSkuSync() {
+  if (newSkuSyncRunning) {
+    log('Previous new-SKU sync still running — skipping this tick');
+    return;
+  }
+  newSkuSyncRunning = true;
+  log('═══════════════════════════════════════');
+  log('Running Flow 6: New Miva SKU → NetSuite auto-create...');
+  try {
+    await syncNewMivaSkus();
+  } catch (err) {
+    log(`❌ New SKU sync error: ${err.message}`, 'error');
+  } finally {
+    newSkuSyncRunning = false;
+  }
+  log('═══════════════════════════════════════');
+}
+
 // Run immediately on start
 runSync();
+runNewSkuSync();
 
 // Then run every X minutes
 cron.schedule(`*/${INTERVAL} * * * *`, () => {
   runSync();
 });
 
-log(`Scheduler running — syncing every ${INTERVAL} minutes`);
+// New-SKU cross-check runs every 12 hours (new products don't need 5-minute polling)
+cron.schedule('0 */12 * * *', () => {
+  runNewSkuSync();
+});
+
+log(`Scheduler running — syncing every ${INTERVAL} minutes, new-SKU check every 12 hours`);

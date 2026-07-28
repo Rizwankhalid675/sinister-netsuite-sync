@@ -1,4 +1,4 @@
-const { getInventoryItems, updateInventoryItem } = require('../netsuite');
+const { getInventoryItems, updateInventoryItem, createInventoryItem, getItemIdBySku } = require('../netsuite');
 const { log } = require('../logger');
 const axios = require('axios');
 
@@ -78,4 +78,61 @@ async function syncProductIds() {
   log(`Product sync complete — ${updated} updated, ${skipped} skipped`);
 }
 
-module.exports = { syncProductIds };
+// Cross-check active Miva SKUs against NetSuite and auto-create any that are missing.
+async function syncNewMivaSkus() {
+  log('Checking for new Miva SKUs not yet in NetSuite...');
+  const mivaProducts = await getMivaProducts();
+
+  const activeProducts = mivaProducts.filter(p => {
+    // Miva ProductList_Load_Query returns 0/1 (or boolean) for `active`
+    return p.active === undefined || p.active === true || p.active === 1 || p.active === '1';
+  });
+  log(`Found ${activeProducts.length} active Miva product(s) (of ${mivaProducts.length} total)`);
+
+  const nsItems = await getInventoryItems();
+  const existingSkus = new Set(nsItems.map(i => (i.itemid || '').toLowerCase()));
+
+  let created = 0;
+  let skipped = 0;
+  const failures = [];
+
+  for (const p of activeProducts) {
+    const sku = p.code || p.sku;
+    if (!sku) { skipped++; continue; }
+
+    if (existingSkus.has(sku.toLowerCase())) {
+      skipped++;
+      continue;
+    }
+
+    try {
+      // Double-check directly against NetSuite in case our bulk list was stale
+      const existingId = await getItemIdBySku(sku);
+      if (existingId) {
+        skipped++;
+        continue;
+      }
+
+      const name = p.name || p.descrip || sku;
+      const price = p.price || p.cost || 0;
+
+      const newId = await createInventoryItem(sku, name, price);
+      log(`✅ Created NetSuite item for new Miva SKU "${sku}" (NetSuite id ${newId})`);
+
+      if (newId) {
+        await updateInventoryItem(newId, p.id, p.code || sku);
+      }
+
+      created++;
+      existingSkus.add(sku.toLowerCase());
+    } catch (err) {
+      log(`❌ Failed to create NetSuite item for SKU "${sku}": ${err.message}`, 'error');
+      failures.push(sku);
+    }
+  }
+
+  log(`New SKU sync complete — ${created} created, ${skipped} already existed/skipped${failures.length ? `, ${failures.length} failed` : ''}`);
+  return { created, skipped, failures };
+}
+
+module.exports = { syncProductIds, syncNewMivaSkus };
