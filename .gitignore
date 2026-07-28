@@ -49,3 +49,7 @@ desktop.ini
 
 # Mac
 .DS_Store
+
+# Numbered daemon rotation logs (e.g. sinisterdieselsync.0.out.log)
+**/daemon/*.out.log
+**/daemon/*.0.out.log
