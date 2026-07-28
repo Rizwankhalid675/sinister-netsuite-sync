@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SYNCED_FILE = path.join(__dirname, '../logs/synced_orders.json');
+const MISSING_SKUS_FILE = path.join(__dirname, '../logs/missing_skus.json');
 
 function loadSyncedOrders() {
   if (!fs.existsSync(SYNCED_FILE)) return {};
@@ -16,6 +17,27 @@ function saveSyncedOrder(mivaOrderId, netsuiteId) {
   const synced = loadSyncedOrders();
   synced[mivaOrderId] = { netsuiteId, syncedAt: new Date().toISOString() };
   fs.writeFileSync(SYNCED_FILE, JSON.stringify(synced, null, 2));
+}
+
+function loadMissingSkus() {
+  if (!fs.existsSync(MISSING_SKUS_FILE)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(MISSING_SKUS_FILE, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+// Accumulates unresolved SKUs across a sync run instead of logging one line per SKU.
+// Persisted to logs/missing_skus.json so nothing is lost between runs and it can be reviewed/fixed in bulk.
+function recordMissingSku(sku, itemName, orderId) {
+  const all = loadMissingSkus();
+  if (!all[sku]) {
+    all[sku] = { name: itemName || '', firstSeen: new Date().toISOString(), orders: [] };
+  }
+  if (!all[sku].orders.includes(orderId)) all[sku].orders.push(orderId);
+  all[sku].lastSeen = new Date().toISOString();
+  fs.writeFileSync(MISSING_SKUS_FILE, JSON.stringify(all, null, 2));
 }
 
 const SHIP_METHOD_MAP = {
@@ -29,15 +51,20 @@ const SHIP_METHOD_MAP = {
 };
 
 // Celigo hardcoded SKU overrides — SKUs where Miva code doesn't match NS item name exactly
+// NOTE: These internal IDs were re-verified against live NetSuite (SuiteQL) on 2026-07-28.
+// Several had drifted from item re-creation/renumbering in NetSuite; IDs below are current.
+// TODO: 'SD-COOLFIL-6_0-W' and 'SD-6_0CF03-01-20' have no matching NetSuite itemid at all
+// anymore (old id 8210 was a shared/guessed fallback) — needs manual lookup of the correct
+// current item before these two SKUs can sync reliably. Left as-is (8210) pending investigation.
 const SKU_OVERRIDES = {
   'SD-UFC-OIL': '7952',
-  'SD-RADTUBE-6.7C-19-HO': '14922',
-  'SD-RADTUBE-6.7C-19': '14923',
-  'SD-FC-FUEL-U-GRN': '14351',
-  'SDG-CAI-6.0': '13309',
-  'SD-FC-FUEL-U': '14715',
-  'SD-FC-FUEL-U-GRY': '14461',
-  'SD-REOFCF-6.0': '14919',
+  'SD-RADTUBE-6.7C-19-HO': '11533',
+  'SD-RADTUBE-6.7C-19': '11532',
+  'SD-FC-FUEL-U-GRN': '11412',
+  'SDG-CAI-6.0': '11573',
+  'SD-FC-FUEL-U': '11411',
+  'SD-FC-FUEL-U-GRY': '11413',
+  'SD-REOFCF-6.0': '11538',
   'SD-COOLFIL-6_0-W': '8210',
   'SD-6_0CF03-01-20': '8210'
 };
@@ -209,8 +236,12 @@ async function syncOrdersToNetsuite() {
         if (!id) {
           // Auto-create the item in NetSuite so the order isn't missing lines
           id = await createInventoryItem(sku, item.name, item.price);
-          if (id) log(`✅ Auto-created NS item for SKU ${sku} → ID ${id}`);
-          else log(`⚠️ Could not auto-create NS item for SKU ${sku}`, 'error');
+          if (id) {
+            log(`✅ Auto-created NS item for SKU ${sku} → ID ${id}`);
+          } else {
+            // Don't log per-SKU noise — accumulate and report once at end of run
+            recordMissingSku(sku, item.name, order.id);
+          }
         }
         itemIdMap[sku] = id || null;
       }
@@ -252,6 +283,13 @@ async function syncOrdersToNetsuite() {
     } catch (err) {
       log(`❌ Order ${order.id} failed: ${err.message}`, 'error');
     }
+  }
+
+  // Single consolidated summary instead of per-SKU log spam during the loop above
+  const missing = loadMissingSkus();
+  const missingCount = Object.keys(missing).length;
+  if (missingCount > 0) {
+    log(`⚠️ ${missingCount} SKU(s) still unresolved in NetSuite — see logs/missing_skus.json (e.g. ${Object.keys(missing).slice(0, 5).join(', ')}${missingCount > 5 ? ', …' : ''})`, 'error');
   }
 }
 

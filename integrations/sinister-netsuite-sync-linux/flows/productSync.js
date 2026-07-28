@@ -7,15 +7,29 @@ const MIVA_TOKEN = process.env.MIVA_API_TOKEN;
 const MIVA_STORE = process.env.MIVA_STORE_CODE;
 
 async function getMivaProducts() {
-  const response = await axios.post(MIVA_URL, {
-    Store_Code: MIVA_STORE,
-    Function: 'ProductList_Load_Query',
-    Count: 500,
-    Offset: 0
-  }, {
-    headers: { 'X-Miva-API-Authorization': `MIVA ${MIVA_TOKEN}` }
-  });
-  return response.data.data?.items || [];
+  const PAGE_SIZE = 500;
+  let offset = 0;
+  let all = [];
+
+  while (true) {
+    const response = await axios.post(MIVA_URL, {
+      Store_Code: MIVA_STORE,
+      Function: 'ProductList_Load_Query',
+      Count: PAGE_SIZE,
+      Offset: offset
+    }, {
+      headers: { 'X-Miva-API-Authorization': `MIVA ${MIVA_TOKEN}` }
+    });
+
+    const page = response.data.data?.data || [];
+    const totalCount = response.data.data?.total_count ?? page.length;
+    all = all.concat(page);
+
+    if (page.length === 0 || all.length >= totalCount) break;
+    offset += PAGE_SIZE;
+  }
+
+  return all;
 }
 
 async function syncProductIds() {
@@ -36,13 +50,14 @@ async function syncProductIds() {
 
   let updated = 0;
   let skipped = 0;
+  const unmatched = [];
 
   for (const nsItem of nsItems) {
     const key = (nsItem.itemid || '').toLowerCase();
     const match = mivaMap[key];
 
     if (!match) {
-      log(`No Miva match for NetSuite item "${nsItem.itemid}" — skipping`);
+      unmatched.push(nsItem.itemid);
       skipped++;
       continue;
     }
@@ -54,6 +69,10 @@ async function syncProductIds() {
     } catch (err) {
       log(`❌ Failed to update ${nsItem.itemid}: ${err.message}`, 'error');
     }
+  }
+
+  if (unmatched.length) {
+    log(`No Miva match for ${unmatched.length} NetSuite item(s) — skipping: ${unmatched.slice(0, 20).join(', ')}${unmatched.length > 20 ? `, … (+${unmatched.length - 20} more)` : ''}`);
   }
 
   log(`Product sync complete — ${updated} updated, ${skipped} skipped`);
