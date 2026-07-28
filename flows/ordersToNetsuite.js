@@ -57,12 +57,17 @@ function mapOrderToNetsuite(order, customerId, itemIdMap = {}) {
       const mapped = itemIdMap[sku];
       const nsId = (mapped && typeof mapped === 'object') ? mapped.id : mapped;
       const nsPrice = (mapped && typeof mapped === 'object') ? mapped.price : null;
-      // Prefer NetSuite's own price for this exact SKU (it reflects
-      // attribute-driven price deltas like color/finish upcharges); only
-      // fall back to the raw Miva line price when NS has no usable price
-      // for this item (e.g. matched on a less-specific stripped SKU).
+      // Miva's own line price/quantity is the source of truth for what the
+      // customer was actually charged — this includes kit/combo items whose
+      // price varies per-order based on selected sub-options even though
+      // they share one SKU (NetSuite's item record only stores a single
+      // base price and cannot reflect that). Always prefer the Miva price;
+      // only fall back to NetSuite's item price when Miva didn't give us a
+      // usable one.
+      const mivaLinePrice = (item.quantity > 0) ? (item.total ?? item.price * item.quantity) / item.quantity : item.price;
+      const hasMivaPrice = typeof mivaLinePrice === 'number' && Number.isFinite(mivaLinePrice) && mivaLinePrice > 0;
       const hasNsPrice = typeof nsPrice === 'number' && Number.isFinite(nsPrice) && nsPrice > 0;
-      const rate = hasNsPrice ? nsPrice : item.price;
+      const rate = hasMivaPrice ? mivaLinePrice : (hasNsPrice ? nsPrice : item.price);
       return {
         item: { id: nsId },
         description,
