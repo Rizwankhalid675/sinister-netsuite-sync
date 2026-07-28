@@ -136,36 +136,26 @@ async function getItemIdBySku(sku) {
   return rows.length ? rows[0].id : null;
 }
 
-// Like getItemIdBySku but also returns the item's NetSuite base price, so
-// callers can price sales order lines from NetSuite instead of trusting the
-// raw Miva line price (which doesn't reflect attribute-driven price deltas,
-// e.g. color/finish upcharges baked into the NS item's own price record).
-async function getItemBySku(sku) {
+async function getItemsBySku(sku) {
   const escaped = sku.replace(/'/g, "''");
-  const rows = await suiteQL(
-    `SELECT id FROM item WHERE itemid = '${escaped}' AND isinactive = 'F'`
+  return await suiteQL(
+    `SELECT id, itemid, itemtype, taxschedule FROM item WHERE UPPER(itemid) = UPPER('${escaped}') AND isinactive = 'F'`
   );
-  if (!rows.length) return null;
-  const id = rows[0].id;
+}
 
-  // SuiteQL's item table doesn't expose a flat "baseprice" column — base
-  // price lives in the pricing sublist, keyed by pricelevel (1 = Base Price).
-  // Query it separately via the item's internal id.
-  let price = null;
-  try {
-    const priceRows = await suiteQL(
-      `SELECT unitprice FROM pricing WHERE item = ${id} AND pricelevel = 1`
-    );
-    const raw = priceRows.length ? priceRows[0].unitprice : null;
-    price = raw != null ? Number(raw) : null;
-    if (!Number.isFinite(price)) price = null;
-  } catch (priceErr) {
-    // Don't let a pricing lookup failure block resolving the item itself —
-    // callers already have a raw-order-price fallback for when price is null.
-    price = null;
-  }
+async function getItemMetadata(id) {
+  const rows = await suiteQL(
+    `SELECT id, itemid, itemtype, taxschedule FROM item WHERE id = ${Number(id)}`
+  );
+  return rows[0] || null;
+}
 
-  return { id, price };
+async function getSalesOrderFinancialSummary(id) {
+  const rows = await suiteQL(
+    `SELECT id, foreigntotal, total FROM transaction WHERE id = ${Number(id)}`
+  );
+  if (!rows.length) throw new Error(`NetSuite sales order ${id} was not found after creation`);
+  return { id: String(rows[0].id), total: Number(rows[0].foreigntotal ?? rows[0].total) };
 }
 
 async function createInventoryItem(sku, name, price) {
@@ -194,4 +184,4 @@ async function updateInventoryItem(nsItemId, mivaProductId, mivaProductCode) {
   });
 }
 
-module.exports = { nsRequest, suiteQL, createSalesOrder, createCustomerDeposit, createInvoice, getFulfilledOrders, getCustomerByEmail, getItemIdBySku, getItemBySku, createInventoryItem, getInventoryItems, updateInventoryItem };
+module.exports = { nsRequest, suiteQL, createSalesOrder, createCustomerDeposit, createInvoice, getFulfilledOrders, getCustomerByEmail, getItemIdBySku, getItemsBySku, getItemMetadata, getSalesOrderFinancialSummary, createInventoryItem, getInventoryItems, updateInventoryItem };

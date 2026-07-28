@@ -28,9 +28,14 @@ async function syncInvoices(orders) {
       continue;
     }
 
-    const nsOrderId = synced[order.id]?.netsuiteId;
+    const syncState = synced[order.id];
+    const nsOrderId = syncState?.netsuiteId;
     if (!nsOrderId) {
       log(`No NetSuite order found for Miva order ${order.id} — skipping invoice`);
+      continue;
+    }
+    if (syncState.reconciled !== true) {
+      log(`NetSuite order ${nsOrderId} for Miva order ${order.id} is not reconciled - blocking deposit and invoice`, 'error');
       continue;
     }
 
