@@ -71,8 +71,14 @@ test('ignores zero-price descriptive options and inherits parent quantity', () =
 
 test('rejects an expanded product total that does not equal the Miva item total', () => {
   const lines = expandMivaItems(order2766295);
-  lines[1].amountCents -= 2;
-  assert.throws(() => validateMivaOrderTotals(order2766295, lines), /item 5137848.*one cent/i);
+  lines[1].amountCents -= 1;
+  assert.throws(() => validateMivaOrderTotals(order2766295, lines), /item 5137848.*exactly/i);
+});
+
+test('rejects a one-cent Miva order total mismatch', () => {
+  const lines = expandMivaItems(order2766295);
+  const changedOrder = { ...order2766295, total: 1420.89 };
+  assert.throws(() => validateMivaOrderTotals(changedOrder, lines), /order 2766295.*exactly/i);
 });
 
 test('builds deterministic SKU punctuation candidates', () => {
@@ -86,6 +92,37 @@ test('resolves each expanded line exactly once and rejects missing or ambiguous 
   assert.deepEqual(resolved.map((line) => line.itemId), ['13609', '2317', '13573', '13132']);
   await assert.rejects(() => resolveExpandedLines([{ ...lines[0], sku: 'MISSING' }], async () => []), /MISSING.*not found/i);
   await assert.rejects(() => resolveExpandedLines([lines[0]], async () => [{ id: '1' }, { id: '2' }]), /multiple NetSuite items/i);
+});
+
+test('verifies an override ID resolves to the expected exact SKU', async () => {
+  const [line] = expandMivaItems(order2766295);
+  const resolved = await resolveExpandedLines(
+    [line],
+    async () => [],
+    { 'SD-ARP-HEAD-6.0': '13609' },
+    async () => [{ id: '13609', itemid: 'SD-ARP-HEAD-6.0', isinactive: 'F' }]
+  );
+  assert.equal(resolved[0].itemId, '13609');
+});
+
+test('rejects missing, mismatched, or ambiguous override metadata', async () => {
+  const [line] = expandMivaItems(order2766295);
+  const overrides = { 'SD-ARP-HEAD-6.0': '13609' };
+  await assert.rejects(
+    () => resolveExpandedLines([line], async () => [], overrides, async () => []),
+    /override.*13609.*not found/i
+  );
+  await assert.rejects(
+    () => resolveExpandedLines([line], async () => [], overrides, async () => [{ id: '13609', itemid: 'WRONG-SKU' }]),
+    /override.*does not match/i
+  );
+  await assert.rejects(
+    () => resolveExpandedLines([line], async () => [], overrides, async () => [
+      { id: '13609', itemid: 'SD-ARP-HEAD-6.0' },
+      { id: '13609', itemid: 'SD-ARP-HEAD-6.0' },
+    ]),
+    /override.*multiple/i
+  );
 });
 
 test('builds separate custom-price lines and taxable Enshield protection', async () => {
@@ -104,8 +141,8 @@ test('requires a taxable protection item when Miva charged protection tax', () =
   assert.doesNotThrow(() => assertProtectionItemTaxable(order2766295, { taxschedule: '1' }));
 });
 
-test('allows at most one cent of post-create total variance', () => {
+test('requires exact post-create total equality in integer cents', () => {
   assert.doesNotThrow(() => assertTotalsMatch(1420.88, 1420.88));
-  assert.doesNotThrow(() => assertTotalsMatch(1420.88, 1420.87));
-  assert.throws(() => assertTotalsMatch(1420.88, 1418.88), /does not reconcile/i);
+  assert.throws(() => assertTotalsMatch(1420.88, 1420.87), /does not reconcile/i);
+  assert.throws(() => assertTotalsMatch(1420.88, 1420.89), /does not reconcile/i);
 });
