@@ -22,6 +22,32 @@ const oauth = new OAuth({
 
 const token = { key: TOKEN_ID, secret: TOKEN_SECRET };
 
+const TRANSACTION_COLUMNS = 'id, recordtype, externalid, foreigntotal, total';
+const ACCOUNTING_RECORD_TYPES = new Set(['customerdeposit', 'invoice']);
+
+function escapeSuiteQLString(value) {
+  return String(value).replace(/'/g, "''");
+}
+
+function buildMivaOrderLookupQuery(orderId) {
+  const exactId = String(orderId || '').trim();
+  if (!/^\d+$/.test(exactId)) throw new Error('Miva order ID must be numeric');
+  return `SELECT ${TRANSACTION_COLUMNS} FROM transaction WHERE custbody_hb_miva_order_id = '${exactId}' AND recordtype = 'salesorder'`;
+}
+
+function buildExternalIdLookupQuery(externalId, recordType) {
+  if (!ACCOUNTING_RECORD_TYPES.has(recordType)) throw new Error(`Unsupported record type: ${recordType}`);
+  const exactId = String(externalId || '').trim();
+  if (!exactId) throw new Error('External ID is required');
+  return `SELECT ${TRANSACTION_COLUMNS} FROM transaction WHERE externalid = '${escapeSuiteQLString(exactId)}' AND recordtype = '${recordType}'`;
+}
+
+function buildItemIdLookupQuery(id) {
+  const exactId = String(id || '').trim();
+  if (!/^\d+$/.test(exactId)) throw new Error('NetSuite item lookup requires a numeric item ID');
+  return `SELECT id, itemid, itemtype, taxschedule, isinactive FROM item WHERE id = ${exactId} AND isinactive = 'F'`;
+}
+
 function getTBAHeader(method, url) {
   const authData = oauth.authorize({ url, method }, token);
   const header = oauth.toHeader(authData);
@@ -143,6 +169,18 @@ async function getItemsBySku(sku) {
   );
 }
 
+async function getItemsByInternalId(id) {
+  return await suiteQL(buildItemIdLookupQuery(id));
+}
+
+async function getTransactionsByMivaOrderId(orderId) {
+  return await suiteQL(buildMivaOrderLookupQuery(orderId));
+}
+
+async function getTransactionsByExternalId(externalId, recordType) {
+  return await suiteQL(buildExternalIdLookupQuery(externalId, recordType));
+}
+
 async function getItemMetadata(id) {
   const rows = await suiteQL(
     `SELECT id, itemid, itemtype, taxschedule FROM item WHERE id = ${Number(id)}`
@@ -184,4 +222,25 @@ async function updateInventoryItem(nsItemId, mivaProductId, mivaProductCode) {
   });
 }
 
-module.exports = { nsRequest, suiteQL, createSalesOrder, createCustomerDeposit, createInvoice, getFulfilledOrders, getCustomerByEmail, getItemIdBySku, getItemsBySku, getItemMetadata, getSalesOrderFinancialSummary, createInventoryItem, getInventoryItems, updateInventoryItem };
+module.exports = {
+  nsRequest,
+  suiteQL,
+  createSalesOrder,
+  createCustomerDeposit,
+  createInvoice,
+  getFulfilledOrders,
+  getCustomerByEmail,
+  getItemIdBySku,
+  getItemsBySku,
+  getItemsByInternalId,
+  getItemMetadata,
+  getSalesOrderFinancialSummary,
+  getTransactionsByMivaOrderId,
+  getTransactionsByExternalId,
+  buildMivaOrderLookupQuery,
+  buildExternalIdLookupQuery,
+  buildItemIdLookupQuery,
+  createInventoryItem,
+  getInventoryItems,
+  updateInventoryItem,
+};
