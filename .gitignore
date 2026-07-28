@@ -1,6 +1,9 @@
 # Nested repo with its own remote — do not track inside parent
 sinister-revamp/
 
+# Generated publish output — not source, do not track
+enshield-deliverables/.publish/
+
 # Credentials
 .env
 **/.env
