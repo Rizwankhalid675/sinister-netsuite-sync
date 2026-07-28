@@ -53,12 +53,12 @@ test('expands a Miva kit into its parent and price-bearing option lines', () => 
   });
 });
 
-test('ignores zero-price descriptive options and inherits parent quantity', () => {
+test('keeps zero-price selections in the parent description and priced options as separate lines', () => {
   const order = {
     total: 40,
-    items: [{ line_id: 1, sku: 'BASE', quantity: 2, price: 10, total: 40, tax: 0, options: [
-      { value: 'NONE', opt_prompt: 'No thanks', price: 0 },
-      { value: 'ADDON', opt_prompt: 'Addon', price: 10 },
+    items: [{ line_id: 1, sku: 'BASE', name: 'Base Product', quantity: 2, price: 10, total: 40, tax: 0, options: [
+      { attr_prompt: 'Add Cleaning Kit', value: 'NONE', opt_prompt: 'No thanks', price: 0 },
+      { attr_prompt: 'Premium Component', value: 'ADDON', opt_prompt: 'Addon', price: 10 },
     ] }],
     charges: [],
   };
@@ -67,6 +67,8 @@ test('ignores zero-price descriptive options and inherits parent quantity', () =
     ['BASE', 2, 2000],
     ['ADDON', 2, 2000],
   ]);
+  assert.equal(lines[0].description, 'Base Product — Add Cleaning Kit: No thanks');
+  assert.equal(lines[1].description, 'Premium Component: Addon');
 });
 
 test('rejects an expanded product total that does not equal the Miva item total', () => {

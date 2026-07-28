@@ -7,7 +7,7 @@ process.env.NETSUITE_CONSUMER_SECRET ||= 'test';
 process.env.NETSUITE_TOKEN_ID ||= 'test';
 process.env.NETSUITE_TOKEN_SECRET ||= 'test';
 
-const { syncSingleOrder } = require('../flows/ordersToNetsuite');
+const { syncSingleOrder, mapOrderToNetsuite } = require('../flows/ordersToNetsuite');
 
 function makeOrder(overrides = {}) {
   return {
@@ -118,4 +118,25 @@ test('blocks invalid item resolution before duplicate or customer lookups', asyn
   await assert.rejects(() => syncSingleOrder(makeOrder(), deps), /not found/i);
   assert.equal(duplicateCalls, 0);
   assert.equal(customerCalls, 0);
+});
+
+test('creates separate itemized payload lines in Pending Approval status', () => {
+  const order = makeOrder({
+    charges: [{ type: 'enshield_charge', descrip: 'Enhanced Shipping Protection', amount: 25.86, tax: 0 }],
+  });
+  const resolved = [
+    { itemId: '13609', description: 'Parent', quantity: 1, rateCents: 84599, amountCents: 84599, taxable: true, mivaLineId: 7 },
+    { itemId: '2317', description: 'Intake', quantity: 1, rateCents: 9000, amountCents: 9000, taxable: true, mivaLineId: 7 },
+    { itemId: '13573', description: 'Exhaust', quantity: 1, rateCents: 11744, amountCents: 11744, taxable: true, mivaLineId: 7 },
+    { itemId: '13132', description: 'Heads', quantity: 1, rateCents: 23940, amountCents: 23940, taxable: true, mivaLineId: 7 },
+  ];
+  const { payload } = mapOrderToNetsuite(order, '22', resolved);
+  assert.deepEqual(payload.orderstatus, { id: 'A' });
+  assert.deepEqual(payload.item.items.map((line) => [line.item.id, line.rate, line.amount]), [
+    ['13609', 845.99, 845.99],
+    ['2317', 90, 90],
+    ['13573', 117.44, 117.44],
+    ['13132', 239.40, 239.40],
+    ['10322', 25.86, 25.86],
+  ]);
 });

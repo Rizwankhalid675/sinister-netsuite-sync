@@ -58,22 +58,40 @@ test('adopts existing deposit and invoice by deterministic external ID without w
   assert.equal(checkpoints.at(-1)[1].invoiceId, '55');
 });
 
-test('checkpoints a new deposit immediately and does not create an invoice before eligibility', async () => {
+test('does not create a deposit or invoice before fulfillment eligibility', async () => {
   const checkpoints = [];
+  let depositCreates = 0;
   let invoiceCreates = 0;
   const result = await syncInvoiceForOrder(order, {
     syncState: { netsuiteId: '33', reconciled: true },
     invoiceState: {},
     getTransactionsByExternalId: async () => [],
-    createCustomerDeposit: async () => ({ id: '44' }),
+    createCustomerDeposit: async () => { depositCreates += 1; return { id: '44' }; },
     createInvoiceFromSalesOrder: async () => { invoiceCreates += 1; return { id: '55' }; },
     getSalesOrderStatus: async () => 'B',
     saveInvoiceState: (id, value) => checkpoints.push([id, structuredClone(value)]),
   });
-  assert.deepEqual(result, { status: 'waiting', depositId: '44', invoiceId: null, nsOrderId: '33' });
+  assert.deepEqual(result, { status: 'waiting', depositId: null, invoiceId: null, nsOrderId: '33' });
+  assert.equal(depositCreates, 0);
   assert.equal(invoiceCreates, 0);
-  assert.equal(checkpoints.length, 1);
-  assert.equal(checkpoints[0][1].depositId, '44');
+  assert.equal(checkpoints.length, 0);
+});
+
+test('never creates an invoice while NetSuite is Pending Approval', async () => {
+  let depositCreates = 0;
+  let invoiceCreates = 0;
+  const result = await syncInvoiceForOrder(order, {
+    syncState: { netsuiteId: '33', reconciled: true },
+    invoiceState: {},
+    getTransactionsByExternalId: async () => [],
+    createCustomerDeposit: async () => { depositCreates += 1; return { id: '44' }; },
+    createInvoiceFromSalesOrder: async () => { invoiceCreates += 1; return { id: '55' }; },
+    getSalesOrderStatus: async () => 'A',
+    saveInvoiceState: () => {},
+  });
+  assert.deepEqual(result, { status: 'waiting', depositId: null, invoiceId: null, nsOrderId: '33' });
+  assert.equal(depositCreates, 0);
+  assert.equal(invoiceCreates, 0);
 });
 
 test('blocks ambiguous deposits before any accounting write', async () => {
@@ -84,6 +102,7 @@ test('blocks ambiguous deposits before any accounting write', async () => {
     getTransactionsByExternalId: async (externalId, type) => type === 'customerdeposit'
       ? [{ id: '44' }, { id: '45' }]
       : [],
+    getSalesOrderStatus: async () => 'E',
     createCustomerDeposit: async () => { writes += 1; return { id: '99' }; },
     saveInvoiceState: () => { writes += 1; },
   }), /multiple customerdeposit/i);

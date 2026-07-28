@@ -65,6 +65,18 @@ async function syncInvoiceForOrder(order, dependencies = {}) {
     : new Date().toISOString().split('T')[0];
 
   let depositId = validTransactionId(invoiceState.depositId);
+  let invoiceId = validTransactionId(invoiceState.invoiceId);
+  if (!depositId || !invoiceId) {
+    const getStatus = dependencies.getSalesOrderStatus || (async (id) => {
+      const rows = await suiteQL(`SELECT status FROM transaction WHERE id = ${Number(id)}`);
+      return rows[0]?.status;
+    });
+    const soStatus = await getStatus(nsOrderId);
+    if (soStatus !== 'E' && soStatus !== 'F') {
+      return { status: 'waiting', depositId, invoiceId, nsOrderId };
+    }
+  }
+
   const depositExternalId = `MIVA_CD_${order.id}`;
   if (!depositId) {
     depositId = requireUniqueTransaction(
@@ -99,7 +111,6 @@ async function syncInvoiceForOrder(order, dependencies = {}) {
     persist(order.id, invoiceState);
   }
 
-  let invoiceId = validTransactionId(invoiceState.invoiceId);
   const invoiceExternalId = `MIVA_INV_${order.id}`;
   if (!invoiceId) {
     invoiceId = requireUniqueTransaction(
@@ -108,14 +119,6 @@ async function syncInvoiceForOrder(order, dependencies = {}) {
       invoiceExternalId
     );
     if (!invoiceId) {
-      const getStatus = dependencies.getSalesOrderStatus || (async (id) => {
-        const rows = await suiteQL(`SELECT status FROM transaction WHERE id = ${Number(id)}`);
-        return rows[0]?.status;
-      });
-      const soStatus = await getStatus(nsOrderId);
-      if (soStatus !== 'E' && soStatus !== 'F') {
-        return { status: 'waiting', depositId, invoiceId: null, nsOrderId };
-      }
       const createInvoiceFromSalesOrder = dependencies.createInvoiceFromSalesOrder || ((id, data) => (
         nsRequest('POST', `salesorder/${id}/!transform/invoice`, data)
       ));
