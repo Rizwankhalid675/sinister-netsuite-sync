@@ -28,6 +28,7 @@ Folder: `daily-work/`
 | **2026-07-14 → 07-22** | **Website Revamp** — multi-day iterative work on the Sinister Diesel V2 frontend. Files not duplicated into day folders; each day has a `README.md` pointing to the live project → see [[Website Revamp]] |
 | **2026-07-25** | `sinister-netsuite-sync` snapshot (sync-tool backup) → see [[Integrations]] |
 | **2026-07-29** | `sinister-netsuite-sync` snapshot (sync-tool backup) → see [[Integrations]] |
+| **2026-07-28** | **Repo cleanup / reorg** — fixed misassigned git remotes across the vault: top-level `Work` repo repointed to `sinister-work`, stray `server` remote removed, `enshield-old-dashboard` changes committed & pushed, `Enshield_data` switched to `main` and synced with `origin/main`, `sinister-revamp` confirmed on its own `sinister-revamp.git` origin. All three repos now have exactly one clean `origin` each. |
 
 ---
 
