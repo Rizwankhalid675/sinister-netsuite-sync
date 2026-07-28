@@ -1,5 +1,0 @@
-2026/07/13-13:47:24.118 6e34 Creating DB C:\Users\admin\OneDrive\Desktop\Work\sinister-revamp\scratch\edge-v7-build\Default\EdgeCoupons/coupons_data.db since it was missing.
-2026/07/13-13:47:24.133 6e34 Reusing MANIFEST C:\Users\admin\OneDrive\Desktop\Work\sinister-revamp\scratch\edge-v7-build\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/07/13-13:47:24.334 6c20 Level-0 table #5: started
-2026/07/13-13:47:24.344 6c20 Level-0 table #5: 682920 bytes OK
-2026/07/13-13:47:24.346 6c20 Delete type=0 #3

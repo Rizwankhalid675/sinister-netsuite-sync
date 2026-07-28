@@ -1,9 +1,0 @@
-<mvt:comment>
-	Shipping Method Card V2 partial.
-	TODO: wire from verified OSEL shippingmethods/sorted_methods fields before activation.
-</mvt:comment>
-<article class="sd2-v2-method-card">
-	<input id="sd2-v2-ship-method" type="radio" value="" disabled>
-	<label for="sd2-v2-ship-method"><strong>[Placeholder] Shipping Method</strong><span>Carrier rate and delivery estimate render from Miva.</span></label>
-	<span>Rate TBD</span>
-</article>

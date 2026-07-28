@@ -1,9 +1,0 @@
-<mvt:item name="scotsblogger" param="admin" />
-
-<mvt:comment>
-|
-| The page item above calls the Scot\'s Blogger Authors Portal admin and should not be modified.
-|
-| Original template code for this page is in the Scot\'s Blogger FAQs at http://www.scotsscripts.com
-|
-</mvt:comment>

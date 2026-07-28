@@ -1,7 +1,0 @@
-<mvt:comment>Account Returns V2 partial.</mvt:comment>
-<section class="sd2-v2-account-card" aria-labelledby="sd2-v2-returns-title">
-	<header class="sd2-v2-account-section-head"><h2 id="sd2-v2-returns-title">Returns</h2><button class="sd2-btn sd2-btn--secondary" type="button">Start Return</button></header>
-	<div class="sd2-v2-account-return-list">
-		<article class="sd2-v2-account-return-card"><strong>[Placeholder] Return Request</strong><span class="sd2-v2-status-badge">Requested</span><p>[Placeholder] Return status and history.</p></article>
-	</div>
-</section>

@@ -1,3 +1,6 @@
+# Nested repo with its own remote — do not track inside parent
+sinister-revamp/
+
 # Credentials
 .env
 **/.env

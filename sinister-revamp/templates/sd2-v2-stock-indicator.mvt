@@ -1,5 +1,0 @@
-<mvt:comment>Commerce partial: Stock Indicator. Inactive reusable component.</mvt:comment>
-<div class="sd2-v2-stock is-available" data-v2-stock>
-	<span class="sd2-v2-stock__dot" aria-hidden="true"></span>
-	<span class="sd2-v2-stock__text">Availability confirmed by Miva inventory</span>
-</div>

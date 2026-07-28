@@ -1,9 +1,0 @@
-<mvt:comment>Empty Cart State V2 partial.</mvt:comment>
-<section class="sd2-v2-cart-empty-state" aria-labelledby="sd2-v2-empty-cart-title">
-	<h2 id="sd2-v2-empty-cart-title">Your Cart Is Empty</h2>
-	<p>Add parts to begin building your order. Garage fitment remains available before checkout.</p>
-	<div class="sd2-v2-empty__actions">
-		<a class="sd2-btn sd2-btn--primary" href="&mvte:urls:SFNT:auto;">Continue Shopping</a>
-		<button class="sd2-btn sd2-btn--secondary" type="button" data-v2-garage-toggle>Open Garage</button>
-	</div>
-</section>

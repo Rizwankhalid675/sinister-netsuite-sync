@@ -1,2 +1,0 @@
-<mvt:comment>Product navigation V2 partial. Links are shown only for configured product content.</mvt:comment>
-<nav class="sd2-v2-product-tabs" aria-label="Product information"><a href="#specifications">Specifications</a><mvt:if expr="NOT ISNULL l.settings:product:customfield_values:customfields:installation"><a href="#installation">Installation</a></mvt:if><mvt:if expr="g.at_least_one_video"><a href="#videos">Videos</a></mvt:if><a href="#reviews">Reviews</a><mvt:if expr="l.settings:related_product_count NE 0"><a href="#related-products">Related Products</a></mvt:if></nav>

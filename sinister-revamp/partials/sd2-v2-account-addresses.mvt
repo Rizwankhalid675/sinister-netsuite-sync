@@ -1,8 +1,0 @@
-<mvt:comment>Account Addresses V2 partial.</mvt:comment>
-<section class="sd2-v2-account-card" aria-labelledby="sd2-v2-addresses-title">
-	<header class="sd2-v2-account-section-head"><h2 id="sd2-v2-addresses-title">Addresses</h2><button class="sd2-btn sd2-btn--secondary" type="button">Add Address</button></header>
-	<div class="sd2-v2-account-address-grid">
-		<article class="sd2-v2-account-address-card"><h3>Shipping Address</h3><address>[Placeholder] Shipping address from customer record.</address><div><button class="sd2-v2-link-button" type="button">Edit</button><button class="sd2-v2-link-button" type="button">Delete</button></div></article>
-		<article class="sd2-v2-account-address-card"><h3>Billing Address</h3><address>[Placeholder] Billing address from customer record.</address><div><button class="sd2-v2-link-button" type="button">Edit</button><button class="sd2-v2-link-button" type="button">Delete</button></div></article>
-	</div>
-</section>

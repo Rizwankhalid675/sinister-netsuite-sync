@@ -1,3 +1,0 @@
-<mvt:foreach iterator="navigationitem" array="readytheme:navigationitems">
-	<a class="t-secondary-link t-site-header__links" href="&mvte:navigationitem:url;" title="&mvte:navigationitem:name;">&mvte:navigationitem:name;</a>
-</mvt:foreach>

@@ -1,4 +1,0 @@
-<mvt:comment>Commerce partial: Buy Button. Inactive reusable component.</mvt:comment>
-<button class="sd2-btn sd2-btn--primary sd2-v2-buy-btn" type="submit" data-v2-buy-button>
-	Add to Cart
-</button>

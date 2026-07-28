@@ -1,9 +1,0 @@
-<mvt:comment>Account Summary V2 partial.</mvt:comment>
-<section class="sd2-v2-account-card" aria-labelledby="sd2-v2-summary-title">
-	<h2 id="sd2-v2-summary-title">Account Summary</h2>
-	<div class="sd2-v2-account-summary">
-		<p><strong>Email</strong><span>&mvte:customer:bill_email;</span></p>
-		<p><strong>Customer Since</strong><span>[Placeholder] Customer creation date.</span></p>
-		<p><strong>Primary Vehicle</strong><span data-v2-account-garage-copy>No active vehicle selected.</span></p>
-	</div>
-</section>

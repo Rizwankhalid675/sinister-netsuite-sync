@@ -1,9 +1,0 @@
-<mvt:comment>Account Profile Card V2 partial.</mvt:comment>
-<section class="sd2-v2-account-card" aria-labelledby="sd2-v2-profile-title">
-	<h2 id="sd2-v2-profile-title">Profile</h2>
-	<div class="sd2-v2-account-summary">
-		<p><strong>Name</strong><span>&mvte:customer:ship_fname; &mvte:customer:ship_lname;</span></p>
-		<p><strong>Email</strong><span>&mvte:customer:bill_email;</span></p>
-		<p><strong>Password</strong><span>[Placeholder] Password reset link from Miva account flow.</span></p>
-	</div>
-</section>

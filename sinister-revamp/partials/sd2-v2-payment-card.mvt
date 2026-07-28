@@ -1,8 +1,0 @@
-<mvt:comment>
-	Payment Card V2 partial.
-	TODO: wire from verified OSEL paymentmethods or wrap verified MivaPay iframe flow before activation.
-</mvt:comment>
-<article class="sd2-v2-payment-card">
-	<input id="sd2-v2-payment-method" type="radio" value="" disabled>
-	<label for="sd2-v2-payment-method"><strong>[Placeholder] Payment Method</strong><span>Payment fields remain controlled by Miva/payment gateway.</span></label>
-</article>

@@ -1,5 +1,0 @@
-<mvt:comment>Commerce partial: Rating Summary. Inactive reusable component.</mvt:comment>
-<div class="sd2-v2-rating" data-v2-rating>
-	<span class="sd2-v2-rating__stars" aria-hidden="true">★★★★★</span>
-	<span class="sd2-v2-rating__text">Review rating from Miva/reviews provider</span>
-</div>

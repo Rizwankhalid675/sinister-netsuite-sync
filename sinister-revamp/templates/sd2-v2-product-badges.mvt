@@ -1,5 +1,0 @@
-<mvt:comment>Commerce partial: Product Badges. Inactive reusable component.</mvt:comment>
-<div class="sd2-v2-badges" data-v2-product-badges>
-	<span class="sd2-v2-badge">Sinister Diesel</span>
-	<span class="sd2-v2-badge sd2-v2-badge--fitment">Fitment pending</span>
-</div>

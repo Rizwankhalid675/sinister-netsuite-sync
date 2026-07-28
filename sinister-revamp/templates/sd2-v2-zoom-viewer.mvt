@@ -1,5 +1,0 @@
-<mvt:comment>Commerce partial: Zoom Viewer. Inactive reusable component.</mvt:comment>
-<div class="sd2-v2-media__viewer" data-v2-zoom-viewer>
-	<img src="&mvte:product:imagetypes:main;" alt="&mvte:product:name;" data-v2-gallery-main>
-	<button class="sd2-v2-media__zoom" type="button" data-v2-zoom-toggle>Zoom</button>
-</div>

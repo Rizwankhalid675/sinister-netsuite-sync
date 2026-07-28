@@ -1,8 +1,0 @@
-<mvt:comment>
-	<!--
-	By default, this form is designed to send to the store email address which is "g.store:email".
-	Otherwise you can change this, for testing, by replacing g.store:email with 'my_email@my_domain.com'.
-	-->	
-</mvt:comment>
-
-	<mvt:assign name="l.mail:to" value="'miva@swiftmv.com'" />

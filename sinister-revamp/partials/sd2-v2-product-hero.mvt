@@ -1,6 +1,0 @@
-<mvt:comment>Product Hero V2 partial. Product and review hooks use live sources.</mvt:comment>
-<header class="sd2-v2-product-hero">
-	<nav class="sd2-v2-breadcrumbs" aria-label="Breadcrumb"><a href="&mvte:urls:SFNT:auto;">Home</a><span aria-hidden="true">/</span><a href="&mvte:urls:CTGY:auto;">Parts</a><span aria-hidden="true">/</span><span aria-current="page">&mvte:product:name;</span></nav>
-	<p class="sd2-kicker">Sinister Diesel Product</p><h1>&mvte:product:name;</h1>
-	<div class="sd2-v2-product-hero__meta"><span>SKU <mvt:if expr="NOT ISNULL l.settings:product:sku">&mvte:product:sku;<mvt:else>&mvte:product:code;</mvt:if></span><span id="product_just_stars" role="region" tabindex="-1" aria-label="Product rating summary"></span><span data-v2-fitment-copy>Garage fitment not selected.</span></div>
-</header>

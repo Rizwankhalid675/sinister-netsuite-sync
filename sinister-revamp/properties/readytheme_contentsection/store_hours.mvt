@@ -1,7 +1,0 @@
-<h5 class="c-menu__title u-color-white u-text-bold u-text-uppercase">Hours</h5>
-<p class="u-text-medium c-text-body">
-	<span itemprop="openingHours" content="Mo,Tu,We,Th,Fr 08:00-17:00">Monday - Friday: 8am - 5pm PST</span><br />
-	<span itemprop="openingHours" content="Sa 08:00-13:00">Saturday: Closed</span><br />
-	<span>Sunday:  Closed</span><br>
-	
-</p>

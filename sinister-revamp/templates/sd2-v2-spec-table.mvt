@@ -1,6 +1,0 @@
-<mvt:comment>Commerce partial: Spec Table. Inactive reusable component.</mvt:comment>
-<dl class="sd2-v2-spec-table" data-v2-spec-table>
-	<div><dt>Application</dt><dd>Product-specific Miva data</dd></div>
-	<div><dt>Material</dt><dd>Product-specific Miva data</dd></div>
-	<div><dt>Install</dt><dd>Product-specific Miva data</dd></div>
-</dl>

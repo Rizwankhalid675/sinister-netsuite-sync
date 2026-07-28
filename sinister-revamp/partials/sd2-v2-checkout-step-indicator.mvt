@@ -1,9 +1,0 @@
-<mvt:comment>Checkout Step Indicator V2 partial.</mvt:comment>
-<nav class="sd2-v2-checkout-steps" aria-label="Checkout progress">
-	<ol>
-		<li class="is-current"><span>1</span><strong>Information</strong></li>
-		<li><span>2</span><strong>Shipping</strong></li>
-		<li><span>3</span><strong>Payment</strong></li>
-		<li><span>4</span><strong>Review</strong></li>
-	</ol>
-</nav>

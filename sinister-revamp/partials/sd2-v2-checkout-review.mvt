@@ -1,9 +1,0 @@
-<mvt:comment>Checkout Review Step V2 partial.</mvt:comment>
-<section class="sd2-v2-checkout-panel" aria-labelledby="sd2-v2-review-title">
-	<header><p class="sd2-kicker">Step 4</p><h2 id="sd2-v2-review-title">Review</h2></header>
-	<div class="sd2-v2-review-list">
-		<section><h3>Contact</h3><p>[Placeholder] Customer contact summary.</p></section>
-		<section><h3>Shipping</h3><p>[Placeholder] Shipping address and method summary.</p></section>
-		<section><h3>Payment</h3><p>[Placeholder] Payment summary.</p></section>
-	</div>
-</section>

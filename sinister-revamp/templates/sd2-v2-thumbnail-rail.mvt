@@ -1,6 +1,0 @@
-<mvt:comment>Commerce partial: Thumbnail Rail. Inactive reusable component.</mvt:comment>
-<div class="sd2-v2-media__thumbs" data-v2-thumbnail-rail>
-	<button type="button" data-v2-gallery-thumb data-v2-gallery-src="&mvte:product:imagetypes:main;" aria-label="View main image">
-		<img src="&mvte:product:imagetypes:main;" alt="">
-	</button>
-</div>

@@ -1,8 +1,0 @@
-{
-    "active": 1,
-    "descrip": "Global Site Header Message",
-    "link_dest": "https://sinisterdiesel.com/customer-reviews.html",
-    "link_targ": "_self",
-    "link_type": "N",
-    "message": "<div class=\"banner sd2-proofbar\"><a class=\"sd2-proofbar__link\" href=\"https://sinisterdiesel.com/customer-reviews.html\" aria-label=\"Read more than 20,000 verified customer reviews\"><span class=\"sd2-proofbar__label\"><i aria-hidden=\"true\"></i> Owner Verified</span><span class=\"line-1\">Trusted by Diesel Owners <strong>Since 2009</strong></span><span class=\"sd2-proofbar__divider\" aria-hidden=\"true\"></span><span class=\"line-2\"><span class=\"rating\">4.8★</span><span class=\"sd2-proofbar__reviews\">20,000+ Verified Reviews</span></span><span class=\"sd2-proofbar__arrow\" aria-hidden=\"true\">↗</span></a></div>"
-}

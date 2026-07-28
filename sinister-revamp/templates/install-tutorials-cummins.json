@@ -1,6 +1,0 @@
-{
-    "hdft": {
-        "footer": { "template_filename": "install-hub-footer.mvc" },
-        "header": { "template_filename": "install-hub-header.mvc" }
-    }
-}

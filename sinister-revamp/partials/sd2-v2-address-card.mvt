@@ -1,6 +1,0 @@
-<mvt:comment>Address Card V2 partial.</mvt:comment>
-<article class="sd2-v2-address-card">
-	<input id="sd2-v2-address-card" name="Address_ID" type="radio" value="" aria-describedby="sd2-v2-address-card-copy">
-	<label for="sd2-v2-address-card"><strong>[Placeholder] Saved Address</strong><span id="sd2-v2-address-card-copy">Address details render from customer account data.</span></label>
-	<button class="sd2-v2-link-button" type="button">Edit</button>
-</article>

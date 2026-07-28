@@ -1,8 +1,0 @@
-<mvt:comment>Commerce partial: Sticky Buy Bar. Inactive reusable component.</mvt:comment>
-<aside class="sd2-v2-sticky-buy" data-v2-sticky-buy aria-label="Product purchase summary">
-	<div>
-		<strong data-v2-sticky-buy-title>&mvt:product:name;</strong>
-		<span data-v2-sticky-buy-price>&mvt:product:formatted_price;</span>
-	</div>
-	<button class="sd2-btn sd2-btn--primary" type="submit">Add to Cart</button>
-</aside>

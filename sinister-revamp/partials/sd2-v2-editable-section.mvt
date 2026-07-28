@@ -1,7 +1,0 @@
-<mvt:comment>Editable Checkout Section V2 partial.</mvt:comment>
-<section class="sd2-v2-editable-section" data-v2-editable-section>
-	<header><h2>[Placeholder] Section Title</h2><button class="sd2-v2-link-button" type="button" data-v2-editable-toggle>Edit</button></header>
-	<div data-v2-editable-body>
-		<p>[Placeholder] Section content or form fields render here.</p>
-	</div>
-</section>

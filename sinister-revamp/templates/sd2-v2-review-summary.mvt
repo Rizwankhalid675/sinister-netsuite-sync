@@ -1,5 +1,0 @@
-<mvt:comment>Commerce partial: Review Summary. Inactive reusable component.</mvt:comment>
-<section class="sd2-v2-review-summary" data-v2-review-summary>
-	<div class="sd2-v2-rating"><span class="sd2-v2-rating__stars" aria-hidden="true">★★★★★</span><span class="sd2-v2-rating__text">Customer review summary</span></div>
-	<a href="#reviews" class="sd2-v2-review-summary__link">Read reviews</a>
-</section>

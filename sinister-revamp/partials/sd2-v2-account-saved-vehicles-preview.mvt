@@ -1,8 +1,0 @@
-<mvt:comment>Saved Vehicles Preview V2 partial.</mvt:comment>
-<section class="sd2-v2-account-card" aria-labelledby="sd2-v2-saved-vehicles-title">
-	<h2 id="sd2-v2-saved-vehicles-title">Saved Vehicles</h2>
-	<div class="sd2-v2-account-vehicles" data-v2-account-garage-list>
-		<p>[Placeholder] Saved vehicles render from Garage storage or account data.</p>
-	</div>
-	<button class="sd2-btn sd2-btn--secondary" type="button" data-v2-garage-toggle>Add Vehicle</button>
-</section>

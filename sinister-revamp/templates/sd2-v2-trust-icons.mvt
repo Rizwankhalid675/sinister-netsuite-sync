@@ -1,6 +1,0 @@
-<mvt:comment>Commerce partial: Trust Icons. Inactive reusable component.</mvt:comment>
-<ul class="sd2-v2-trust-icons" data-v2-trust-icons>
-	<li><svg class="sd2-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 8.6 8 11 4.6-2.4 8-6 8-11V5z"/></svg><span>Secure checkout</span></li>
-	<li><svg class="sd2-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><path d="M7 8l-4 4 4 4"/><path d="M17 8l4 4-4 4"/></svg><span>Miva cart preserved</span></li>
-	<li><svg class="sd2-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20"/><path d="M5 9h14"/><path d="M5 15h14"/></svg><span>Fitment-first flow</span></li>
-</ul>

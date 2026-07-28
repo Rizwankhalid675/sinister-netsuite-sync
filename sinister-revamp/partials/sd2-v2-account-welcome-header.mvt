@@ -1,6 +1,0 @@
-<mvt:comment>Account Welcome Header V2 partial.</mvt:comment>
-<header class="sd2-v2-account-hero">
-	<p class="sd2-kicker">Customer Dashboard</p>
-	<h1>Welcome Back, &mvte:customer:ship_fname;</h1>
-	<p>[Placeholder] Account status, fitment reminder, or support note.</p>
-</header>

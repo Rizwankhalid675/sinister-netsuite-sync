@@ -1,8 +1,0 @@
-{
-    "code": "payment-methods",
-    "type": "L",
-    "branchless_filepath": "themes/colossus/core/js/payment-method.js",
-    "is_global": true,
-    "active": false,
-    "attributes": []
-}

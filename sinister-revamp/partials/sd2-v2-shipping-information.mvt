@@ -1,6 +1,0 @@
-<mvt:comment>Shipping Information V2 partial.</mvt:comment>
-<section class="sd2-v2-shipping-info" aria-label="Shipping and warranty">
-	<div><strong>Shipping</strong><span>Delivery estimate is calculated at checkout.</span></div>
-	<div><strong>Warranty</strong><span>Warranty details render from product content where available.</span></div>
-	<div><strong>Support</strong><span>US-based support for ordering and installation questions.</span></div>
-</section>

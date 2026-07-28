@@ -1,9 +1,0 @@
-{
-    "code": "modules",
-    "linked_js_resources": [
-        "recaptcha_v3"
-    ],
-    "linked_css_resources": [
-        "mm-theme-styles"
-    ]
-}

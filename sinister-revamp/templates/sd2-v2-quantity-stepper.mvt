@@ -1,9 +1,0 @@
-<mvt:comment>Commerce partial: Quantity Stepper. Inactive reusable component.</mvt:comment>
-<div class="sd2-v2-qty" data-v2-qty>
-	<label class="sd2-label" for="sd2-v2-qty-input">Quantity</label>
-	<div class="sd2-v2-qty__control">
-		<button type="button" data-v2-qty-minus aria-label="Decrease quantity">-</button>
-		<input id="sd2-v2-qty-input" name="Quantity" type="number" value="1" min="1" step="1" inputmode="numeric" data-v2-qty-input>
-		<button type="button" data-v2-qty-plus aria-label="Increase quantity">+</button>
-	</div>
-</div>

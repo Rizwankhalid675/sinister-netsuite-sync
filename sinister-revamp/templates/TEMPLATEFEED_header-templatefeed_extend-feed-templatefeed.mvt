@@ -1,2 +1,0 @@
-brand,price,title,referenceId,imageUrl,category,subcategory,gtin,mfrWarrantyUrl,barcode,description,mfrWarrantyParts,mfrWarrantyLabor,reimbursement amount,sku,upc,asin&mvt:eol:crlf;
-<mvt:assign NAME="l.settings:checkrefid" VALUE="''" />

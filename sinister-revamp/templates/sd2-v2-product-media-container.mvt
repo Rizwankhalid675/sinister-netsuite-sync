@@ -1,4 +1,0 @@
-<mvt:comment>Commerce partial: Product Media Container. Inactive reusable wrapper.</mvt:comment>
-<section class="sd2-v2-media" data-v2-gallery aria-label="Product media">
-	<mvt:comment>Include sd2-v2-zoom-viewer.mvt and sd2-v2-thumbnail-rail.mvt inside this container when wiring in Miva.</mvt:comment>
-</section>

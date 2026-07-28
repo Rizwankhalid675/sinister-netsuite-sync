@@ -1,8 +1,0 @@
-<div class="o-layout">
-	<div class="o-layout__item u-width-9">
-		<p>Take the first step toward becoming an authorized Sinister Diesel Re-seller. Please fill out this brief form and we'll have a representative contact you within 48 hours. </p>
-	</div>
-	<div class="o-layout__item u-width-3">
-		<mvt:item name="readytheme" param="image( 'sd-authorized-reseller' )" />
-	</div>
-</div>
