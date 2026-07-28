@@ -7,15 +7,32 @@ const MIVA_TOKEN = process.env.MIVA_API_TOKEN;
 const MIVA_STORE = process.env.MIVA_STORE_CODE;
 
 async function getMivaProducts() {
-  const response = await axios.post(MIVA_URL, {
-    Store_Code: MIVA_STORE,
-    Function: 'ProductList_Load_Query',
-    Count: 500,
-    Offset: 0
-  }, {
-    headers: { 'X-Miva-API-Authorization': `MIVA ${MIVA_TOKEN}` }
-  });
-  return response.data.data?.items || [];
+  const PAGE_SIZE = 500;
+  let offset = 0;
+  let allItems = [];
+
+  while (true) {
+    const response = await axios.post(MIVA_URL, {
+      Store_Code: MIVA_STORE,
+      Function: 'ProductList_Load_Query',
+      Count: PAGE_SIZE,
+      Offset: offset
+    }, {
+      headers: { 'X-Miva-API-Authorization': `MIVA ${MIVA_TOKEN}` }
+    });
+
+    const items = response.data.data?.items || [];
+    allItems = allItems.concat(items);
+
+    const totalCount = response.data.data?.total_count;
+    offset += PAGE_SIZE;
+
+    if (items.length === 0) break;
+    if (typeof totalCount === 'number' && offset >= totalCount) break;
+    if (items.length < PAGE_SIZE) break;
+  }
+
+  return allItems;
 }
 
 async function syncProductIds() {

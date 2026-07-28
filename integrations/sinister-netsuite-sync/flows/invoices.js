@@ -51,9 +51,25 @@ async function syncInvoices(orders) {
           memo: `Deposit for Miva Order #${order.id}`,
           externalid: `MIVA_CD_${order.id}`
         };
-        const deposit = await createCustomerDeposit(depositData);
-        depositId = deposit?.id || 'unknown';
-        log(`✅ Customer deposit created for Order ${order.id} → Deposit ${depositId}`);
+        try {
+          const deposit = await createCustomerDeposit(depositData);
+          depositId = deposit?.id || 'unknown';
+          log(`✅ Customer deposit created for Order ${order.id} → Deposit ${depositId}`);
+        } catch (depErr) {
+          if (depErr.message.includes('already exists') || depErr.message.includes('USER_ERROR')) {
+            // Deposit was already created (e.g. from a prior partial run) — look it up by externalid
+            try {
+              const depRows = await suiteQL(`SELECT id FROM transaction WHERE externalid = 'MIVA_CD_${order.id}' AND recordtype = 'customerdeposit'`);
+              depositId = depRows[0]?.id || 'unknown';
+              log(`✅ Customer deposit found for Order ${order.id} → Deposit ${depositId} (looked up after NS "already exists")`);
+            } catch (lookupErr) {
+              log(`⚠️ Could not look up existing deposit for Order ${order.id}: ${lookupErr.message}`, 'error');
+              depositId = 'unknown';
+            }
+          } else {
+            throw depErr;
+          }
+        }
       }
 
       // Invoice — only possible after SO is approved (status B = Pending Fulfillment)
