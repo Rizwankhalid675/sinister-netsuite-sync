@@ -519,3 +519,66 @@ git ls-files .env logs/synced_orders.json logs/synced_invoices.json logs/synced_
 ```
 
 Expected: no credential or tracking files are tracked.
+
+---
+
+### Task 10: Preserve attribute visibility and manual sales-order approval
+
+**Files:**
+- Modify: `lib/orderMapping.js`
+- Modify: `flows/ordersToNetsuite.js`
+- Modify: `test/orderMapping.test.js`
+- Modify: `test/ordersToNetsuite.test.js`
+
+**Interfaces:**
+- Consumes: Miva item options with prompts, selected values, and integer-cent prices.
+- Produces: a parent-line description containing zero-price selections, separate price-bearing NetSuite item lines, and a sales-order payload fixed to Pending Approval (`orderstatus.id === 'A'`).
+
+- [ ] **Step 1: Write a failing parent-description test**
+
+Create a Miva item containing a zero-price selected option and a price-bearing component. Assert that the expanded parent description contains the zero-price option prompt/value and that the priced component remains a separate expanded line. The test catches dropping reviewer-visible configuration or collapsing priced components back into the parent.
+
+- [ ] **Step 2: Write a manual-approval payload test**
+
+Call `mapOrderToNetsuite` with resolved lines and assert the payload contains:
+
+```js
+assert.deepEqual(payload.orderstatus, { id: 'A' });
+```
+
+Also assert each reference component remains a separate payload item with its expected custom rate and amount. The test catches accidental removal of Pending Approval or item-line consolidation.
+
+- [ ] **Step 3: Run the focused tests and verify the parent-description test fails**
+
+```powershell
+node --test --test-name-pattern="zero-price|Pending Approval|separate payload" test/orderMapping.test.js test/ordersToNetsuite.test.js
+```
+
+Expected: the zero-price description assertion fails against current code; the existing `orderstatus: A` behavior is characterized and protected.
+
+- [ ] **Step 4: Implement minimal parent-description enrichment**
+
+Build the parent description from the product name plus zero-price selected options only. Format each selection as `<attribute prompt>: <option prompt or selected value>`, remove empty values, and join deterministically. Do not add price-bearing options to the parent description because they already become separate item lines.
+
+- [ ] **Step 5: Verify invoice gating remains post-approval**
+
+Extend invoice tests to prove statuses `A` and `B` return `waiting` without calling invoice transformation, while eligible post-fulfillment statuses `E` and `F` retain current behavior.
+
+- [ ] **Step 6: Run all tests and syntax checks**
+
+```powershell
+node --test test/*.test.js
+node --check lib/orderMapping.js
+node --check flows/ordersToNetsuite.js
+node --check flows/invoices.js
+node --check scripts/dry-run-order-parity.js
+```
+
+Expected: every test and syntax check exits 0.
+
+- [ ] **Step 7: Commit**
+
+```powershell
+git add lib/orderMapping.js flows/ordersToNetsuite.js test/orderMapping.test.js test/ordersToNetsuite.test.js test/invoices.test.js docs/superpowers/plans/2026-07-28-miva-itemized-order-parity.md
+git commit -m "fix: preserve item attributes and manual approval"
+```
