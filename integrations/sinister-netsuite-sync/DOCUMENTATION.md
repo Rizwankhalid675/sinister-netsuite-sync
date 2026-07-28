@@ -281,6 +281,20 @@ The system uses two JSON tracking files to make sure nothing is processed twice:
 
 ---
 
+## Itemized Miva kit orders and total reconciliation
+
+Price-bearing Miva options are created as separate custom-price NetSuite lines. The parent uses `item.price`; each option uses its own `option.price`. The sync validates the expanded product subtotal and full Miva order total before creating a sales order, then reads the saved NetSuite total before recording the order as synchronized.
+
+Run the read-only parity check with:
+
+```powershell
+node scripts/dry-run-order-parity.js 2766295
+```
+
+The command performs only Miva reads, SuiteQL reads, and item-metadata reads. It never creates or edits a record.
+
+Enshield protection item `10322` must use taxable schedule `1` whenever Miva reports tax on the `enshield_charge`. As of the order `2766295` investigation, the item uses schedule `2`; an authorized NetSuite administrator must correct this master-data setting before taxable protection orders can sync. The integration blocks those orders until the setting is correct.
+
 ## Troubleshooting Guide
 
 | Symptom | Likely Cause | Fix |
