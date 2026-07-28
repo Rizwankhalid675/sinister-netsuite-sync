@@ -136,28 +136,6 @@ async function getItemIdBySku(sku) {
   return rows.length ? rows[0].id : null;
 }
 
-async function getItemsBySku(sku) {
-  const escaped = sku.replace(/'/g, "''");
-  return await suiteQL(
-    `SELECT id, itemid, itemtype, taxschedule FROM item WHERE UPPER(itemid) = UPPER('${escaped}') AND isinactive = 'F'`
-  );
-}
-
-async function getItemMetadata(id) {
-  const rows = await suiteQL(
-    `SELECT id, itemid, itemtype, taxschedule FROM item WHERE id = ${Number(id)}`
-  );
-  return rows[0] || null;
-}
-
-async function getSalesOrderFinancialSummary(id) {
-  const rows = await suiteQL(
-    `SELECT id, foreigntotal, total FROM transaction WHERE id = ${Number(id)}`
-  );
-  if (!rows.length) throw new Error(`NetSuite sales order ${id} was not found after creation`);
-  return { id: String(rows[0].id), total: Number(rows[0].foreigntotal ?? rows[0].total) };
-}
-
 async function createInventoryItem(sku, name, price) {
   const result = await nsRequest('POST', 'inventoryitem', {
     itemid: sku,
@@ -184,4 +162,4 @@ async function updateInventoryItem(nsItemId, mivaProductId, mivaProductCode) {
   });
 }
 
-module.exports = { nsRequest, suiteQL, createSalesOrder, createCustomerDeposit, createInvoice, getFulfilledOrders, getCustomerByEmail, getItemIdBySku, getItemsBySku, getItemMetadata, getSalesOrderFinancialSummary, createInventoryItem, getInventoryItems, updateInventoryItem };
+module.exports = { nsRequest, suiteQL, createSalesOrder, createCustomerDeposit, createInvoice, getFulfilledOrders, getCustomerByEmail, getItemIdBySku, createInventoryItem, getInventoryItems, updateInventoryItem };
