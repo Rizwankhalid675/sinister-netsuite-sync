@@ -29,6 +29,8 @@ Keep pure monetary and item-mapping behavior in `lib/orderMapping.js`. All finan
 
 For each Miva item, produce one parent line plus one line for every option with a non-zero price. Each expanded line carries its SKU, quantity, integer-cent rate and amount, tax status, description, and original Miva line ID.
 
+Zero-price selected options remain visible in the parent line description so Amanda can review the complete Miva configuration without creating artificial zero-dollar NetSuite inventory lines. Every price-bearing option becomes its own NetSuite item line with the resolved SKU, quantity, custom rate, custom amount, and Miva line ID. The reference kit must therefore display its $845.99 parent plus the $90.00, $117.44, and $239.40 component lines, followed by the $25.86 protection line.
+
 Each line must resolve to exactly one active NetSuite item. Candidate normalization may account for the known underscore-to-period and case variation, but a lookup that returns multiple active items is ambiguous and blocks the order. A missing match also blocks the order. A configured override is allowed only for an explicitly reviewed SKU-to-internal-ID mapping and must be verified read-only against NetSuite metadata before the dry run reports ready.
 
 For reference order 2766295, the required resolution is:
@@ -52,6 +54,14 @@ When Miva reports non-zero protection tax, read NetSuite item 10322 and require 
 All comparisons use integer cents. Expanded lines must exactly equal each Miva item total. Product lines plus order charges must exactly equal the Miva order total. After creation or adoption, the NetSuite sales-order total must exactly equal the Miva order total. No one-cent tolerance is permitted.
 
 The saved sales-order state contains the NetSuite ID, `reconciled`, reconciliation totals in cents, and a timestamp. The NetSuite ID is persisted even when reconciliation fails so a later cycle cannot create another order.
+
+## Manual approval and preserved business sequence
+
+The service preserves the existing flow order: Miva order intake, NetSuite customer resolution and sales-order creation, NetSuite fulfillment updates back to Miva, then deposit/invoice processing. Product and customer maintenance flows remain after the financial sequence.
+
+Every new NetSuite sales order is created in Pending Approval status (`orderstatus` internal ID `A`). The integration never approves, rejects, or changes that status automatically. Amanda retains the existing Approve and Cancel Order controls in NetSuite and performs the business review manually.
+
+Deposit and invoice processing requires exact reconciliation and a NetSuite status eligible for post-approval billing. A Pending Approval order cannot produce an invoice. The controlled validation must prove both that the sales order initially exposes the Approve action and that no accounting transaction is created before manual approval and fulfillment.
 
 ## Duplicate prevention
 
