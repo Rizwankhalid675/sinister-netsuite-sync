@@ -136,6 +136,38 @@ async function getItemIdBySku(sku) {
   return rows.length ? rows[0].id : null;
 }
 
+// Like getItemIdBySku but also returns the item's NetSuite base price, so
+// callers can price sales order lines from NetSuite instead of trusting the
+// raw Miva line price (which doesn't reflect attribute-driven price deltas,
+// e.g. color/finish upcharges baked into the NS item's own price record).
+async function getItemBySku(sku) {
+  const escaped = sku.replace(/'/g, "''");
+  const rows = await suiteQL(
+    `SELECT id FROM item WHERE itemid = '${escaped}' AND isinactive = 'F'`
+  );
+  if (!rows.length) return null;
+  const id = rows[0].id;
+
+  // SuiteQL's item table doesn't expose a flat "baseprice" column — base
+  // price lives in the pricing sublist, keyed by pricelevel (1 = Base Price).
+  // Query it separately via the item's internal id.
+  let price = null;
+  try {
+    const priceRows = await suiteQL(
+      `SELECT unitprice FROM pricing WHERE item = ${id} AND pricelevel = 1`
+    );
+    const raw = priceRows.length ? priceRows[0].unitprice : null;
+    price = raw != null ? Number(raw) : null;
+    if (!Number.isFinite(price)) price = null;
+  } catch (priceErr) {
+    // Don't let a pricing lookup failure block resolving the item itself —
+    // callers already have a raw-order-price fallback for when price is null.
+    price = null;
+  }
+
+  return { id, price };
+}
+
 async function createInventoryItem(sku, name, price) {
   const result = await nsRequest('POST', 'inventoryitem', {
     itemid: sku,
@@ -162,4 +194,4 @@ async function updateInventoryItem(nsItemId, mivaProductId, mivaProductCode) {
   });
 }
 
-module.exports = { nsRequest, suiteQL, createSalesOrder, createCustomerDeposit, createInvoice, getFulfilledOrders, getCustomerByEmail, getItemIdBySku, createInventoryItem, getInventoryItems, updateInventoryItem };
+module.exports = { nsRequest, suiteQL, createSalesOrder, createCustomerDeposit, createInvoice, getFulfilledOrders, getCustomerByEmail, getItemIdBySku, getItemBySku, createInventoryItem, getInventoryItems, updateInventoryItem };

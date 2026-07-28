@@ -1,5 +1,5 @@
 const { getOrders } = require('../miva');
-const { createSalesOrder, getCustomerByEmail, getItemIdBySku, createInventoryItem, nsRequest } = require('../netsuite');
+const { createSalesOrder, getCustomerByEmail, getItemIdBySku, getItemBySku, createInventoryItem, nsRequest } = require('../netsuite');
 const { upsertNSCustomer } = require('./customersToNetsuite');
 const { log } = require('../logger');
 const fs = require('fs');
@@ -54,12 +54,21 @@ function mapOrderToNetsuite(order, customerId, itemIdMap = {}) {
       const description = isBlemish
         ? sku
         : (item.options || []).map(o => `${o.attr_prompt}: ${o.opt_prompt}`).join(', ') || item.name;
+      const mapped = itemIdMap[sku];
+      const nsId = (mapped && typeof mapped === 'object') ? mapped.id : mapped;
+      const nsPrice = (mapped && typeof mapped === 'object') ? mapped.price : null;
+      // Prefer NetSuite's own price for this exact SKU (it reflects
+      // attribute-driven price deltas like color/finish upcharges); only
+      // fall back to the raw Miva line price when NS has no usable price
+      // for this item (e.g. matched on a less-specific stripped SKU).
+      const hasNsPrice = typeof nsPrice === 'number' && Number.isFinite(nsPrice) && nsPrice > 0;
+      const rate = hasNsPrice ? nsPrice : item.price;
       return {
-        item: { id: itemIdMap[sku] },
+        item: { id: nsId },
         description,
         quantity: item.quantity,
         price: { id: '-1' },
-        rate: item.price,
+        rate,
         amount: item.total,
         custcol_hb_miva_order_line_id: item.line_id,
         taxcode: item.tax > 0 ? { id: '12260' } : { id: '-7' },
@@ -184,35 +193,60 @@ async function syncOrdersToNetsuite() {
         const sku = item.sku || item.code;
         if (!sku || itemIdMap[sku] !== undefined) continue;
 
-        // Check hardcoded overrides first (Celigo parity)
+        // Check hardcoded overrides first (Celigo parity) — no NetSuite
+        // price lookup here, so fall back to the raw Miva line price.
         if (SKU_OVERRIDES[sku]) {
-          itemIdMap[sku] = SKU_OVERRIDES[sku];
+          itemIdMap[sku] = { id: SKU_OVERRIDES[sku], price: null };
           continue;
         }
 
-        // Blemish items map to a generic blemish NS item
+        // Blemish items map to a generic blemish NS item — its price is not
+        // specific to this line, so use the raw Miva line price instead.
         if (sku.toLowerCase().includes('-blem') || (item.name || '').toLowerCase().includes('blemish')) {
           const blemId = await getItemIdBySku('SD-BLEMISH');
-          itemIdMap[sku] = blemId || null;
+          itemIdMap[sku] = blemId ? { id: blemId, price: null } : null;
           continue;
         }
 
-        let id = await getItemIdBySku(sku);
-        if (!id) {
-          // Strip trailing suffixes one at a time until we find a match
+        // Try the exact SKU first — this is a real NetSuite match, so its
+        // own price reflects this exact attribute combo (color/finish/etc.)
+        let id = null;
+        let price = null;
+        let matchedAttribute = false;
+
+        const exact = await getItemBySku(sku);
+        if (exact) {
+          id = exact.id;
+          price = exact.price;
+        } else {
+          // Strip trailing suffixes one at a time until we find a match.
+          // Each candidate here is LESS attribute-specific than the last, so
+          // once we fall back to a stripped SKU, its NS price does NOT
+          // reflect the original line's attribute-driven price delta — we
+          // must fall back to the raw Miva line price instead of trusting
+          // NetSuite's price for this less-specific item.
           let attempt = sku;
           while (!id && attempt.includes('_')) {
             attempt = attempt.replace(/_[^_]+$/, '');
-            id = await getItemIdBySku(attempt);
+            const candidate = await getItemBySku(attempt);
+            if (candidate) {
+              id = candidate.id;
+              matchedAttribute = true; // matched on a less-specific SKU
+              price = null; // don't trust NS price for a partial match
+              break;
+            }
           }
         }
+
         if (!id) {
           // Auto-create the item in NetSuite so the order isn't missing lines
           id = await createInventoryItem(sku, item.name, item.price);
           if (id) log(`✅ Auto-created NS item for SKU ${sku} → ID ${id}`);
           else log(`⚠️ Could not auto-create NS item for SKU ${sku}`, 'error');
         }
-        itemIdMap[sku] = id || null;
+        itemIdMap[sku] = id
+          ? { id, price: matchedAttribute ? null : price }
+          : null;
       }
 
       const { payload: nsOrder, shippingCost } = mapOrderToNetsuite(order, customerId, itemIdMap);
