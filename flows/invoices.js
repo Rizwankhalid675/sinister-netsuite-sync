@@ -1,4 +1,11 @@
-const { createCustomerDeposit, nsRequest, suiteQL } = require('../netsuite');
+const {
+  createCustomerDeposit,
+  nsRequest,
+  suiteQL,
+  getSalesOrderFinancialSummary,
+  getTransactionsByExternalId,
+} = require('../netsuite');
+const { assertTotalsMatch, moneyToCents } = require('../lib/orderMapping');
 const { log } = require('../logger');
 const fs = require('fs');
 const path = require('path');
@@ -17,116 +24,158 @@ function saveSynced(file, key, data) {
   fs.writeFileSync(file, JSON.stringify(existing, null, 2));
 }
 
-async function syncInvoices(orders) {
-  const synced = loadSynced(SYNCED_FILE);
-  const invoiced = loadSynced(INVOICED_FILE);
+function validTransactionId(value) {
+  return value && value !== 'unknown' ? String(value) : null;
+}
 
-  for (const order of orders) {
-    const existing = invoiced[order.id];
-    if (existing?.invoiceId && existing.invoiceId !== 'unknown') {
-      log(`Invoice for order ${order.id} already created — skipping`);
-      continue;
-    }
+function requireUniqueTransaction(rows, recordType, externalId) {
+  if (rows.length > 1) throw new Error(`Multiple ${recordType} transactions match external ID ${externalId}`);
+  return rows.length === 1 ? String(rows[0].id) : null;
+}
 
-    const syncState = synced[order.id];
-    const nsOrderId = syncState?.netsuiteId;
-    if (!nsOrderId) {
-      log(`No NetSuite order found for Miva order ${order.id} — skipping invoice`);
-      continue;
-    }
-    if (syncState.reconciled !== true) {
-      log(`NetSuite order ${nsOrderId} for Miva order ${order.id} is not reconciled - blocking deposit and invoice`, 'error');
-      continue;
-    }
+async function ensureOrderReconciled(order, syncState, dependencies = {}) {
+  if (!syncState?.netsuiteId) throw new Error(`No NetSuite order found for Miva order ${order.id}`);
+  if (syncState.reconciled === true) return syncState;
 
-    const trandate = order.orderdate
-      ? new Date(order.orderdate * 1000).toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0];
+  const getSummary = dependencies.getSalesOrderFinancialSummary || getSalesOrderFinancialSummary;
+  const summary = await getSummary(syncState.netsuiteId);
+  assertTotalsMatch(order.total, summary.total);
+  const reconciledState = {
+    ...syncState,
+    reconciled: true,
+    reconciliation: {
+      ...(syncState.reconciliation || {}),
+      mivaTotalCents: moneyToCents(order.total),
+      netsuiteTotalCents: moneyToCents(summary.total),
+    },
+  };
+  const persist = dependencies.saveOrderState || ((id, state) => saveSynced(SYNCED_FILE, id, state));
+  persist(order.id, reconciledState);
+  return reconciledState;
+}
 
-    try {
-      // Create deposit only if not already done
-      let depositId = existing?.depositId;
-      if (!depositId || depositId === 'unknown') {
-        const depositData = {
+async function syncInvoiceForOrder(order, dependencies = {}) {
+  const syncState = await ensureOrderReconciled(order, dependencies.syncState, dependencies);
+  const nsOrderId = String(syncState.netsuiteId);
+  let invoiceState = { ...(dependencies.invoiceState || {}) };
+  const persist = dependencies.saveInvoiceState || ((id, state) => saveSynced(INVOICED_FILE, id, state));
+  const lookup = dependencies.getTransactionsByExternalId || getTransactionsByExternalId;
+  const trandate = order.orderdate
+    ? new Date(order.orderdate * 1000).toISOString().split('T')[0]
+    : new Date().toISOString().split('T')[0];
+
+  let depositId = validTransactionId(invoiceState.depositId);
+  const depositExternalId = `MIVA_CD_${order.id}`;
+  if (!depositId) {
+    depositId = requireUniqueTransaction(
+      await lookup(depositExternalId, 'customerdeposit'),
+      'customerdeposit',
+      depositExternalId
+    );
+    if (!depositId) {
+      const createDeposit = dependencies.createCustomerDeposit || createCustomerDeposit;
+      try {
+        const deposit = await createDeposit({
           salesOrder: { id: nsOrderId },
           payment: order.total,
           undepfunds: true,
           currency: { id: '1' },
           trandate,
           memo: `Deposit for Miva Order #${order.id}`,
-          externalid: `MIVA_CD_${order.id}`
-        };
-        const deposit = await createCustomerDeposit(depositData);
-        depositId = deposit?.id || 'unknown';
-        log(`✅ Customer deposit created for Order ${order.id} → Deposit ${depositId}`);
+          externalid: depositExternalId,
+        });
+        depositId = validTransactionId(deposit?.id);
+        if (!depositId) throw new Error('NetSuite did not return a customer deposit ID');
+      } catch (error) {
+        depositId = requireUniqueTransaction(
+          await lookup(depositExternalId, 'customerdeposit'),
+          'customerdeposit',
+          depositExternalId
+        );
+        if (!depositId) throw error;
       }
+    }
+    invoiceState = { ...invoiceState, depositId, nsOrderId };
+    persist(order.id, invoiceState);
+  }
 
-      // Invoice — only possible after SO is approved (status B = Pending Fulfillment)
-      let invoiceId = existing?.invoiceId || 'unknown';
-      if (invoiceId === 'unknown') {
-        const soRows = await suiteQL(`SELECT status FROM transaction WHERE id = ${nsOrderId}`);
-        const soStatus = soRows[0]?.status;
-        // Only invoice after order is approved AND fulfilled (status E or F = Pending Billing)
-        if (soStatus === 'E' || soStatus === 'F') {
-          try {
-            const inv = await nsRequest('POST', `salesorder/${nsOrderId}/!transform/invoice`, {
-              trandate,
-              externalid: `MIVA_INV_${order.id}`
-            });
-            invoiceId = inv?.id || 'unknown';
-            log(`✅ Invoice created for Order ${order.id} → Invoice ${invoiceId}`);
-
-            // Apply deposit to invoice to close it
-            if (invoiceId && invoiceId !== 'unknown' && depositId && depositId !== 'unknown') {
-              try {
-                await nsRequest('POST', `customerdeposit/${depositId}/!transform/depositapplication`, {
-                  trandate,
-                  apply: { items: [{ doc: invoiceId, apply: true }] }
-                });
-                log(`✅ Deposit ${depositId} applied to Invoice ${invoiceId} — invoice closed`);
-              } catch (applyErr) {
-                log(`⚠️ Could not apply deposit to invoice for Order ${order.id}: ${applyErr.message}`, 'error');
-              }
-            }
-          } catch (invErr) {
-            // NS returns 400 with USER_ERROR when deposit auto-application fails but invoice IS still created
-            if (invErr.message.includes('automatic application of the deposit') || invErr.message.includes('USER_ERROR')) {
-              // Look up the invoice by externalid since NS created it despite the error
-              try {
-                const invRows = await suiteQL(`SELECT id FROM transaction WHERE externalid = 'MIVA_INV_${order.id}' AND recordtype = 'invoice'`);
-                invoiceId = invRows[0]?.id || 'unknown';
-                log(`✅ Invoice created for Order ${order.id} → Invoice ${invoiceId} (looked up after NS USER_ERROR)`);
-              } catch (lookupErr) {
-                log(`⚠️ Could not look up invoice for Order ${order.id}: ${lookupErr.message}`, 'error');
-                invoiceId = 'unknown';
-              }
-
-              // Now apply deposit to close the invoice
-              if (invoiceId && invoiceId !== 'unknown' && depositId && depositId !== 'unknown') {
-                try {
-                  await nsRequest('POST', `customerdeposit/${depositId}/!transform/depositapplication`, {
-                    trandate,
-                    apply: { items: [{ doc: invoiceId, apply: true }] }
-                  });
-                  log(`✅ Deposit ${depositId} applied to Invoice ${invoiceId} — invoice closed`);
-                } catch (applyErr) {
-                  log(`⚠️ Could not apply deposit to invoice for Order ${order.id}: ${applyErr.message}`, 'error');
-                }
-              }
-            } else {
-              log(`⚠️ Invoice creation failed for Order ${order.id}: ${invErr.message}`, 'error');
-            }
-          }
-        } else {
-          log(`SO ${nsOrderId} status=${soStatus} — invoice will be created after approval and fulfillment`);
-        }
+  let invoiceId = validTransactionId(invoiceState.invoiceId);
+  const invoiceExternalId = `MIVA_INV_${order.id}`;
+  if (!invoiceId) {
+    invoiceId = requireUniqueTransaction(
+      await lookup(invoiceExternalId, 'invoice'),
+      'invoice',
+      invoiceExternalId
+    );
+    if (!invoiceId) {
+      const getStatus = dependencies.getSalesOrderStatus || (async (id) => {
+        const rows = await suiteQL(`SELECT status FROM transaction WHERE id = ${Number(id)}`);
+        return rows[0]?.status;
+      });
+      const soStatus = await getStatus(nsOrderId);
+      if (soStatus !== 'E' && soStatus !== 'F') {
+        return { status: 'waiting', depositId, invoiceId: null, nsOrderId };
       }
+      const createInvoiceFromSalesOrder = dependencies.createInvoiceFromSalesOrder || ((id, data) => (
+        nsRequest('POST', `salesorder/${id}/!transform/invoice`, data)
+      ));
+      try {
+        const invoice = await createInvoiceFromSalesOrder(nsOrderId, {
+          trandate,
+          externalid: invoiceExternalId,
+        });
+        invoiceId = validTransactionId(invoice?.id);
+        if (!invoiceId) throw new Error('NetSuite did not return an invoice ID');
+      } catch (error) {
+        invoiceId = requireUniqueTransaction(
+          await lookup(invoiceExternalId, 'invoice'),
+          'invoice',
+          invoiceExternalId
+        );
+        if (!invoiceId) throw error;
+      }
+    }
+    invoiceState = { ...invoiceState, depositId, invoiceId, nsOrderId };
+    persist(order.id, invoiceState);
+  }
 
-      saveSynced(INVOICED_FILE, order.id, { depositId, invoiceId, nsOrderId });
-    } catch (err) {
-      log(`❌ Deposit/invoice failed for Order ${order.id}: ${err.message}`, 'error');
+  if (depositId && invoiceId) {
+    const applyDeposit = dependencies.applyDeposit || ((deposit, invoice) => (
+      nsRequest('POST', `customerdeposit/${deposit}/!transform/depositapplication`, {
+        trandate,
+        apply: { items: [{ doc: invoice, apply: true }] },
+      })
+    ));
+    await applyDeposit(depositId, invoiceId);
+  }
+
+  return { status: 'complete', depositId, invoiceId, nsOrderId };
+}
+
+async function syncInvoices(orders) {
+  const synced = loadSynced(SYNCED_FILE);
+  const invoiced = loadSynced(INVOICED_FILE);
+
+  for (const order of orders) {
+    try {
+      const result = await syncInvoiceForOrder(order, {
+        syncState: synced[order.id],
+        invoiceState: invoiced[order.id],
+      });
+      if (result.status === 'waiting') {
+        log(`SO ${result.nsOrderId} is not ready for invoicing`);
+      } else {
+        log(`Accounting transactions for Miva order ${order.id} are checkpointed`);
+      }
+    } catch (error) {
+      log(`Deposit/invoice blocked for Order ${order.id}: ${error.message}`, 'error');
     }
   }
 }
 
-module.exports = { syncInvoices };
+module.exports = {
+  syncInvoices,
+  syncInvoiceForOrder,
+  ensureOrderReconciled,
+  requireUniqueTransaction,
+};
