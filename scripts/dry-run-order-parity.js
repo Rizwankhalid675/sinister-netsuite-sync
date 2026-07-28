@@ -1,54 +1,98 @@
 require('dotenv').config();
 const { getOrders } = require('../miva');
-const { getItemsBySku, getItemMetadata } = require('../netsuite');
-const { expandMivaItems, validateMivaOrderTotals, resolveExpandedLines, buildNetsuiteLines } = require('../lib/orderMapping');
+const { getItemsBySku, getItemsByInternalId, getItemMetadata } = require('../netsuite');
+const {
+  moneyToCents,
+  expandMivaItems,
+  validateMivaOrderTotals,
+  resolveExpandedLines,
+} = require('../lib/orderMapping');
 
 const ORDER_OVERRIDES = { 'SD-ARP-HEAD-6.0': '13609' };
+const EXPECTED_ITEM_IDS = ['13609', '2317', '13573', '13132', '10322'];
+const EXPECTED_TOTALS_CENTS = {
+  product: 129283,
+  shipping: 0,
+  tax: 10219,
+  protection: 2586,
+  order: 142088,
+};
+
+async function evaluateOrderParity(order, dependencies = {}) {
+  const skuLookup = dependencies.getItemsBySku || getItemsBySku;
+  const itemIdLookup = dependencies.getItemsByInternalId || getItemsByInternalId;
+  const metadataLookup = dependencies.getItemMetadata || getItemMetadata;
+  const expanded = expandMivaItems(order);
+  const totals = validateMivaOrderTotals(order, expanded);
+  const resolved = await resolveExpandedLines(expanded, skuLookup, ORDER_OVERRIDES, itemIdLookup);
+  const protection = (order.charges || []).find((charge) => charge.type === 'enshield_charge');
+  const protectionItem = await metadataLookup('10322');
+  const protectionTaxExpected = moneyToCents(protection?.tax) > 0;
+  const protectionCents = moneyToCents(protection?.amount);
+  const lines = [
+    ...resolved.map((line) => ({
+      sku: line.sku,
+      itemId: String(line.itemId),
+      quantity: line.quantity,
+      rateCents: line.rateCents,
+      amountCents: line.amountCents,
+      taxable: line.taxable,
+    })),
+    ...(protection ? [{
+      sku: 'Enhanced Shipping Protection',
+      itemId: '10322',
+      quantity: 1,
+      rateCents: protectionCents,
+      amountCents: protectionCents,
+      taxable: protectionTaxExpected,
+    }] : []),
+  ];
+  const totalsCents = {
+    product: totals.productCents,
+    shipping: moneyToCents(order.total_ship || order.shipping_cost),
+    tax: moneyToCents(order.total_tax),
+    protection: protectionCents,
+    order: totals.orderCents,
+  };
+  const checks = {
+    referenceOrder: String(order.id) === '2766295',
+    itemIds: JSON.stringify(lines.map((line) => line.itemId)) === JSON.stringify(EXPECTED_ITEM_IDS),
+    expectedTotals: Object.entries(EXPECTED_TOTALS_CENTS).every(
+      ([key, expected]) => totalsCents[key] === expected
+    ),
+    protectionTaxSchedule: !protectionTaxExpected || String(protectionItem?.taxschedule) === '1',
+  };
+  return {
+    mode: 'READ_ONLY_DRY_RUN',
+    orderId: String(order.id),
+    lines,
+    totalsCents,
+    protectionItem: {
+      id: protectionItem?.id ? String(protectionItem.id) : null,
+      currentTaxSchedule: protectionItem?.taxschedule ? String(protectionItem.taxschedule) : null,
+      requiredTaxSchedule: protectionTaxExpected ? '1' : null,
+    },
+    checks,
+    ready: Object.values(checks).every(Boolean),
+  };
+}
 
 async function main() {
   const orderId = String(process.argv[2] || '');
   if (!/^\d+$/.test(orderId)) throw new Error('Usage: node scripts/dry-run-order-parity.js <miva-order-id>');
-  const lookbackStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const orders = await getOrders({ startDate: lookbackStart, batchSize: 100 });
+  const orders = await getOrders({ orderId, batchSize: 1 });
   const order = orders.find((candidate) => String(candidate.id) === orderId);
   if (!order) throw new Error(`Miva order ${orderId} was not found`);
-  const expanded = expandMivaItems(order);
-  const totals = validateMivaOrderTotals(order, expanded);
-  const resolved = await resolveExpandedLines(expanded, getItemsBySku, ORDER_OVERRIDES);
-  const lines = buildNetsuiteLines(resolved, order);
-  const protectionItem = await getItemMetadata('10322');
-  const expectedProtectionTaxable = (order.charges || []).some(
-    (charge) => charge.type === 'enshield_charge' && Number(charge.tax || 0) > 0
-  );
-  console.log(JSON.stringify({
-    mode: 'READ_ONLY_DRY_RUN',
-    orderId,
-    lines: lines.map((line) => ({
-      itemId: line.item.id,
-      mivaLineId: line.custcol_hb_miva_order_line_id || null,
-      description: line.description,
-      quantity: line.quantity,
-      rate: line.rate,
-      amount: line.amount,
-      taxable: line.taxcode.id === '12260',
-    })),
-    totals: {
-      product: totals.productCents / 100,
-      charges: totals.chargeCents / 100,
-      order: totals.orderCents / 100,
-      tax: Number(order.total_tax || 0),
-    },
-    protectionItem: {
-      id: protectionItem?.id,
-      name: protectionItem?.itemid,
-      currentTaxSchedule: protectionItem?.taxschedule,
-      requiredTaxSchedule: expectedProtectionTaxable ? '1' : protectionItem?.taxschedule,
-      ready: !expectedProtectionTaxable || String(protectionItem?.taxschedule) === '1',
-    },
-  }, null, 2));
+  const report = await evaluateOrderParity(order);
+  console.log(JSON.stringify(report, null, 2));
+  if (!report.ready) process.exitCode = 1;
 }
 
-main().catch((error) => {
-  console.error(`DRY RUN FAILED: ${error.message}`);
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(`DRY RUN FAILED: ${error.message}`);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { evaluateOrderParity, main };

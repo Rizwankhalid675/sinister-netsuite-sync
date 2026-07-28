@@ -15,14 +15,23 @@ async function mivaRequest(body) {
   return response.data;
 }
 
-async function getOrders({ startDate, batchSize = 50 } = {}) {
+function buildOrderFilters({ startDate, orderId } = {}) {
   const filters = [
     { name: 'ondemandcolumns', value: ['payment_module', 'cust_pw_email', 'cust_login', 'ship_method', 'customer', 'items', 'charges', 'payments', 'payment_data', 'notes'] }
   ];
-  if (startDate) {
+  if (orderId !== undefined) {
+    const exactId = String(orderId).trim();
+    if (!/^\d+$/.test(exactId)) throw new Error('Miva order ID must be numeric');
+    filters.push({ name: 'search', value: [{ field: 'id', operator: 'EQ', value: exactId }] });
+  } else if (startDate) {
     const ts = Math.floor(new Date(startDate).getTime() / 1000);
     filters.push({ name: 'search', value: [{ field: 'orderdate', operator: 'GT', value: String(ts) }] });
   }
+  return filters;
+}
+
+async function getOrders({ startDate, orderId, batchSize = 50 } = {}) {
+  const filters = buildOrderFilters({ startDate, orderId });
 
   const allOrders = [];
   let offset = 0;
@@ -87,4 +96,4 @@ async function getActiveProductCodes({ batchSize = 200 } = {}) {
   return codes;
 }
 
-module.exports = { getOrders, updateOrderShipment, updateProductId, getActiveProductCodes };
+module.exports = { getOrders, buildOrderFilters, updateOrderShipment, updateProductId, getActiveProductCodes };
