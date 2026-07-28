@@ -20,9 +20,11 @@ Folder: `daily-work/`
 | **2026-06-22** | July 4 sale page, Prime Day page HTML |
 | **2026-06-23** | Homepage updates, giveaway landing pages, footer, oil-filter category disclaimer/attributes |
 | **2026-06-24** | Giveaway pages (animated / dark), clean global header + footer, multiple `sfnt_homepage` iterations |
-| **2026-06-30** | Product pages: 6.7 cold-side charge pipes (v1–v3), fuel-filter conversion kit, July 4 sale |
+| **2026-06-25 → 06-30** | Integrations work — Miva ↔ NetSuite sync (`sinister-netsuite-sync`) and TikTok ↔ NetSuite sync (`tiktok-netsuite-sync`); `sinister-netsuite-sync-linux` fork appears from 06-29 → see [[Integrations]] |
+| **2026-06-30** | Also: product pages — 6.7 cold-side charge pipes (v1–v3), fuel-filter conversion kit, July 4 sale |
 | **2026-07-01** | **ReVamp groundwork** — CTGY layout/premium wrapper, PDPL layout/reference, SFNT v2 test content, `REVAMP_IMPLEMENTATION.md` → fed into [[Website Revamp]] |
-| **2026-07-08 → 07-13** | Integrations work — NetSuite ↔ monday.com sync (`netsuite-monday-integration`), monday scripts, open-PO reports → see [[Integrations]] |
+| **2026-07-06 → 07-08** | Integrations work — continued `sinister-netsuite-sync` / `sinister-netsuite-sync-linux` → see [[Integrations]] |
+| **2026-07-10 → 07-13** | Integrations work — NetSuite ↔ monday.com sync (`netsuite-monday-integration`), monday scripts, open-PO reports → see [[Integrations]] |
 | **2026-07-14 → 07-22** | **Website Revamp** — multi-day iterative work on the Sinister Diesel V2 frontend. Files not duplicated into day folders; each day has a `README.md` pointing to the live project → see [[Website Revamp]] |
 | **2026-07-25** | `sinister-netsuite-sync` snapshot (sync-tool backup) → see [[Integrations]] |
 | **2026-07-29** | `sinister-netsuite-sync` snapshot (sync-tool backup) → see [[Integrations]] |

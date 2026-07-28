@@ -53,3 +53,16 @@ desktop.ini
 # Numbered daemon rotation logs (e.g. sinisterdieselsync.0.out.log)
 **/daemon/*.out.log
 **/daemon/*.0.out.log
+
+# Local scratch / recovery / secrets — never commit
+enshield-deliverables/.scratch/
+enshield-deliverables/.secrets_tmp/
+enshield-deliverables/.development-recovery/
+enshield-deliverables/Send_Grid & Twillio Keys.md
+enshield-deliverables/enshield-old-dashboard/.scratch/
+enshield-deliverables/enshield-old-dashboard/auth_state.json
+enshield-deliverables/enshield-old-dashboard/esd_cookies.txt
+enshield-deliverables/enshield-old-dashboard/_check_counts.mjs
+enshield-deliverables/enshield-old-dashboard/check_shops.js
+enshield-deliverables/enshield-old-dashboard/refresh_login.js
+integrations/sinister-netsuite-sync-real/
