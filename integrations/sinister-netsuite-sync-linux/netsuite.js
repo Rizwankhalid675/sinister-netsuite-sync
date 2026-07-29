@@ -162,6 +162,16 @@ async function getItemIdBySku(sku) {
   return rows.length ? rows[0].id : null;
 }
 
+async function getItemsBySku(sku) {
+  const escaped = sku.replace(/'/g, "''");
+  const rows = await suiteQL(`SELECT id, itemid FROM item WHERE itemid = '${escaped}' AND isinactive = 'F'`);
+  return rows.map((row) => ({ id: row.id, itemid: row.itemid }));
+}
+
+async function getItemMetadata(itemId) {
+  return await nsRequest('GET', `inventoryitem/${itemId}`);
+}
+
 async function createInventoryItem(sku, name, price) {
   const result = await nsRequest('POST', 'inventoryitem', {
     itemid: sku,
@@ -188,4 +198,4 @@ async function updateInventoryItem(nsItemId, mivaProductId, mivaProductCode) {
   });
 }
 
-module.exports = { nsRequest, suiteQL, createSalesOrder, createCustomerDeposit, createInvoice, getFulfilledOrders, getCustomerByEmail, getItemIdBySku, createInventoryItem, getInventoryItems, updateInventoryItem };
+module.exports = { nsRequest, suiteQL, createSalesOrder, createCustomerDeposit, createInvoice, getFulfilledOrders, getCustomerByEmail, getItemIdBySku, getItemsBySku, createInventoryItem, getInventoryItems, updateInventoryItem, getItemMetadata };
