@@ -67,7 +67,7 @@ async function syncProductIds() {
     }
 
     try {
-      await updateInventoryItem(nsItem.id, match.id, match.code);
+      await updateInventoryItem(nsItem.id, match.id, match.code, nsItem.itemtype);
       log(`✅ Updated NetSuite item ${nsItem.itemid} → Miva ID ${match.id}`);
       updated++;
     } catch (err) {
@@ -133,7 +133,9 @@ async function syncNewMivaSkus() {
       log(`✅ Created NetSuite item for new Miva SKU "${sku}" (NetSuite id ${newId})`);
 
       if (newId) {
-        await updateInventoryItem(newId, p.id, p.code || sku);
+        // createInventoryItem always creates a plain InvtPart, so pass that
+        // explicitly rather than relying on updateInventoryItem's default.
+        await updateInventoryItem(newId, p.id, p.code || sku, 'InvtPart');
       }
 
       created++;

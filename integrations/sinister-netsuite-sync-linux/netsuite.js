@@ -168,8 +168,30 @@ async function getItemsBySku(sku) {
   return rows.map((row) => ({ id: row.id, itemid: row.itemid }));
 }
 
-async function getItemMetadata(itemId) {
-  return await nsRequest('GET', `inventoryitem/${itemId}`);
+// Map NetSuite's suiteQL itemtype values to their REST record-type endpoints.
+// suiteQL itemtype codes: InvtPart -> inventoryitem, Kit -> kititem,
+// Assembly -> assemblyitem, NonInvtPart -> nonInventorySaleItem
+// (verified directly against the account's REST API — NetSuite's REST record
+// type for NonInvtPart is camelCase "nonInventorySaleItem", NOT
+// "noninventoryitem"/"nonInventoryItem", which both 404).
+const ITEM_TYPE_ENDPOINTS = {
+  InvtPart: 'inventoryitem',
+  Kit: 'kititem',
+  Assembly: 'assemblyitem',
+  NonInvtPart: 'nonInventorySaleItem'
+};
+
+// Looks up an item's real NetSuite type via suiteQL so callers don't have to
+// know it in advance. Falls back to 'inventoryitem' if the item can't be found.
+async function resolveItemEndpoint(itemId) {
+  const rows = await suiteQL(`SELECT itemtype FROM item WHERE id = ${Number(itemId)}`);
+  const itemType = rows[0]?.itemtype;
+  return ITEM_TYPE_ENDPOINTS[itemType] || 'inventoryitem';
+}
+
+async function getItemMetadata(itemId, itemType) {
+  const endpoint = itemType ? (ITEM_TYPE_ENDPOINTS[itemType] || 'inventoryitem') : await resolveItemEndpoint(itemId);
+  return await nsRequest('GET', `${endpoint}/${itemId}`);
 }
 
 async function createInventoryItem(sku, name, price) {
@@ -187,11 +209,12 @@ async function createInventoryItem(sku, name, price) {
 }
 
 async function getInventoryItems() {
-  return await suiteQL(`SELECT id, itemid FROM item WHERE isinactive = 'F' ORDER BY id`);
+  return await suiteQL(`SELECT id, itemid, itemtype FROM item WHERE isinactive = 'F' ORDER BY id`);
 }
 
-async function updateInventoryItem(nsItemId, mivaProductId, mivaProductCode) {
-  return await nsRequest('PATCH', `inventoryitem/${nsItemId}`, {
+async function updateInventoryItem(nsItemId, mivaProductId, mivaProductCode, itemType) {
+  const endpoint = ITEM_TYPE_ENDPOINTS[itemType] || 'inventoryitem';
+  return await nsRequest('PATCH', `${endpoint}/${nsItemId}`, {
     custitem_hb_miva_product_id: String(mivaProductId),
     custitem_hb_miva_product_code: mivaProductCode,
     ignoreMandatoryFields: true
