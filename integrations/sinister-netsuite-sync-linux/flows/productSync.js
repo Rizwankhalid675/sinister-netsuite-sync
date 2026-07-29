@@ -144,4 +144,4 @@ async function syncNewMivaSkus() {
   return { created, skipped, failures };
 }
 
-module.exports = { syncProductIds, syncNewMivaSkus };
+module.exports = { syncProductIds, syncNewMivaSkus, getMivaProducts };
