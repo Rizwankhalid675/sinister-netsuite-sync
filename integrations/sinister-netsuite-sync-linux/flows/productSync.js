@@ -16,7 +16,11 @@ async function getMivaProducts() {
       Store_Code: MIVA_STORE,
       Function: 'ProductList_Load_Query',
       Count: PAGE_SIZE,
-      Offset: offset
+      Offset: offset,
+      Miva_Request_Timestamp: Math.floor(Date.now() / 1000),
+      // Only fetch active products — Miva's admin "Active" filter (689 products),
+      // not the full catalog including inactive/discontinued items (8161 total).
+      Filter: [{ name: 'search', value: [{ field: 'product_active', operator: 'EQ', value: '1' }] }]
     }, {
       headers: { 'X-Miva-API-Authorization': `MIVA ${MIVA_TOKEN}` }
     });
