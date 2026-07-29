@@ -1,12 +1,41 @@
 const { getOrders } = require('../miva');
 const { createSalesOrder, getCustomerByEmail, getItemIdBySku, createInventoryItem, nsRequest } = require('../netsuite');
 const { upsertNSCustomer } = require('./customersToNetsuite');
+const { getMivaProducts } = require('./productSync');
 const { log } = require('../logger');
 const fs = require('fs');
 const path = require('path');
+const {
+  expandMivaItems,
+  validateMivaOrderTotals,
+  resolveExpandedLines,
+  buildNetsuiteLines,
+  assertProtectionItemTaxable,
+} = require('../lib/orderMapping');
 
 const SYNCED_FILE = path.join(__dirname, '../logs/synced_orders.json');
 const MISSING_SKUS_FILE = path.join(__dirname, '../logs/missing_skus.json');
+
+// Cache of currently-live (purchasable) Miva SKUs for this run, so we only
+// match/auto-create NetSuite items for SKUs that are actually active on the
+// website — not arbitrary/legacy codes that happen to appear on an order.
+let _liveSkuSetCache = null;
+async function getLiveSkuSet() {
+  if (_liveSkuSetCache) return _liveSkuSetCache;
+  const products = await getMivaProducts();
+  const active = products.filter(p => {
+    // Miva ProductList_Load_Query returns 0/1 (or boolean) for `active`
+    return p.active === undefined || p.active === true || p.active === 1 || p.active === '1';
+  });
+  const set = new Set();
+  for (const p of active) {
+    if (p.code) set.add(p.code.toLowerCase());
+    if (p.sku) set.add(p.sku.toLowerCase());
+  }
+  _liveSkuSetCache = set;
+  log(`Loaded ${set.size} live Miva SKU(s) for order-sync validation`);
+  return set;
+}
 
 function loadSyncedOrders() {
   if (!fs.existsSync(SYNCED_FILE)) return {};
@@ -69,46 +98,57 @@ const SKU_OVERRIDES = {
   'SD-6_0CF03-01-20': '8210'
 };
 
-function mapOrderToNetsuite(order, customerId, itemIdMap = {}) {
-  const items = (order.items || [])
-    .filter(item => {
-      const sku = item.sku || item.code;
-      return sku && itemIdMap[sku];
-    })
-    .map(item => {
-      const sku = item.sku || item.code;
-      const isBlemish = sku.toLowerCase().includes('-blem') || (item.name || '').toLowerCase().includes('blemish');
-      const description = isBlemish
-        ? sku
-        : (item.options || []).map(o => `${o.attr_prompt}: ${o.opt_prompt}`).join(', ') || item.name;
-      return {
-        item: { id: itemIdMap[sku] },
-        description,
-        quantity: item.quantity,
-        price: { id: '-1' },
-        rate: item.price,
-        amount: item.total,
-        custcol_hb_miva_order_line_id: item.line_id,
-        taxcode: item.tax > 0 ? { id: '12260' } : { id: '-7' },
-        location: { id: '2' }
-      };
-    });
+// Builds the base parent-item description the same way the old code did
+// (used only as a fallback inside expandMivaItems' default description logic
+// via item.name — attribute/option descriptions come from attr_prompt/opt_prompt).
+function describeParentItem(item) {
+  const sku = item.sku || item.code || '';
+  const isBlemish = sku.toLowerCase().includes('-blem') || (item.name || '').toLowerCase().includes('blemish');
+  return isBlemish ? sku : (item.name || sku);
+}
+
+async function mapOrderToNetsuite(order, customerId, itemIdMap = {}) {
+  // Normalize item.sku so expandMivaItems/lib always has a SKU to key off,
+  // and override parent descriptions to preserve blemish-SKU-as-description
+  // behavior from the previous implementation.
+  const normalizedOrder = {
+    ...order,
+    items: (order.items || []).map(item => ({
+      ...item,
+      sku: item.sku || item.code,
+      name: describeParentItem(item),
+    })),
+  };
+
+  const expanded = expandMivaItems(normalizedOrder);
+  validateMivaOrderTotals(normalizedOrder, expanded);
+
+  // itemIdMap was already resolved by SKU (including overrides/blemish/auto-create)
+  // by the caller — feed it in as overrides so resolveExpandedLines doesn't need
+  // to hit NetSuite again for parent lines. Price-bearing OPTION lines (e.g.
+  // Enshield-style attributes) get their own SKU lookup via getItemIdBySku.
+  const overrides = {};
+  for (const [sku, id] of Object.entries(itemIdMap)) {
+    if (id) overrides[sku] = id;
+  }
+
+  const lookupBySku = async (candidateSku) => {
+    const id = await getItemIdBySku(candidateSku);
+    return id ? [{ id }] : [];
+  };
+
+  const resolvedLines = await resolveExpandedLines(expanded, lookupBySku, overrides);
+  const items = buildNetsuiteLines(resolvedLines, order);
+
+  // buildNetsuiteLines already appends the Enshield protection line using
+  // order.charges — verify the tax schedule assumption holds before we ship it.
+  const enshield = (order.charges || []).find(c => c.type === 'enshield_charge');
+  if (enshield) {
+    assertProtectionItemTaxable(order, { taxschedule: '1' });
+  }
 
   const shippingCost = order.total_ship || order.shipping_cost || 0;
   const phone = order.ship_phone || order.bill_phone || '';
-
-  // Enshield Package Protection charge → line item (NS item ID 10322)
-  const enshield = (order.charges || []).find(c => c.type === 'enshield_charge');
-  if (enshield) {
-    items.push({
-      item: { id: '10322' },
-      quantity: 1,
-      price: { id: '-1' },
-      rate: enshield.amount,
-      taxcode: enshield.tax > 0 ? { id: '12260' } : { id: '-7' },
-      location: { id: '2' }
-    });
-  }
 
   const discount = (order.charges || []).find(c => c.type === 'DISCOUNT' || (c.amount < 0 && c.type !== 'enshield_charge'));
 
@@ -206,6 +246,7 @@ async function syncOrdersToNetsuite() {
       }
 
       // Resolve NetSuite item IDs by SKU
+      const liveSkus = await getLiveSkuSet();
       const itemIdMap = {};
       for (const item of (order.items || [])) {
         const sku = item.sku || item.code;
@@ -234,10 +275,17 @@ async function syncOrdersToNetsuite() {
           }
         }
         if (!id) {
-          // Auto-create the item in NetSuite so the order isn't missing lines
-          id = await createInventoryItem(sku, item.name, item.price);
-          if (id) {
-            log(`✅ Auto-created NS item for SKU ${sku} → ID ${id}`);
+          // Only auto-create a NetSuite item if the SKU is currently live
+          // (purchasable) on the website. Never fabricate items for
+          // discontinued/legacy/internal codes just because they appear on
+          // an order — that would pollute NetSuite with non-sellable items.
+          if (liveSkus.has(sku.toLowerCase())) {
+            id = await createInventoryItem(sku, item.name, item.price);
+            if (id) {
+              log(`✅ Auto-created NS item for live SKU ${sku} → ID ${id}`);
+            } else {
+              recordMissingSku(sku, item.name, order.id);
+            }
           } else {
             // Don't log per-SKU noise — accumulate and report once at end of run
             recordMissingSku(sku, item.name, order.id);
@@ -246,7 +294,7 @@ async function syncOrdersToNetsuite() {
         itemIdMap[sku] = id || null;
       }
 
-      const { payload: nsOrder, shippingCost } = mapOrderToNetsuite(order, customerId, itemIdMap);
+      const { payload: nsOrder, shippingCost } = await mapOrderToNetsuite(order, customerId, itemIdMap);
 
       const result = await createSalesOrder(nsOrder);
       const nsId = result?.id || result?.internalId || 'unknown';
