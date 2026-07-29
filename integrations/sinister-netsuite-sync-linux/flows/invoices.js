@@ -51,9 +51,27 @@ async function syncInvoices(orders) {
           memo: `Deposit for Miva Order #${order.id}`,
           externalid: `MIVA_CD_${order.id}`
         };
-        const deposit = await createCustomerDeposit(depositData);
-        depositId = deposit?.id || 'unknown';
-        log(`✅ Customer deposit created for Order ${order.id} → Deposit ${depositId}`);
+        try {
+          const deposit = await createCustomerDeposit(depositData);
+          depositId = deposit?.id || 'unknown';
+          log(`✅ Customer deposit created for Order ${order.id} → Deposit ${depositId}`);
+        } catch (depErr) {
+          // NS returns 400 USER_ERROR "record already exists" when a deposit with this
+          // externalid was already created in a prior run but our local state (synced_invoices.json)
+          // never got updated (crash, restart, file reset, etc). Look it up instead of failing forever.
+          if (depErr.message && depErr.message.includes('already exists')) {
+            try {
+              const depRows = await suiteQL(`SELECT id FROM transaction WHERE externalid = 'MIVA_CD_${order.id}' AND recordtype = 'customerdeposit'`);
+              depositId = depRows[0]?.id || 'unknown';
+              log(`✅ Customer deposit found for Order ${order.id} → Deposit ${depositId} (looked up after NS USER_ERROR)`);
+            } catch (lookupErr) {
+              log(`⚠️ Could not look up existing deposit for Order ${order.id}: ${lookupErr.message}`, 'error');
+              throw depErr;
+            }
+          } else {
+            throw depErr;
+          }
+        }
       }
 
       // Invoice — only possible after SO is approved (status B = Pending Fulfillment)
