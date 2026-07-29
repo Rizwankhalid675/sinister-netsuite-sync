@@ -68,8 +68,9 @@ function validateMivaOrderTotals(order, expandedLines) {
 
 function buildItemSkuCandidates(sku) {
   const exact = String(sku || '').trim();
-  const normalized = exact.toUpperCase().replace(/_/g, '.');
-  return [...new Set([exact, normalized].filter(Boolean))];
+  const upper = exact.toUpperCase();
+  const dotted = upper.replace(/_/g, '.');
+  return [...new Set([exact, upper, dotted].filter(Boolean))];
 }
 
 async function resolveExpandedLines(lines, lookup, overrides = {}) {
