@@ -81,8 +81,34 @@ async function suiteQL(query) {
   }
 }
 
+async function findSalesOrderByMivaOrderId(mivaOrderId) {
+  const escaped = String(mivaOrderId).replace(/'/g, "''");
+  const rows = await suiteQL(
+    `SELECT id FROM transaction WHERE custbody_hb_miva_order_id = '${escaped}' AND type = 'SalesOrd'`
+  );
+  return rows.length ? rows[0].id : null;
+}
+
 async function createSalesOrder(orderData) {
-  return await nsRequest('POST', 'salesorder', orderData);
+  // Belt-and-suspenders duplicate guard: even if the local synced_orders.json
+  // state is missing/stale (crash between create and save, concurrent runs,
+  // file reset, etc.), don't let the same Miva order get a second Sales Order.
+  const mivaOrderId = orderData?.custbody_hb_miva_order_id;
+  if (mivaOrderId) {
+    const existingId = await findSalesOrderByMivaOrderId(mivaOrderId);
+    if (existingId) {
+      return { id: existingId, _deduped: true };
+    }
+  }
+
+  // externalId ties the record to the Miva order id server-side, so even a
+  // near-simultaneous duplicate POST is rejected/matched by NetSuite itself
+  // instead of silently creating a second order.
+  const payload = mivaOrderId
+    ? { ...orderData, externalId: `MIVA_${mivaOrderId}` }
+    : orderData;
+
+  return await nsRequest('POST', 'salesorder', payload);
 }
 
 async function createCustomerDeposit(depositData) {
